@@ -1,28 +1,41 @@
 <template>
-  <div class="min-h-screen bg-[#333333] flex flex-col">
+  <div class="min-h-screen bg-black flex flex-col">
     <!-- Header -->
-    <div class="flex justify-between items-center px-5 py-5 border-b border-[#EBD8B2]">
+    <div class="flex gap-5 justify-center items-center px-12 py-6 w-full font-bold min-h-20">
+      <img
+        :src="imageUrls.header"
+        class="h-20 object-contain lg:h-48"
+        alt="2025三立集團內容創新發布會"
+      />
+    </div>
+
+    <!-- Sub Header with Back Button and Title -->
+    <div class="flex justify-between items-center px-5 py-4">
       <!-- Back arrow -->
-      <button 
+      <button
         class="w-[17px] h-[19px] cursor-pointer hover:opacity-80 transition-opacity"
         @click="goBack"
       >
-        <img 
+        <img
           :src="imageUrls.back"
           alt="Back Arrow"
           class="w-[17px] h-[19px] object-contain"
         />
       </button>
-      
+
       <!-- Title -->
       <div class="font-noto-sans-tc text-xl font-bold text-[#EBD8B2]">
         圖片生成紀錄
       </div>
-      
-      <!-- Usage counter -->
-      <UsageCounter :currentCount="userUsage" :maxLimit="10" />
+
+      <!-- Spacer to center the title -->
+      <div class="w-[17px]"></div>
     </div>
 
+    <!-- Usage Counter -->
+    <div class="flex justify-end px-6 py-2">
+      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
+    </div>
 
     <div class="flex-1 px-6 py-8">
       <!-- Loading state -->
@@ -41,7 +54,8 @@
           <div class="text-sm mb-4">{{ error }}</div>
           <button 
             @click="loadUserHistory"
-            class="px-4 py-2 bg-[#EBD8B2] text-[#333] rounded-md hover:bg-[#d4c29a] transition-colors"
+            class="px-4 py-2 text-[#333] rounded-md hover:shadow-lg transition-all duration-300"
+            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
           >
             重試
           </button>
@@ -84,11 +98,12 @@
     </div>
 
     <!-- History Detail Modal -->
-    <HistoryDetailModal 
+    <HistoryDetailModal
       :isVisible="showDetailModal"
       :historyItem="selectedHistoryItem"
       :userUsage="props.userUsage"
       :userId="props.userId"
+      :isPCMode="isPCMode"
       @close="closeDetailModal"
       @regenerate="handleRegenerate"
     />
@@ -110,6 +125,10 @@ const props = defineProps({
   userUsage: {
     type: Number,
     default: 0
+  },
+  isPCMode: {
+    type: Boolean,
+    default: false
   }
 });
 

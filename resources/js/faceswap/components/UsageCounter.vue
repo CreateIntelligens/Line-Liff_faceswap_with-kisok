@@ -1,6 +1,6 @@
 <template>
-  <div class="flex justify-center items-center w-[114px] h-8 rounded-[50px] bg-[#EBD8B2]">
-    <div class="font-noto-sans-tc text-xs font-bold text-[#333]">
+  <div class="flex justify-end items-center">
+    <div class="font-noto-sans-tc text-xs font-bold text-[#EBD8B2]">
       已生成：{{ currentCount }}/{{ maxLimit }}
     </div>
   </div>

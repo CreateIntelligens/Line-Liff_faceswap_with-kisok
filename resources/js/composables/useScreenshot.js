@@ -18,8 +18,27 @@ export function useScreenshot() {
           img.src = base64
           console.log('✅ 跨域圖片已轉換為 base64')
         } catch (error) {
-          console.warn('⚠️ 無法轉換跨域圖片，將使用佔位符:', error)
-          // 使用佔位符
+          console.warn('⚠️ 無法轉換處理後的圖片，嘗試使用原始圖片:', error)
+          // 如果圖片處理 API 的圖片無法載入，嘗試使用原始圖片
+          if (img.src.includes('stg-api.fanpokka.ai')) {
+            try {
+              // 從處理 API URL 中提取原始圖片 URL
+              const urlParams = new URLSearchParams(img.src.split('?')[1])
+              const originalUrl = decodeURIComponent(urlParams.get('url') || '')
+              if (originalUrl) {
+                console.log('🔄 嘗試使用原始圖片 URL:', originalUrl)
+                const base64 = await convertImageToBase64(originalUrl)
+                img.src = base64
+                console.log('✅ 原始圖片已轉換為 base64')
+                return // 成功，直接返回
+              }
+            } catch (originalError) {
+              console.warn('⚠️ 原始圖片也無法載入:', originalError)
+            }
+          }
+
+          // 如果都失敗了，使用佔位符
+          console.warn('⚠️ 所有方法都失敗，使用佔位符圖片')
           const width = img.naturalWidth || img.width || 300
           const height = img.naturalHeight || img.height || 200
           img.src = createPlaceholderImage(width, height)
@@ -94,23 +113,50 @@ export function useScreenshot() {
   // 使用 fetch 獲取圖片並轉換為 base64
   async function fetchImageAsBase64(imageUrl) {
     try {
-      const response = await fetch(imageUrl, {
-        mode: 'cors',
-        credentials: 'omit'
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+      // 只嘗試有效的 fetch 配置，移除 no-cors（會產生空 blob）
+      const fetchConfigs = [
+        { mode: 'cors', credentials: 'omit' },
+        { credentials: 'omit' },
+        {}
+      ]
+
+      for (const config of fetchConfigs) {
+        try {
+          console.log(`🔄 嘗試 fetch 配置:`, config)
+          const response = await fetch(imageUrl, config)
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+          }
+
+          const blob = await response.blob()
+
+          // 檢查 blob 是否有效（避免空 blob）
+          if (!blob || blob.size === 0) {
+            throw new Error('獲取到空的 blob')
+          }
+
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => {
+              const result = reader.result
+              // 檢查 base64 是否有效
+              if (!result || result === 'data:application/octet-stream;base64,') {
+                reject(new Error('無效的 base64 數據'))
+                return
+              }
+              resolve(result)
+            }
+            reader.onerror = () => reject(new Error('FileReader 錯誤'))
+            reader.readAsDataURL(blob)
+          })
+        } catch (configError) {
+          console.warn(`⚠️ Fetch 配置失敗:`, config, configError.message)
+          continue
+        }
       }
-      
-      const blob = await response.blob()
-      
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = () => reject(new Error('FileReader 錯誤'))
-        reader.readAsDataURL(blob)
-      })
+
+      throw new Error('所有 fetch 配置都失敗')
     } catch (error) {
       throw new Error(`Fetch 失敗: ${error.message}`)
     }
@@ -156,70 +202,129 @@ export function useScreenshot() {
     return canvas.toDataURL('image/jpeg', 0.9)
   }
 
+  // 等待所有圖片載入完成
+  async function waitForAllImagesLoaded(container) {
+    const images = container.querySelectorAll('img')
+    console.log(`🔄 等待 ${images.length} 張圖片載入完成...`)
+
+    const loadPromises = Array.from(images).map((img, index) => {
+      return new Promise((resolve) => {
+        if (img.complete && img.naturalWidth > 0) {
+          console.log(`✅ 圖片 ${index + 1} 已載入`)
+          resolve()
+        } else {
+          const handleLoad = () => {
+            console.log(`✅ 圖片 ${index + 1} 載入完成`)
+            img.removeEventListener('load', handleLoad)
+            img.removeEventListener('error', handleError)
+            resolve()
+          }
+
+          const handleError = () => {
+            console.log(`⚠️ 圖片 ${index + 1} 載入失敗，但繼續處理`)
+            img.removeEventListener('load', handleLoad)
+            img.removeEventListener('error', handleError)
+            resolve()
+          }
+
+          img.addEventListener('load', handleLoad)
+          img.addEventListener('error', handleError)
+
+          // 5秒超時
+          setTimeout(() => {
+            console.log(`⏰ 圖片 ${index + 1} 載入超時`)
+            img.removeEventListener('load', handleLoad)
+            img.removeEventListener('error', handleError)
+            resolve()
+          }, 5000)
+        }
+      })
+    })
+
+    await Promise.all(loadPromises)
+    console.log('✅ 所有圖片載入完成，準備截圖')
+  }
+
   // 截圖功能
   async function captureScreenshot(container) {
     if (!container) {
       throw new Error('找不到截圖區域')
     }
-    
+
     // 預載入並轉換跨域圖片
     const originalSrcs = await preloadAndConvertImages(container)
+
+    // 等待所有圖片載入完成
+    await waitForAllImagesLoaded(container)
     
-    // 使用高解析度配置
+    // 使用超高解析度配置（取消檔案大小限制後）
     const originalCanvas = await html2canvas(container, {
-      backgroundColor: '#333333',
-      scale: 2,        // 調整為 2 倍解析度，減少圖片寬度
+      backgroundColor: '#141414',  // 使用與頁面相同的背景色
+      scale: 2,        // 2 倍解析度，平衡品質與效能
       logging: false,
       useCORS: true,          // 啟用 CORS 支援
       allowTaint: false,      // 避免被視為汙染畫布
-      foreignObjectRendering: false // 關閉，避免黑屏問題
+      foreignObjectRendering: false, // 關閉，避免黑屏問題
+      width: container.scrollWidth,   // 使用完整寬度
+      height: container.scrollHeight, // 使用完整高度
+      windowWidth: window.innerWidth,  // 保持視窗寬度
+      windowHeight: window.innerHeight // 保持視窗高度
     })
     
     // 恢復原始圖片 src
     restoreOriginalImages(originalSrcs)
     
-    // 創建高品質 Canvas 並添加邊距，同時縮放圖片
-    const padding = 40
-    const scaleFactor = 0.8  // 縮放係數，0.8 = 80% 寬度
+    // 直接使用原始 Canvas，不添加邊距
+    const scaleFactor = 1.0  // 使用原始尺寸，不縮放
     const newCanvas = document.createElement('canvas')
     const ctx = newCanvas.getContext('2d')
-    
-    // 設定新 Canvas 的尺寸（縮放後的尺寸 + 邊距）
-    newCanvas.width = (originalCanvas.width * scaleFactor) + (padding * 2)
-    newCanvas.height = (originalCanvas.height * scaleFactor) + (padding * 2)
-    
+
+    // 設定新 Canvas 的尺寸（與原始 Canvas 相同）
+    newCanvas.width = originalCanvas.width * scaleFactor
+    newCanvas.height = originalCanvas.height * scaleFactor
+
     // 設定高品質渲染
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
-    
-    // 填充背景色
-    ctx.fillStyle = '#333333'
-    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height)
-    
-    // 將原始 Canvas 縮放後繪製到新 Canvas 上，留出邊距
+
+    // 不填充背景色，保持透明或使用原始背景
+
+    // 直接繪製原始 Canvas，無邊距
     ctx.drawImage(
-      originalCanvas, 
-      padding, 
-      padding, 
-      originalCanvas.width * scaleFactor, 
+      originalCanvas,
+      0,
+      0,
+      originalCanvas.width * scaleFactor,
       originalCanvas.height * scaleFactor
     )
     
     return newCanvas
   }
 
-  // 圖片壓縮功能 - 高品質 PNG 輸出
-  async function compressImage(canvas) {
+  // 圖片壓縮功能 - 超高品質輸出（無檔案大小限制）
+  async function compressImage(canvas, forPC = false) {
     return new Promise((resolve, reject) => {
-      // 使用高品質 PNG 格式
-      canvas.toBlob((blob) => {
-        if (blob) {
-          console.log('✅ Canvas 轉換為高品質 Blob 成功，大小:', blob.size)
-          resolve(blob)
-        } else {
-          reject(new Error('無法生成圖片 blob'))
-        }
-      }, 'image/png', 1.0) // PNG 格式，100% 品質
+      try {
+        // 現在無檔案大小限制，所有模式都使用最高品質 PNG
+        canvas.toBlob((pngBlob) => {
+          if (pngBlob) {
+            console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版超高品質 PNG 成功，大小:`, (pngBlob.size / 1024 / 1024).toFixed(2) + 'MB')
+            resolve(pngBlob)
+          } else {
+            // 備用方案：使用高品質 JPEG
+            canvas.toBlob((jpegBlob) => {
+              if (jpegBlob) {
+                console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版高品質 JPEG 成功，大小:`, (jpegBlob.size / 1024 / 1024).toFixed(2) + 'MB')
+                resolve(jpegBlob)
+              } else {
+                reject(new Error('無法生成圖片 blob'))
+              }
+            }, 'image/jpeg', 0.98) // JPEG 格式，98% 極高品質
+          }
+        }, 'image/png', 1) // PNG 格式，100% 無損品質
+      } catch (error) {
+        reject(error)
+      }
     })
   }
 
@@ -236,12 +341,37 @@ export function useScreenshot() {
     console.log('📥 截圖已下載到本機')
   }
 
-  // 上傳圖片到伺服器
+  // PC 版上傳圖片到伺服器（使用 imageUploadApi）
+  async function uploadImageForPC(blob, filename = 'screenshot') {
+    const formData = new FormData()
+    formData.append('file', blob, `${filename}.png`)
+    formData.append('type', 'image')
+
+    const response = await fetch(window.endpoint.imageUploadApi, {
+      method: 'POST',
+      headers: {
+        ...window.endpoint.imageUploadHeaders,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `PC版上傳失敗: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.result?.path || data.path || data.data?.url || data.url
+  }
+
+  // 上傳圖片到伺服器（LIFF版）
   async function uploadImage(blob, userId = 'abc', filename = 'screenshot') {
     const formData = new FormData()
     formData.append('file', blob, `${filename}.png`)
+    formData.append('type', 'image')
     formData.append('uid', userId)
-    
+
     const response = await fetch(`${window.endpoint.baseURL}/roadshow/files`, {
       method: 'POST',
       headers: {
@@ -249,14 +379,27 @@ export function useScreenshot() {
       },
       body: formData
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       throw new Error(errorData.message || `上傳失敗: ${response.status}`)
     }
-    
+
     const data = await response.json()
     return data.result.path || data.path || data.data?.url
+  }
+
+  // 智能上傳圖片 - 根據 enableLiff 設定選擇上傳方式
+  async function smartUploadImage(blob, userId = 'abc', filename = 'screenshot') {
+    if (window.endpoint.enableLiff === false) {
+      // PC 模式：使用 imageUploadApi
+      console.log('🖥️ PC 模式：使用專用上傳 API')
+      return uploadImageForPC(blob, filename)
+    } else {
+      // LIFF 模式：使用原有邏輯
+      console.log('📱 LIFF 模式：使用原有上傳 API')
+      return uploadImage(blob, userId, filename)
+    }
   }
 
   // 透過 LIFF 發送圖片
@@ -325,6 +468,8 @@ export function useScreenshot() {
     compressImage,
     downloadToLocal,
     uploadImage,
+    uploadImageForPC,
+    smartUploadImage,
     sendViaLiff,
     showMessage
   }

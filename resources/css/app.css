@@ -14,4 +14,14 @@
   .font-noto-sans-tc {
     font-family: 'Noto Sans TC', -apple-system, Roboto, Helvetica, sans-serif;
   }
+
+  /* Hide scrollbars globally */
+  * {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  *::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
 }

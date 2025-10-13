@@ -1,4 +1,3 @@
-import './bootstrap';
 import '../css/app.css';  // 引入 Tailwind CSS
 import { createApp } from 'vue'
 import FaceSwapApp from './faceswap/App.vue'

@@ -3,7 +3,7 @@
  * 處理 LINE LIFF 相關的操作
  */
 
-import { API_CONFIG } from '../config/config.js'
+// 使用全域配置 window.endpoint
 
 class LiffService {
   constructor() {
@@ -90,9 +90,9 @@ class LiffService {
       }
     }
     
-    // 最後的備用方案：使用配置中的預設值
+    // 最後的備用方案：使用預設值
     if (!liffId) {
-      liffId = API_CONFIG.liff?.liffId || '2006948092-pExnvWML'
+      liffId = '2006948092-pExnvWML'
       console.log('使用預設 LIFF ID:', liffId)
     } else {
       console.log('使用動態 LIFF ID:', liffId)
@@ -218,7 +218,7 @@ class LiffService {
         return false
       }
 
-      const targetLiffId = liffId || this.liffId || API_CONFIG.liff?.liffId
+      const targetLiffId = liffId || this.liffId || '2006948092-pExnvWML'
       if (!targetLiffId || targetLiffId === 'YOUR_LIFF_ID') {
         console.warn('⚠️ LIFF ID 未設置，請在配置中設置正確的 LIFF ID')
         return false

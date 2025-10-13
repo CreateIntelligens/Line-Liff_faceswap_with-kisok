@@ -1,13 +1,14 @@
 <template>
   <div
-    class="relative mx-auto my-0 bg-[#333333] h-[774px] w-[375px] max-md:w-full max-md:max-w-screen-md max-sm:w-full max-sm:h-auto max-sm:min-h-[774px]"
+    class="relative mx-auto my-0 bg-black h-[774px] w-[375px] max-md:w-full max-md:max-w-screen-md max-sm:w-full max-sm:h-auto max-sm:min-h-[774px]"
   >
     <!-- Header -->
-    <div
-      class="flex gap-5 justify-center items-center px-5 py-6 font-bold border-b border-[#EBD8B2] min-h-20"
-    >
-      <div class="text-xl text-[#EBD8B2]">AI換臉</div>
-      <UsageCounter :currentCount="userUsage" :maxLimit="10" />
+    <div class="flex gap-5 justify-center items-center px-12 py-6 w-full font-bold min-h-20">
+      <img
+        :src="imageUrls.header"
+        class="h-20 object-contain"
+        alt="2025三立集團內容創新發布會"
+      />
     </div>
     <!-- 步驟 -->
     <div
@@ -63,6 +64,11 @@
             <div class="text-sm">請回到上一步選擇您想要的換臉模板</div>
           </div>
         </div>
+
+        <!-- Usage Counter -->
+        <div class="mt-4 text-right">
+          <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
+        </div>
       </div>
 
       <!-- Character Selection -->
@@ -78,13 +84,19 @@
             :class="
               selectedCharacter === `character${index + 1}`
                 ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] shadow-lg text-gray-800'
-                : 'bg-[#EBD8B2] text-[#333] hover:bg-[#d4c29a]'
+                : 'text-[#333]'
+            "
+            :style="
+              selectedCharacter === `character${index + 1}`
+                ? ''
+                : 'background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);'
             "
             @click="selectCharacter(`character${index + 1}`, index)"
           >
             {{ character }}
           </button>
         </div>
+
       </div>
 
       <!-- Upload Section -->
@@ -150,7 +162,8 @@
           <!-- Action Buttons -->
           <div class="flex gap-3 mb-8">
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md bg-[#EBD8B2] cursor-pointer hover:bg-[#d4c29a] transition-colors text-base font-bold text-[#333]"
+              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300 text-base font-bold text-[#333]"
+              style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
               @click="goBack"
             >
               重選範本
@@ -173,7 +186,8 @@
           <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
           <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
           <button
-            class="px-6 py-3 bg-[#EBD8B2] text-[#333] rounded-md font-bold hover:bg-[#d4c29a] transition-colors"
+            class="px-6 py-3 text-[#333] rounded-md font-bold hover:shadow-lg transition-all duration-300"
+            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
             @click="goBack"
           >
             返回選擇模板
@@ -240,6 +254,10 @@ const props = defineProps({
   userId: {
     type: String,
     default: ''
+  },
+  isPCMode: {
+    type: Boolean,
+    default: false
   }
 });
 

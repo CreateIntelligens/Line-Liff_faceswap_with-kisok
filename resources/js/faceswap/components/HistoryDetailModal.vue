@@ -7,7 +7,7 @@
   >
     <!-- Modal Content -->
     <div 
-      class="bg-[#333333] w-[375px] h-[774px] max-md:w-full max-md:max-w-screen-md max-sm:w-full max-sm:h-full max-sm:min-h-screen overflow-y-auto flex flex-col"
+      class="bg-black w-[375px] h-[774px] max-md:w-full max-md:max-w-screen-md max-sm:w-full max-sm:h-full max-sm:min-h-screen overflow-y-auto flex flex-col"
       @click.stop
     >
       <!-- Header -->
@@ -29,13 +29,13 @@
           生成詳情
         </div>
         
-        <!-- Usage counter -->
-        <UsageCounter :currentCount="props.userUsage" :maxLimit="10" />
+        <!-- Spacer for alignment -->
+        <div class="w-[17px]"></div>
       </div>
 
       <!-- Modal Body -->
-      <div class="flex-1 px-8 pb-8 pt-8 bg-[#E8E8E8]">
-        <div class="bg-[#333333] p-6 relative" ref="captureArea">
+      <div class="flex-1 px-8 pb-8 pt-8 bg-black">
+        <div class="bg-black p-6 relative" ref="captureArea">
           <!-- Left Edge Decoration -->
           <div 
             class="absolute left-0 top-44 w-[7px] h-[183px] flex-shrink-0"
@@ -63,7 +63,8 @@
               <div class="text-sm mb-4">{{ error }}</div>
               <button 
                 @click="loadHistoryDetail"
-                class="px-4 py-2 bg-[#EBD8B2] text-[#333] rounded-md hover:bg-[#d4c29a] transition-colors"
+                class="px-4 py-2 text-[#333] rounded-md hover:shadow-lg transition-all duration-300"
+                style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
               >
                 重試
               </button>
@@ -144,12 +145,18 @@
         </div>
       </div>
 
+      <!-- Usage Counter -->
+      <div class="flex justify-end px-8 py-2 bg-[#141414]">
+        <UsageCounter v-if="!isPCMode" :currentCount="props.userUsage" :maxLimit="10" />
+      </div>
+
       <!-- Action Buttons -->
-      <div class="bg-[#333333] px-12 py-8">
+      <div class="bg-[#141414] px-12 py-8">
         <div class="flex gap-3 mb-8">
           <!-- Regenerate Button -->
           <button 
-            class="flex-1 h-11 flex justify-center items-center rounded-md bg-[#EBD8B2] cursor-pointer hover:bg-[#d4c29a] transition-colors"
+            class="flex-1 h-11 flex justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300"
+            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
             @click="regenerate"
           >
             <div class="font-noto-sans-tc text-base font-bold text-[#333]">
@@ -207,6 +214,10 @@ const props = defineProps({
   userId: {
     type: String,
     default: ''
+  },
+  isPCMode: {
+    type: Boolean,
+    default: false
   }
 })
 

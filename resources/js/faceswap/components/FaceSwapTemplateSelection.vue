@@ -1,92 +1,89 @@
 <template>
       <!-- History Page -->
-    <FaceSwapHistory 
-      v-if="showHistoryPage" 
+    <FaceSwapHistory
+      v-if="showHistoryPage"
       :userId="props.userId"
       :userUsage="userUsage"
+      :isPCMode="isPCMode"
       @back="showHistoryPage = false"
     />
   
   <!-- Main Template Selection Page -->
   <div
     v-if="!showHistoryPage"
-    class="relative mx-auto my-0 bg-[#333333] h-[774px] w-[375px] max-md:w-full max-md:max-w-screen-md max-sm:w-full max-sm:h-auto max-sm:min-h-[774px]"
+    class="relative mx-auto my-0 bg-black h-screen w-full lg:h-full lg:w-full lg:flex lg:flex-col lg:px-[5.4%]"
     data-name="換臉_橫式範本"
   >
-    <div
-      class="flex gap-5 justify-center items-center self-stretch px-5 py-6 w-full font-bold whitespace-nowrap border-b border-[#EBD8B2] min-h-20"
-    >
-      <div
-        class="self-stretch my-auto text-xl text-[#EBD8B2]"
-        data-name="AI換臉"
-      >
-        AI換臉
-      </div>
-              <UsageCounter :currentCount="userUsage" :maxLimit="10" />
+    <div class="flex gap-5 justify-center items-center px-12 pt-12 pb-8 w-full font-bold min-h-20 lg:pt-20 lg:pb-8">
+      <img
+        :src="imageUrls.header"
+        class="h-20 object-contain lg:h-48"
+        alt="2025三立集團內容創新發布會"
+      />
     </div>
     <!-- 步驟 -->
     <div
-      class="flex mt-8 max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto"
+      class="flex max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto lg:w-[404px]"
     >
       <img
         :src="imageUrls.step1"
-        class="w-6 h-6 object-contain"
+        class="w-6 h-6 object-contain lg:w-12 lg:h-12"
         alt="Step 1"
       />
       <img
         :src="imageUrls.horizontal"
-        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px]"
+        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px] lg:w-[130px]"
       />
       <img
         :src="imageUrls.step2_inactive"
-        class="w-6 h-6 object-contain"
+        class="w-6 h-6 object-contain lg:w-12 lg:h-12"
         alt="Step 2"
       />
       <img
         :src="imageUrls.horizontal"
-        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px]"
+        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px] lg:w-[130px]"
       />
       <img
         :src="imageUrls.step3_inactive"
-        class="w-6 h-6 object-contain"
+        class="w-6 h-6 object-contain lg:w-12 lg:h-12"
         alt="Step 3"
       />
     </div>
     <!-- 步驟文字 -->
     <div
-      class="flex gap-5 justify-between max-w-full text-sm text-center text-[#EBD8B2] w-[218px] mx-auto"
+      class="flex gap-5 justify-between max-w-full text-sm text-center text-[#EBD8B2] w-[218px] mx-auto lg:w-[436px] lg:text-2xl lg:gap-10"
     >
       <div data-name="Step 1">Step 1</div>
       <div data-name="Step 2">Step 2</div>
       <div data-name="Step 3">Step 3</div>
     </div>
-    <div class="mt-14 w-full max-w-[338px] mx-auto">
+    <div class="mt-14 w-full max-w-[338px] mx-auto lg:max-w-[90%] lg:mt-14">
       <div class="flex flex-col w-full">
         <div class="flex flex-col w-full">
           <div
-            class="flex gap-2.5 items-center justify-center font-bold text-center whitespace-nowrap"
+            class="flex gap-2.5 items-center font-bold whitespace-nowrap lg:justify-start"
           >
             <div
-              class="self-stretch my-auto text-lg text-[#333333] w-6 h-6"
+              class="self-stretch my-auto text-lg text-[#333333] w-6 h-6 lg:w-12 lg:h-12"
             >
               <img
                 :src="imageUrls.step1"
-                class="w-6 h-6 object-contain"
+                class="w-6 h-6 object-contain lg:w-12 lg:h-12"
                 alt="Step 1"
               />
             </div>
             <div
-              class="self-stretch my-auto text-base text-[#EBD8B2]"
+              class="self-stretch my-auto text-base text-[#EBD8B2] lg:text-3xl"
               data-name="請選擇以下IP圖片範本（請點擊圖片）"
             >
               請選擇以下IP圖片範本（請點擊圖片）
             </div>
           </div>
           <div class="mt-9 w-full">
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-3 lg:gap-[3.2%]">
               <!-- 模板 10 (綜藝玩很大) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
                 :class="{
                   'ring-2 ring-[#EBD8B2]': selectedTemplate === 'play',
                 }"
@@ -95,13 +92,13 @@
                 <img
                   :src="getTemplateImage('play')"
                   alt="綜藝玩很大"
-                  class="w-full object-cover rounded-md"
+                  class="w-full object-cover rounded-md lg:rounded-xl"
                 />
               </div>
               
               <!-- 模板 8 (犀利人妻) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
                 :class="{
                   'ring-2 ring-[#EBD8B2]': selectedTemplate === 'wife',
                 }"
@@ -110,13 +107,13 @@
                 <img
                   :src="getTemplateImage('wife')"
                   alt="犀利人妻"
-                  class="w-full object-cover rounded-md"
+                  class="w-full object-cover rounded-md lg:rounded-xl"
                 />
               </div>
               
               <!-- 模板 9 (命中註定我愛你) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
                 :class="{
                   'ring-2 ring-[#EBD8B2]': selectedTemplate === 'love',
                 }"
@@ -125,13 +122,13 @@
                 <img
                   :src="getTemplateImage('love')"
                   alt="命中註定我愛你"
-                  class="w-full object-cover rounded-md"
+                  class="w-full object-cover rounded-md lg:rounded-xl"
                 />
               </div>
               
               <!-- 模板 11 (超級夜總會) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
                 :class="{
                   'ring-2 ring-[#EBD8B2]': selectedTemplate === 'super',
                 }"
@@ -140,21 +137,26 @@
                 <img
                   :src="getTemplateImage('super')"
                   alt="超級夜總會"
-                  class="w-full object-cover rounded-md"
+                  class="w-full object-cover rounded-md lg:rounded-xl"
                 />
               </div>
             </div>
           </div>
+
+          <!-- Usage Counter -->
+          <div class="mt-8 mb-8 text-right">
+            <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
+          </div>
         </div>
         <div
-          class="self-end mt-16 w-full text-base font-bold text-white whitespace-nowrap rounded-md max-w-[336px]"
+          class="self-end mt-8 w-full text-base font-bold text-white whitespace-nowrap rounded-md lg:text-3xl lg:mt-16"
         >
           <div
-            class="flex gap-5 justify-center items-center px-36 py-3.5 rounded-md min-h-11 cursor-pointer transition-all duration-300"
+            class="flex gap-5 justify-center items-center px-36 py-3.5 rounded-md min-h-11 cursor-pointer transition-all duration-300 lg:px-72 lg:py-7 lg:min-h-24 lg:rounded-xl"
             :class="
               selectedTemplate
                 ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800'
-                : 'bg-[#EBD8B2] text-[#333333]'
+                : 'bg-[#C7C7C7] text-white'
             "
             @click="nextStep"
           >
@@ -163,6 +165,7 @@
         </div>
       </div>
       <div
+        v-if="!isPCMode"
         class="mt-9 text-base font-bold text-center text-[#EBD8B2] cursor-pointer hover:text-[#d4c29a] transition-colors"
         data-name="圖片生成紀錄"
         @click="showHistory"
@@ -188,6 +191,10 @@ const props = defineProps({
   userId: {
     type: String,
     default: ''
+  },
+  isPCMode: {
+    type: Boolean,
+    default: false
   }
 });
 
