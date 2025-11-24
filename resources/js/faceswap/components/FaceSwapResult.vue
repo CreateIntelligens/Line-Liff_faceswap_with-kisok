@@ -121,17 +121,12 @@
           
           <!-- 結果內容 -->
           <div v-else-if="taskResult" class="space-y-6 relative lg:space-y-12">
-            <!-- Header Logo and Crown -->
-            <div class="relative flex justify-center">
+            <!-- Header Logo -->
+            <div class="flex justify-center">
               <img
-                :src="imageUrls.header"
-                class="h-6 object-contain mx-auto lg:h-16"
+                :src="imageUrls.resultHeader"
+                class="h-16 object-contain mx-auto lg:h-32"
                 alt="標準字"
-              />
-              <img
-                :src="imageUrls.crown"
-                class="absolute -right-0 top-5 w-12 h-12 object-contain transform -rotate-[14.809deg] z-50 lg:w-24 lg:h-24 lg:top-12"
-                alt="皇冠"
               />
             </div>
 
@@ -139,24 +134,30 @@
             <div class="space-y-6">
               <!-- Original Image with Star -->
               <div class="relative">
-                <!-- <img 
-                  :src="getTemplateImage(props.selectedTemplate)" 
-                  :alt="`模板圖片 - ${getTemplateName(props.selectedTemplate)}`" 
+                <!-- <img
+                  :src="getTemplateImage(props.selectedTemplate)"
+                  :alt="`模板圖片 - ${getTemplateName(props.selectedTemplate)}`"
                   class="w-full object-cover rounded-md"
                 /> -->
-                <img 
-                  :src="imageUrls.star" 
-                  class="absolute -left-4 -bottom-72 w-12 h-12 object-contain" 
-                  alt="星" 
+                <img
+                  :src="imageUrls.star"
+                  class="absolute -left-4 -bottom-72 w-12 h-12 object-contain"
+                  alt="星"
                 />
               </div>
 
-              <!-- Result Image -->
+              <!-- Result Image with Crown -->
               <div v-if="generatedImages.length > 0">
-                <div v-for="(image, index) in generatedImages" :key="index" class="mb-4">
-                  <img 
-                    class="w-full object-cover rounded-md" 
-                    :src="image" 
+                <div v-for="(image, index) in generatedImages" :key="index" class="mb-4 relative">
+                  <!-- Crown positioned at top-right corner edge -->
+                  <img
+                    :src="imageUrls.crown"
+                    class="absolute -right-4 -top-4 w-12 h-12 object-contain transform -rotate-[14.809deg] z-50 lg:w-24 lg:h-24 lg:-right-8 lg:-top-8"
+                    alt="皇冠"
+                  />
+                  <img
+                    class="w-full object-cover rounded-md"
+                    :src="image"
                     :alt="`生成結果 ${index + 1}`"
                     @error="handleImageError"
                     @load="handleImageLoad"
@@ -175,12 +176,12 @@
 
                <!-- Bottom Logo and Credit -->
                <div class="flex flex-col items-center">
-                 <img 
-                   :src="imageUrls.logo" 
-                   class="h-7 object-contain" 
-                   alt="0815" 
+                 <img
+                   :src="imageUrls.logo"
+                   class="h-7 object-contain"
+                   alt="0815"
                  />
-                 <div class="text-center mt-1 text-[#EBD8B2] text-xs font-normal font-noto-sans-tc">
+                 <div class="text-center mt-4 text-[#EBD8B2] text-xs font-normal font-noto-sans-tc lg:mt-6">
                    此 AI 服務由創造智能支持，讓你一秒變主角
                  </div>
                </div>

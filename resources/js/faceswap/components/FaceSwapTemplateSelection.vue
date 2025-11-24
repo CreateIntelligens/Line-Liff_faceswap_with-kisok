@@ -83,9 +83,9 @@
             <div class="grid grid-cols-2 gap-3 lg:gap-[3.2%]">
               <!-- 模板 10 (綜藝玩很大) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102 relative overflow-hidden"
                 :class="{
-                  'ring-2 ring-[#EBD8B2]': selectedTemplate === 'play',
+                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'play',
                 }"
                 @click="selectTemplate('play')"
               >
@@ -93,14 +93,18 @@
                   :src="getTemplateImage('play')"
                   alt="綜藝玩很大"
                   class="w-full object-cover rounded-md lg:rounded-xl"
+                  :class="{
+                    'opacity-100': selectedTemplate === 'play',
+                    'opacity-80': selectedTemplate && selectedTemplate !== 'play'
+                  }"
                 />
               </div>
-              
+
               <!-- 模板 8 (犀利人妻) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102 relative overflow-hidden"
                 :class="{
-                  'ring-2 ring-[#EBD8B2]': selectedTemplate === 'wife',
+                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'wife',
                 }"
                 @click="selectTemplate('wife')"
               >
@@ -108,14 +112,18 @@
                   :src="getTemplateImage('wife')"
                   alt="犀利人妻"
                   class="w-full object-cover rounded-md lg:rounded-xl"
+                  :class="{
+                    'opacity-100': selectedTemplate === 'wife',
+                    'opacity-80': selectedTemplate && selectedTemplate !== 'wife'
+                  }"
                 />
               </div>
-              
+
               <!-- 模板 9 (命中註定我愛你) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102 relative overflow-hidden"
                 :class="{
-                  'ring-2 ring-[#EBD8B2]': selectedTemplate === 'love',
+                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'love',
                 }"
                 @click="selectTemplate('love')"
               >
@@ -123,14 +131,18 @@
                   :src="getTemplateImage('love')"
                   alt="命中註定我愛你"
                   class="w-full object-cover rounded-md lg:rounded-xl"
+                  :class="{
+                    'opacity-100': selectedTemplate === 'love',
+                    'opacity-80': selectedTemplate && selectedTemplate !== 'love'
+                  }"
                 />
               </div>
-              
+
               <!-- 模板 11 (超級夜總會) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102"
+                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 lg:hover:scale-102 relative overflow-hidden"
                 :class="{
-                  'ring-2 ring-[#EBD8B2]': selectedTemplate === 'super',
+                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'super',
                 }"
                 @click="selectTemplate('super')"
               >
@@ -138,6 +150,10 @@
                   :src="getTemplateImage('super')"
                   alt="超級夜總會"
                   class="w-full object-cover rounded-md lg:rounded-xl"
+                  :class="{
+                    'opacity-100': selectedTemplate === 'super',
+                    'opacity-80': selectedTemplate && selectedTemplate !== 'super'
+                  }"
                 />
               </div>
             </div>

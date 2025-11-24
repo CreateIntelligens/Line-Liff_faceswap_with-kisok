@@ -7,7 +7,7 @@
       <img
         :src="imageUrls.header"
         class="h-20 object-contain lg:h-48"
-        alt="2025三立集團內容創新發布會"
+        alt="將你的照片打造成熱門IP"
       />
     </div>
 
@@ -55,8 +55,8 @@
           將你的照片打造成熱門IP！
         </h1>
         <p class="text-base text-[#EBD8B2] max-sm:text-sm lg:text-3xl leading-relaxed lg:leading-loose">
-          三步驟快速換臉！選擇一張三立IP圖片<br />
-          並上傳一張正面清晰的原始圖片<br />
+          三步驟快速換臉！選擇一熱門IP<br />
+          並拍一張正面清晰的照片<br />
           即可生成換臉效果
         </p>
       </div>
@@ -64,7 +64,7 @@
 
     <!-- Footer -->
     <div class="mt-auto bg-black">
-      <p class="text-xs text-[#EBD8B2] whitespace-nowrap lg:text-xl text-center pt-25 pb-20 lg:pt-32 lg:pb-32">
+      <p class="text-xs text-[#f5f5f5] whitespace-nowrap lg:text-xl text-center pt-25 pb-20 lg:pt-32 lg:pb-32">
         此服務由 創造智能 提供技術支持
       </p>
     </div>

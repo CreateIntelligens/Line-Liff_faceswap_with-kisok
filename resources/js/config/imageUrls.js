@@ -16,6 +16,9 @@ import group13948Img from '../../images/Group13948.png'
 import headerImg from '../../images/header.png'
 import newHeaderImg from '../../images/2025內容創新發布會-KV-FIN0805 2.png'
 import logoImg from '../../images/logo.png'
+import logo1Img from '../../../public/images/logo-2.png'
+import newLogoImg from '../../../public/images/logo.32ec7d19 1 (1).png'
+import resultHeaderImg from '../../../public/images/Group 138678 (1).png'
 import starImg from '../../images/star.png'
 import uploadImg from '../../images/upload.png'
 import rectangle8Img from '../../images/Rectangle 8.png'
@@ -41,8 +44,9 @@ export const imageUrls = {
   back: backImg,
   crown: crownImg,
   Group13948: group13948Img,
-  header: newHeaderImg,
-  logo: logoImg,
+  header: logo1Img,
+  resultHeader: resultHeaderImg,
+  logo: newLogoImg,
   star: starImg,
   upload: uploadImg,
   rectangle8: rectangle8Img,

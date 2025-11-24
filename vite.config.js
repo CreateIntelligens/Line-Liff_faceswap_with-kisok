@@ -15,7 +15,7 @@ export default defineConfig(({ command }) => ({
     publicDir: 'public',
     server: {
         host: '0.0.0.0',
-        port: 5173,
+        port: 5174,
         allowedHosts: [
             'localhost',
             '127.0.0.1',

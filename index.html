@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>face swap</title>
 
   <!-- LIFF SDK -->
@@ -59,6 +59,7 @@
 
       
       // 檢查是否在開發環境
+      
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('🌐 檢測到本地開發環境');
         if (!window.endpoint.enableLiff) {
@@ -84,18 +85,102 @@
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       background-color: #000000;
       min-height: 100vh;
+      /* 禁止觸控裝置的左右滑動手勢導航和雙指縮放 */
+      overscroll-behavior-x: none;
+      touch-action: pan-y;
     }
-    
+
     #vue-root {
       min-height: 100vh;
+      /* 禁止觸控裝置的左右滑動手勢導航和雙指縮放 */
+      overscroll-behavior-x: none;
+      touch-action: pan-y;
     }
   </style>
 </head>
 <body>
   <div id="vue-root" data-component="FaceSwapApp"></div>
+
+  <!-- 禁用右鍵選單 -->
+  <script>
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+  </script>
+
+  <!-- 禁止左右滑動導航 -->
+  <script>
+    // 禁止觸控裝置的左右滑動返回/前進功能
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    // 監聽 touchstart 事件
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: false });
+
+    // 監聽 touchmove 事件
+    document.addEventListener('touchmove', function(e) {
+      const touchEndX = e.touches[0].clientX;
+      const touchEndY = e.touches[0].clientY;
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      const absDeltaX = Math.abs(deltaX);
+      const absDeltaY = Math.abs(deltaY);
+
+      // 如果是水平滑動（左右滑動大於上下滑動）
+      if (absDeltaX > absDeltaY && absDeltaX > 5) {
+        // 特別處理從邊緣開始的滑動（平板常見的手勢）
+        const isEdgeSwipe = touchStartX < 50 || touchStartX > window.innerWidth - 50;
+
+        // 阻止所有水平滑動，特別是從邊緣開始的
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }, { passive: false, capture: true });
+
+    // 監聽 touchend 事件，防止快速滑動
+    document.addEventListener('touchend', function(e) {
+      const touchDuration = Date.now() - touchStartTime;
+
+      // 如果是快速滑動，也阻止
+      if (touchDuration < 300) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // 額外的手勢事件阻止（針對某些瀏覽器）
+    document.addEventListener('gesturestart', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gesturechange', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gestureend', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    // 阻止瀏覽器的導航手勢
+    window.addEventListener('popstate', function(e) {
+      // 如果不是用戶主動點擊返回按鈕，則阻止
+      e.preventDefault();
+      history.pushState(null, null, location.href);
+    });
+
+    // 初始化時推入一個狀態
+    history.pushState(null, null, location.href);
+  </script>
 </body>
 </html>

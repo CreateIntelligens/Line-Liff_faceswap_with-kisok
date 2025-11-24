@@ -26,10 +26,10 @@ class LiffService {
     // 檢查是否要啟用 LIFF 功能
     if (!window.endpoint?.enableLiff) {
       console.log('🔧 LIFF 功能已關閉')
-      
-      // 使用模擬用戶 ID
-      const mockUserId = 'dev_user_' + Date.now()
-      console.log('🎭 使用模擬用戶 ID:', mockUserId)
+
+      // 使用固定的 PC 用戶 ID
+      const mockUserId = 'pc_user'
+      console.log('🎭 使用 PC 模式用戶 ID:', mockUserId)
       
       // 設置模擬用戶
       this.userId = mockUserId
