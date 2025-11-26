@@ -1,13 +1,16 @@
 <template>
-  <div class="min-h-screen bg-black flex flex-col">
+  <div class="min-h-screen bg-black w-full flex flex-col">
     <!-- Header -->
-    <div class="flex gap-5 justify-center items-center px-12 py-6 w-full font-bold min-h-20">
+    <div class="flex gap-5 justify-center items-center px-12 py-4 w-full font-bold">
       <img
         :src="imageUrls.header"
-        class="h-20 object-contain lg:h-48"
+        class="h-11 object-contain"
         alt="2025三立集團內容創新發布會"
       />
     </div>
+    
+    <!-- 分隔線 -->
+    <div class="w-full border-t border-[#EBD8B2] opacity-30 mb-6"></div>
 
     <!-- Sub Header with Back Button and Title -->
     <div class="flex justify-between items-center px-5 py-4">
@@ -40,7 +43,6 @@
     <div class="flex-1 px-6 py-8">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#EBD8B2] mb-4"></div>
         <div class="text-[#EBD8B2] text-center">
           <div class="text-lg font-bold mb-2">載入中...</div>
           <div class="text-sm">正在獲取您的生成紀錄</div>

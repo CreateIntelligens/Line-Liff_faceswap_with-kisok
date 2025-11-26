@@ -19,6 +19,8 @@ import logoImg from '../../images/logo.png'
 import logo1Img from '../../../public/images/logo-2.png'
 import newLogoImg from '../../../public/images/logo.32ec7d19 1 (1).png'
 import resultHeaderImg from '../../../public/images/Group 138678 (1).png'
+import profileImg from '../../../public/images/profile.png'
+import resultImg from '../../../public/images/result.png'
 import starImg from '../../images/star.png'
 import uploadImg from '../../images/upload.png'
 import rectangle8Img from '../../images/Rectangle 8.png'
@@ -47,6 +49,8 @@ export const imageUrls = {
   header: logo1Img,
   resultHeader: resultHeaderImg,
   logo: newLogoImg,
+  profile: profileImg,
+  result: resultImg,
   star: starImg,
   upload: uploadImg,
   rectangle8: rectangle8Img,

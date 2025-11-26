@@ -1,70 +1,115 @@
 <template>
-  <!-- iphone15 -->
-  <div class="app">
-    <!-- Face Swap Homepage -->
-    <FaceSwapHomepage
-      v-if="currentStep === 'faceswap-home'"
-      @enter-face-swap="enterFaceSwap"
-    />
+  <!-- 根據裝置模式切換不同的容器樣式 -->
+  <div :class="appContainerClass">
+    <!-- ==================== Mobile 模式 ==================== -->
+    <template v-if="!isKioskMode">
+      <!-- Mobile 模式：外層黑色全螢幕容器，內層固定 414px 寬度 -->
+      <div class="mobile-wrapper">
+        <div class="mobile-content">
+          <!-- Face Swap Homepage -->
+          <FaceSwapHomepage
+            v-if="currentStep === 'faceswap-home'"
+            @enter-face-swap="enterFaceSwap"
+          />
 
-    <!-- Face Swap Template Selection -->
-    <FaceSwapTemplateSelection
-      v-if="currentStep === 'template-selection'"
-      :userUsage="userUsage"
-      :userId="userId"
-      :isPCMode="isPCMode"
-      @next-step="handleTemplateSelection"
-      @back="goBack"
-    />
+          <!-- Face Swap Template Selection -->
+          <FaceSwapTemplateSelection
+            v-if="currentStep === 'template-selection'"
+            :userUsage="userUsage"
+            :userId="userId"
+            :isPCMode="isPCMode"
+            @next-step="handleTemplateSelection"
+            @back="goBack"
+          />
 
-    <!-- Face Swap Character Selection (PC Mode Only) -->
-    <FaceSwapCharacterSelection
-      v-if="currentStep === 'character-selection' && isPCMode"
-      :selectedTemplate="selectedTemplate"
-      @next-step="handleCharacterSelection"
-      @back="goBack"
-    />
+          <!-- Face Swap Upload (Mobile) -->
+          <FaceSwapUpload
+            v-if="currentStep === 'upload'"
+            :selectedTemplate="selectedTemplate"
+            :userUsage="userUsage"
+            :userId="userId"
+            :isPCMode="isPCMode"
+            @back="goBack"
+            @generate="handleGenerate"
+            @showHistory="handleShowHistory"
+          />
 
-    <!-- Face Swap Upload (Mobile/LINE) -->
-    <FaceSwapUpload
-      v-if="currentStep === 'upload' && !isPCMode"
-      :selectedTemplate="selectedTemplate"
-      :userUsage="userUsage"
-      :userId="userId"
-      :isPCMode="isPCMode"
-      @back="goBack"
-      @generate="handleGenerate"
-      @showHistory="handleShowHistory"
-    />
+          <!-- Face Swap Result -->
+          <FaceSwapResult
+            v-if="currentStep === 'result'"
+            :taskId="taskId"
+            :userId="userId"
+            :selectedTemplate="selectedTemplate"
+            :userUsage="userUsage"
+            :isPCMode="isPCMode"
+            @back="goBack"
+            @regenerate="handleRegenerate"
+            @download="handleDownload"
+            @restart="handleRestart"
+          />
+        </div>
+      </div>
+    </template>
 
-    <!-- Face Swap Camera Capture (PC) -->
-    <FaceSwapCameraCapture
-      v-if="currentStep === 'upload' && isPCMode"
-      :selectedTemplate="selectedTemplate"
-      :selectedCharacter="selectedCharacter"
-      @captured="handleCameraCapture"
-      @generate="handleCameraGenerate"
-      @back="goBack"
-    />
+    <!-- ==================== Kiosk 模式 (1080x1920) ==================== -->
+    <template v-else>
+      <!-- Kiosk Homepage -->
+      <KioskHomepage
+        v-if="currentStep === 'faceswap-home'"
+        @enter-face-swap="enterFaceSwap"
+      />
 
-    <!-- Face Swap Result -->
-    <FaceSwapResult
-      v-if="currentStep === 'result'"
-      :taskId="taskId"
-      :userId="userId"
-      :selectedTemplate="selectedTemplate"
-      :userUsage="userUsage"
-      :isPCMode="isPCMode"
-      @back="goBack"
-      @regenerate="handleRegenerate"
-      @download="handleDownload"
-      @restart="handleRestart"
-    />
+      <!-- Kiosk Template Selection -->
+      <FaceSwapTemplateSelection
+        v-if="currentStep === 'template-selection'"
+        :userUsage="userUsage"
+        :userId="userId"
+        :isPCMode="isPCMode"
+        :isKioskMode="isKioskMode"
+        @next-step="handleTemplateSelection"
+        @back="goBack"
+      />
+
+      <!-- Kiosk Character Selection -->
+      <FaceSwapCharacterSelection
+        v-if="currentStep === 'character-selection'"
+        :selectedTemplate="selectedTemplate"
+        :isKioskMode="isKioskMode"
+        @next-step="handleCharacterSelection"
+        @back="goBack"
+      />
+
+      <!-- Kiosk Camera Capture (串流服務) -->
+      <FaceSwapCameraCapture
+        v-if="currentStep === 'upload'"
+        :selectedTemplate="selectedTemplate"
+        :selectedCharacter="selectedCharacter"
+        :isKioskMode="isKioskMode"
+        @captured="handleCameraCapture"
+        @generate="handleCameraGenerate"
+        @back="goBack"
+      />
+
+      <!-- Kiosk Result -->
+      <FaceSwapResult
+        v-if="currentStep === 'result'"
+        :taskId="taskId"
+        :userId="userId"
+        :selectedTemplate="selectedTemplate"
+        :userUsage="userUsage"
+        :isPCMode="isPCMode"
+        :isKioskMode="true"
+        @back="goBack"
+        @regenerate="handleRegenerate"
+        @download="handleDownload"
+        @restart="handleRestart"
+      />
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeMount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeMount, nextTick } from 'vue'
 import FaceSwapHomepage from './components/FaceSwapHomepage.vue'
 import FaceSwapTemplateSelection from './components/FaceSwapTemplateSelection.vue'
 import FaceSwapCharacterSelection from './components/FaceSwapCharacterSelection.vue'
@@ -72,77 +117,60 @@ import FaceSwapUpload from './components/FaceSwapUpload.vue'
 import FaceSwapCameraCapture from './components/FaceSwapCameraCapture.vue'
 import FaceSwapResult from './components/FaceSwapResult.vue'
 import { roadshowService } from '../services/roadshowService.js'
-import { liffService } from '../services/liffService.js'
-// 使用全域配置 window.endpoint
+import { deviceService } from '../services/deviceService.js'
+
+// Kiosk 專用組件
+import KioskHomepage from './components/kiosk/KioskHomepage.vue'
+// import KioskTemplateSelection from './components/kiosk/KioskTemplateSelection.vue'
+// import KioskCameraCapture from './components/kiosk/KioskCameraCapture.vue'
+// import KioskResult from './components/kiosk/KioskResult.vue'
 
 // 狀態
 const taskId = ref('')
-const userId = ref('') // 改為空字串，等待 LIFF 初始化
+const userId = ref('') // 等待裝置服務初始化
 const currentStep = ref('faceswap-home') // 初始狀態設定為換臉首頁
 const selectedTemplate = ref('')
-const selectedCharacter = ref('') // PC模式下選擇的角色
+const selectedCharacter = ref('') // Kiosk 模式下選擇的角色
 const isInitialized = ref(false)
 const userUsage = ref(0) // 用戶已生成的圖片數量
-const isLiffInitialized = ref(false)
 
-// PC mode detection
-const isPCMode = ref(false)
+// 裝置模式: 'kiosk' | 'mobile'
+const deviceMode = ref('mobile')
 
-// LIFF 初始化函數
-async function initializeLiff() {
-  try {
-    console.log('🔧 開始初始化 LIFF...')
-    
-    // 使用完整的 LIFF 初始化流程
-    const result = await liffService.initializeLiff()
-    
-    if (result.success) {
-      if (result.isLoggedIn && result.userId) {
-        // 用戶已登入，設置用戶 ID
-        userId.value = result.userId
-        console.log('✅ LIFF 用戶 ID 已設置:', userId.value)
-        console.log('👥 好友狀態:', result.isFriend ? '是好友' : '非好友')
-      } else if (!result.isLoggedIn) {
-        // 用戶未登入，使用訪客 ID
-        console.log('⚠️ 用戶未登入 LIFF，使用訪客模式')
-        userId.value = 'guest_' + Date.now()
-      }
-    } else {
-      // LIFF 初始化失敗，使用測試模式
-      console.log('⚠️ LIFF 初始化失敗，使用測試模式')
-      userId.value = 'abc'
-    }
-    
-    isLiffInitialized.value = true
-    console.log('🔧 LIFF 初始化完成，userId:', userId.value)
-  } catch (error) {
-    console.error('❌ LIFF 初始化過程發生錯誤:', error)
-    // 錯誤時使用測試值
-    userId.value = 'abc'
-    isLiffInitialized.value = true
-    console.log('🔧 使用後備 userId:', userId.value)
+// 保持向後兼容，isPCMode 現在改為 isKioskMode
+const isKioskMode = ref(false)
+// 保留 isPCMode 作為 isKioskMode 的別名，讓現有組件能正常運作
+const isPCMode = isKioskMode
+
+// 根據裝置模式計算容器樣式
+const appContainerClass = computed(() => {
+  if (isKioskMode.value) {
+    // Kiosk 模式：固定 1080x1920 尺寸，置中顯示
+    return 'app app-kiosk'
+  }
+  // Mobile 模式：響應式全螢幕
+  return 'app app-mobile'
+})
+
+// 裝置初始化函數
+function initializeDevice() {
+  console.log('🔧 開始初始化裝置服務...')
+  
+  // 使用裝置服務初始化
+  const result = deviceService.initialize({ userId })
+  
+  if (result.success) {
+    deviceMode.value = result.deviceMode
+    isKioskMode.value = result.isKiosk
+    console.log('✅ 裝置服務初始化完成')
+    console.log('  - 裝置模式:', deviceMode.value)
+    console.log('  - 用戶 ID:', userId.value)
   }
 }
 
-// Detect if running in PC mode
-function detectPCMode() {
-  // 1. 如果enableLiff為false，強制進入PC模式
-  if (!window.endpoint?.enableLiff) {
-    return true
-  }
-
-  // 2. Check URL parameter
-  const urlParams = new URLSearchParams(window.location.search)
-  if (urlParams.get('mode') === 'pc') {
-    return true
-  }
-
-  // 3. Check if not in LIFF environment and screen is wide
-  if (!window.liff && window.innerWidth >= 768) {
-    return true
-  }
-
-  return false
+// 偵測裝置模式（保留此函數供組件使用）
+function detectDeviceMode() {
+  return deviceService.detectDeviceMode()
 }
 
 // 主要初始化函數
@@ -150,10 +178,37 @@ async function initializeApp() {
   console.log('=== 換臉應用程序初始化開始 ===')
 
   try {
+    // 檢查 URL 參數，用於測試/預覽特定步驟
+    const urlParams = new URLSearchParams(window.location.search)
+    const stepParam = urlParams.get('step')
+    const testTaskId = urlParams.get('taskId')
+    
     // 重置所有狀態，確保重整後是乾淨的狀態
     currentStep.value = 'faceswap-home'
     selectedTemplate.value = ''
     taskId.value = ''
+    
+    // 如果有 URL 參數，設置對應的步驟（用於測試/預覽）
+    if (stepParam) {
+      console.log('🔍 檢測到 URL 參數 step:', stepParam)
+      
+      const validSteps = ['faceswap-home', 'template-selection', 'character-selection', 'upload', 'result']
+      if (validSteps.includes(stepParam)) {
+        currentStep.value = stepParam
+        
+        // 如果是結果頁，需要設置測試用的 taskId 和模板
+        if (stepParam === 'result') {
+          taskId.value = testTaskId || 'test-task-preview'
+          selectedTemplate.value = 'play' // 測試用預設模板
+          console.log('📋 測試模式：結果頁，taskId:', taskId.value)
+          
+          // 測試模式下直接返回，不繼續後續初始化
+          isInitialized.value = true
+          console.log('=== 測試模式初始化完成 ===')
+          return
+        }
+      }
+    }
     
     // 檢查用戶 ID
     if (!userId.value) {
@@ -225,20 +280,17 @@ async function refreshUserUsage() {
 
 // 在掛載前執行初始化
 onBeforeMount(async () => {
-  await initializeLiff() // 先初始化 LIFF
+  initializeDevice() // 先初始化裝置服務
   await initializeApp() // 再初始化應用程序
 })
 
 // 組件掛載後的額外處理
 onMounted(async () => {
-  // Detect PC mode
-  isPCMode.value = detectPCMode()
-  console.log('💻 PC模式:', isPCMode.value)
-
   console.log('Vue 組件已掛載，應用當前狀態:', {
     currentStep: currentStep.value,
     userId: userId.value,
-    isPCMode: isPCMode.value,
+    deviceMode: deviceMode.value,
+    isKioskMode: isKioskMode.value,
     taskId: taskId.value,
     userUsage: userUsage.value
   })
@@ -258,27 +310,27 @@ function enterFaceSwap() {
 function handleTemplateSelection(data) {
   selectedTemplate.value = data.selectedTemplate
 
-  // PC模式下先進入人物選擇步驟，LINE模式直接進入上傳步驟
-  if (isPCMode.value) {
+  // Kiosk 模式下先進入人物選擇步驟，Mobile 模式直接進入上傳步驟
+  if (isKioskMode.value) {
     currentStep.value = 'character-selection'
   } else {
     currentStep.value = 'upload'
   }
 }
 
-// 處理人物選擇 (PC模式)
+// 處理人物選擇 (Kiosk 模式)
 function handleCharacterSelection(data) {
   selectedTemplate.value = data.selectedTemplate
   selectedCharacter.value = data.selectedCharacter
   currentStep.value = 'upload'
 }
 
-// Handle camera capture (PC mode)
+// Handle camera capture (Kiosk mode)
 function handleCameraCapture(imageFile) {
   console.log('📷 相機拍照完成', imageFile)
 }
 
-// Handle camera generate (PC mode)
+// Handle camera generate (Kiosk mode)
 async function handleCameraGenerate(imageFile) {
   console.log('📤 開始生成（相機模式）')
 
@@ -380,9 +432,9 @@ function handleDownload() {
   // 在這裡可以調用下載 API
 }
 
-// Handle restart (PC mode)
+// Handle restart (Kiosk mode)
 function handleRestart() {
-  console.log('🔄 重新開始（PC模式）')
+  console.log('🔄 重新開始（Kiosk 模式）')
   // Reset to homepage
   currentStep.value = 'faceswap-home'
   taskId.value = ''
@@ -393,9 +445,9 @@ function handleRestart() {
 async function handleShowHistory() {
   // 確保userId有值
   if (!userId.value) {
-    await initializeLiff()
+    initializeDevice()
     if (!userId.value) {
-      userId.value = 'abc'
+      userId.value = deviceService.generateUserId(deviceMode.value)
     }
   }
   
@@ -413,8 +465,8 @@ function goBack() {
   } else if (currentStep.value === 'character-selection') {
     currentStep.value = 'template-selection'
   } else if (currentStep.value === 'upload') {
-    // PC模式下從相機回到人物選擇，LINE模式回到模板選擇
-    if (isPCMode.value) {
+    // Kiosk 模式下從相機回到人物選擇，Mobile 模式回到模板選擇
+    if (isKioskMode.value) {
       currentStep.value = 'character-selection'
     } else {
       currentStep.value = 'template-selection'
@@ -428,21 +480,53 @@ function goBack() {
 
 <style scoped>
 .app {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Noto Sans TC', 'Inter', sans-serif;
   overflow-x: hidden;
   background-color: #000000;
-  min-height: 100vh;
 }
 
-.conversation-id-screen {
-  width: 100vw;
-  height: 100vh;
-  min-height: 932px;
-  background: #5E60FE;
-  position: relative;
+/* Mobile 模式：響應式全螢幕 */
+.app-mobile {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Mobile 外層容器：全螢幕黑色背景，內容置中 */
+.mobile-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #000000;
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: white;
+}
+
+/* Mobile 內層容器：固定最大寬度 414px（iPhone 尺寸） */
+.mobile-content {
+  width: 100%;
+  max-width: 414px;
+  min-height: 100vh;
+  background-color: #000000;
+  overflow-x: hidden; /* 防止內容溢出 */
+}
+
+/* Kiosk 模式：固定 1080x1920 尺寸 */
+.app-kiosk {
+  width: 1080px;
+  height: 1920px;
+  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 當螢幕不是精確 1080x1920 時，Kiosk 模式置中顯示 */
+@media not all and (width: 1080px) and (height: 1920px) {
+  .app-kiosk {
+    /* 在非標準尺寸螢幕上置中 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 </style>

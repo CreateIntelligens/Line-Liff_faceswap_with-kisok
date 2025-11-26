@@ -389,47 +389,59 @@ export function useScreenshot() {
     return data.result.path || data.path || data.data?.url
   }
 
-  // 智能上傳圖片 - 根據 enableLiff 設定選擇上傳方式
+  // 智能上傳圖片 - 統一使用 imageUploadApi
   async function smartUploadImage(blob, userId = 'abc', filename = 'screenshot') {
-    if (window.endpoint.enableLiff === false) {
-      // PC 模式：使用 imageUploadApi
-      console.log('🖥️ PC 模式：使用專用上傳 API')
-      return uploadImageForPC(blob, filename)
-    } else {
-      // LIFF 模式：使用原有邏輯
-      console.log('📱 LIFF 模式：使用原有上傳 API')
-      return uploadImage(blob, userId, filename)
+    // 統一使用 imageUploadApi（移除 LIFF 邏輯）
+    console.log('📤 使用統一上傳 API')
+    return uploadImageForPC(blob, filename)
+  }
+
+  // 直接下載圖片到裝置
+  async function downloadImage(imageUrl, filename = 'faceswap-result') {
+    try {
+      console.log('📥 開始下載圖片:', imageUrl)
+      
+      // 嘗試獲取圖片
+      const response = await fetch(imageUrl, {
+        mode: 'cors',
+        credentials: 'omit'
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const blob = await response.blob()
+      
+      // 創建下載連結
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${filename}-${Date.now()}.jpg`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      
+      console.log('✅ 圖片下載成功')
+      return { success: true }
+    } catch (error) {
+      console.error('❌ 圖片下載失敗:', error)
+      
+      // 備用方案：直接開啟新視窗
+      try {
+        window.open(imageUrl, '_blank')
+        return { success: true, method: 'new_window' }
+      } catch (e) {
+        throw new Error(`下載失敗: ${error.message}`)
+      }
     }
   }
 
-  // 透過 LIFF 發送圖片
+  // 保留 sendViaLiff 名稱以保持向後兼容，但改為直接下載
+  // @deprecated 請使用 downloadImage 替代
   async function sendViaLiff(imageUrl) {
-    // 檢查 LIFF 是否可用
-    if (typeof liff === 'undefined') {
-      throw new Error('LIFF 不可用，無法發送圖片')
-    }
-    
-    // 檢查是否在 LINE 應用內
-    if (!liff.isInClient()) {
-      throw new Error('請在 LINE 應用內使用此功能')
-    }
-    
-    // 檢查是否已登入
-    if (!liff.isLoggedIn()) {
-      throw new Error('請先登入 LINE')
-    }
-    
-    // 發送圖片
-    await liff.sendMessages([{
-      type: 'image',
-      originalContentUrl: imageUrl,
-      previewImageUrl: imageUrl
-    }]).then(() => {
-      //
-    })
-    .catch((err) => {
-      throw new Error(`發送圖片失敗: ${err.message || err.toString()}`)
-    });
+    return downloadImage(imageUrl, 'faceswap-result')
   }
 
   // 顯示訊息提示
@@ -470,7 +482,8 @@ export function useScreenshot() {
     uploadImage,
     uploadImageForPC,
     smartUploadImage,
-    sendViaLiff,
+    downloadImage,
+    sendViaLiff, // @deprecated 保留向後兼容
     showMessage
   }
 }

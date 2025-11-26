@@ -49,7 +49,6 @@
           ></div>
           <!-- 載入狀態 -->
           <div v-if="isLoading" class="flex flex-col items-center justify-center h-60">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#EBD8B2] mb-4"></div>
             <div class="text-[#EBD8B2] text-center">
               <div class="text-lg font-bold mb-2">載入中...</div>
               <div class="text-sm">正在獲取生成詳情</div>
@@ -177,13 +176,12 @@
             :disabled="!historyDetail || historyDetail.status !== 'completed' || isDownloading"
           >
             <div v-if="isDownloading" class="flex items-center gap-2">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#333]"></div>
               <div class="font-noto-sans-tc text-base font-bold text-[#333]">
                 處理中...
               </div>
             </div>
             <div v-else class="font-noto-sans-tc text-base font-bold text-[#333]">
-              下載至官方帳號
+              下載圖片
             </div>
           </button>
         </div>
@@ -235,7 +233,7 @@ const captureArea = ref(null)
 const isDownloading = ref(false)
 
 // 使用截圖 composable
-const { captureScreenshot, compressImage, downloadToLocal, uploadImage, sendViaLiff, showMessage } = useScreenshot()
+const { captureScreenshot, compressImage, downloadToLocal, showMessage } = useScreenshot()
 
 // 監聽彈窗顯示狀態
 watch(() => props.isVisible, (newValue) => {
@@ -475,7 +473,7 @@ function regenerate() {
   emit('regenerate', historyDetail.value)
 }
 
-// 下載至官方帳號
+// 下載圖片到本機
 async function downloadToOfficial() {
   if (!historyDetail.value || historyDetail.value.status !== 'completed') {
     console.warn('⚠️ 歷史項目尚未完成，無法下載')
@@ -490,7 +488,7 @@ async function downloadToOfficial() {
 
   try {
     isDownloading.value = true
-    console.log('📥 開始下載歷史項目至官方帳號流程')
+    console.log('📥 開始下載歷史項目圖片')
     
     // 1. 截圖
     const canvas = await captureScreenshot(captureArea.value)
@@ -500,23 +498,10 @@ async function downloadToOfficial() {
     const blob = await compressImage(canvas)
     console.log('✅ 圖片處理完成')
     
-    // 本地測試：先下載到本機確認圖片
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log('🧪 本地測試模式：下載截圖到本機')
-      downloadToLocal(blob, 'history-detail')
-      showMessage('截圖已下載到本機，請檢查圖片品質', 'success')
-      return
-    }
-    
-    // 3. 上傳到伺服器
-    const imageUrl = await uploadImage(blob, props.userId || 'abc', 'history-detail')
-    console.log('✅ 圖片上傳完成:', imageUrl)
-    
-    // 4. 透過 LIFF 發送
-    await sendViaLiff(imageUrl)
-    console.log('✅ 發送完成')
-    
-    showMessage('圖片已成功發送到官方帳號！', 'success')
+    // 3. 直接下載到本機
+    downloadToLocal(blob, 'history-detail')
+    showMessage('圖片已成功下載！', 'success')
+    console.log('✅ 下載完成')
     
   } catch (error) {
     console.error('❌ 下載流程失敗:', error)

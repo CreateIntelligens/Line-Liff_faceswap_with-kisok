@@ -234,6 +234,19 @@ export const roadshowService = {
             
             const data = await response.json();
             console.log('✅ 任務狀態檢查成功:', data);
+            console.log('📊 數據結構:', {
+                hasSuccess: 'success' in data,
+                hasStatus: 'status' in data,
+                hasResult: 'result' in data,
+                hasData: 'data' in data,
+                topLevelKeys: Object.keys(data)
+            });
+            
+            // 如果任務失敗，顯示詳細錯誤
+            if (data.status === 'failed' || data.result?.status === 'failed' || data.data?.status === 'failed') {
+                console.error('⚠️ 任務狀態為失敗:', JSON.stringify(data, null, 2));
+            }
+            
             return data;
         } catch (error) {
             console.error('❌ 檢查任務狀態失敗:', error);
@@ -349,6 +362,159 @@ export const roadshowService = {
                 error: {
                     message: error.message,
                     originalUrl: generatedImageUrl
+                }
+            };
+        }
+    },
+
+    /**
+     * 上傳圖片到 GCS（透過後端 API）
+     * 後端處理實際的 GCS 上傳，前端對接 API
+     * 
+     * @param {Object} params - 上傳參數
+     * @param {Blob|File} params.image - 圖片檔案
+     * @param {string} params.imageUrl - 圖片 URL（二選一）
+     * @param {string} params.name - 用戶姓名（可選）
+     * @param {string} params.email - 用戶 email（可選）
+     * @param {string} params.phone - 用戶手機（可選）
+     * @param {string} params.deviceMode - 裝置模式 ('kiosk' | 'mobile')
+     * @param {string} params.userId - 用戶 ID
+     * @returns {Promise<Object>} 上傳結果，包含 GCS URL
+     */
+    async uploadToGCS(params = {}) {
+        try {
+            const config = getApiConfig();
+            // TODO: 等後端提供 API 端點後更新這個 URL
+            const url = `${config.baseURL}/roadshow/upload-to-gcs`;
+            
+            console.log('☁️ 上傳圖片到 GCS...');
+            console.log('📋 上傳參數:', {
+                hasImage: !!params.image,
+                imageUrl: params.imageUrl,
+                name: params.name,
+                email: params.email,
+                phone: params.phone,
+                deviceMode: params.deviceMode,
+                userId: params.userId
+            });
+
+            // 構建 FormData
+            const formData = new FormData();
+            
+            // 添加圖片（檔案或 URL）
+            if (params.image) {
+                formData.append('image', params.image);
+            } else if (params.imageUrl) {
+                formData.append('imageUrl', params.imageUrl);
+            }
+            
+            // 添加用戶資訊
+            if (params.name) formData.append('name', params.name);
+            if (params.email) formData.append('email', params.email);
+            if (params.phone) formData.append('phone', params.phone);
+            if (params.deviceMode) formData.append('deviceMode', params.deviceMode);
+            if (params.userId) formData.append('userId', params.userId);
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${config.authToken}`
+                },
+                body: formData
+            });
+
+            console.log('📡 響應狀態:', response.status, response.statusText);
+
+            if (!response.ok) {
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    // 無法解析錯誤內容
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            console.log('✅ GCS 上傳成功:', data);
+            
+            return {
+                success: true,
+                gcsUrl: data.url || data.gcsUrl || data.imageUrl,
+                shortUrl: data.shortUrl,
+                data: data
+            };
+        } catch (error) {
+            console.error('❌ GCS 上傳失敗:', error);
+            return {
+                success: false,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    },
+
+    /**
+     * 發送結果通知（發送簡訊給用戶）
+     * 
+     * @param {Object} params - 通知參數
+     * @param {string} params.phone - 手機號碼
+     * @param {string} params.imageUrl - 圖片 URL
+     * @param {string} params.shortUrl - 短網址
+     * @returns {Promise<Object>} 發送結果
+     */
+    async sendResultNotification(params = {}) {
+        try {
+            const config = getApiConfig();
+            // TODO: 等後端提供 API 端點後更新這個 URL
+            const url = `${config.baseURL}/roadshow/send-notification`;
+            
+            console.log('📱 發送結果通知...');
+            console.log('📋 通知參數:', params);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.authToken}`
+                },
+                body: JSON.stringify({
+                    phone: params.phone,
+                    imageUrl: params.imageUrl,
+                    shortUrl: params.shortUrl
+                })
+            });
+
+            console.log('📡 響應狀態:', response.status, response.statusText);
+
+            if (!response.ok) {
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    // 無法解析錯誤內容
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            console.log('✅ 通知發送成功:', data);
+            
+            return {
+                success: true,
+                data: data
+            };
+        } catch (error) {
+            console.error('❌ 通知發送失敗:', error);
+            return {
+                success: false,
+                error: {
+                    message: error.message
                 }
             };
         }

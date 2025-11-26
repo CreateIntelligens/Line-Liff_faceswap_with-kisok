@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>face swap</title>
-
-  <!-- LIFF SDK -->
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
   <!-- 全局配置 - 可在打包後直接修改 -->
   <script>
@@ -44,28 +41,26 @@
         'x-api-key': 'ak_f8eb8db2d517feaaf41558f108d7862ee93c84c9d81457794b9a821dd5b0b360'
       },
 
-      // ===== LIFF 配置 =====
-      // LIFF ID - 修改這裡來改變 LIFF 應用 ID
-      liffId: '2006948092-b4M9Nazj',
-      // LINE Basic ID - 修改這裡來改變 LINE 官方帳號 ID
-      basicId: '@299fvzdf', // 如果有新的 Basic ID 請更新
-      // 是否啟用 LIFF 功能
-      enableLiff: false
+      // ===== 裝置模式配置 =====
+      // 裝置模式：'auto' 自動偵測 | 'kiosk' 強制 Kiosk 模式 | 'mobile' 強制手機模式
+      deviceMode: 'auto',
+      // Kiosk 裝置 ID（用於識別不同的 Kiosk 設備）
+      kioskId: 'kiosk_test_002',
+      
+      // ===== GCS 上傳配置 =====
+      // 是否啟用 GCS 上傳功能（等後端 API 準備好後設為 true）
+      enableGCSUpload: false
+      // GCS 上傳 API 端點（如果與 baseURL 不同）
+      // gcsUploadApi: 'https://your-api.com/api/upload-to-gcs'
     };
     
     // 輸出配置到控制台（如果啟用調試模式）
     if (window.endpoint.debug) {
       console.log('🔧 當前 API 配置:', window.endpoint);
-
       
       // 檢查是否在開發環境
-      
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('🌐 檢測到本地開發環境');
-        if (!window.endpoint.enableLiff) {
-          console.log('🔧 開發模式：LIFF 功能已關閉');
-          console.log('💡 現在可以測試圖片生成功能而不會觸發 LIFF 錯誤');
-        }
       }
       
       // 輸出圖片處理 API 配置
@@ -75,6 +70,11 @@
         console.log('  - 參數:', window.endpoint.imageProcessParams);
         console.log('💡 修改這些配置可以調整圖片處理效果');
       }
+      
+      // 輸出裝置模式配置
+      console.log('📱 裝置模式配置:');
+      console.log('  - 模式:', window.endpoint.deviceMode);
+      console.log('  - Kiosk ID:', window.endpoint.kioskId);
     }
   </script>
   

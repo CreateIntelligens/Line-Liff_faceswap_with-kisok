@@ -4,29 +4,29 @@
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative bg-white bg-opacity-90 rounded-lg p-8 max-w-sm mx-4 z-[10000] lg:max-w-2xl lg:p-16 lg:rounded-xl">
+    <div class="relative bg-white bg-opacity-90 rounded-lg p-8 max-w-sm mx-4 z-[10000]">
       <!-- Close button -->
       <button @click="close"
-              class="absolute top-4 right-4 text-[#333] hover:text-[#666] transition-colors lg:top-8 lg:right-8">
-        <svg class="w-6 h-6 lg:w-12 lg:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="absolute top-4 right-4 text-[#333] hover:text-[#666] transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
 
       <!-- Title -->
-      <div class="text-center mb-6 lg:mb-12">
-        <h3 class="text-xl font-bold text-[#333] lg:text-4xl">掃描獲取照片</h3>
+      <div class="text-center mb-6">
+        <h3 class="text-xl font-bold text-[#333]">掃描獲取照片</h3>
       </div>
 
       <!-- QR Code Container -->
-      <div class="flex justify-center mb-6 lg:mb-12">
+      <div class="flex justify-center mb-6">
         <div ref="qrcodeContainer"></div>
       </div>
 
 
       <!-- URL Display (for debugging/fallback) -->
-      <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666] lg:mt-8 lg:p-6 lg:text-lg lg:rounded-xl">
+      <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666]">
         {{ imageUrl }}
       </div>
     </div>

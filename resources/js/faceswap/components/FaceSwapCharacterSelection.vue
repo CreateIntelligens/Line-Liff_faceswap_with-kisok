@@ -1,87 +1,101 @@
 <template>
   <div
-    class="relative mx-auto my-0 bg-black h-screen w-full lg:h-full lg:w-full lg:flex lg:flex-col lg:px-[5.4%]"
+    class="relative bg-black min-h-screen w-full flex flex-col"
   >
     <!-- Header -->
-    <div class="flex gap-5 justify-center items-center px-12 pt-12 pb-8 w-full font-bold min-h-20 lg:pt-20 lg:pb-8">
+    <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
       <img
         :src="imageUrls.header"
-        class="h-20 object-contain lg:h-48"
+        :class="isKioskMode ? 'h-48' : 'h-11'"
+        class="object-contain"
         alt="2025三立集團內容創新發布會"
       />
     </div>
+    
+    <!-- 分隔線 (僅手機版) -->
+    <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30"></div>
 
-    <!-- 步驟進度條 -->
-    <div class="flex max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto lg:w-[404px]">
-      <img :src="imageUrls.step1" class="w-6 h-6 object-contain lg:w-12 lg:h-12" alt="Step 1">
-      <img :src="imageUrls.horizontal" class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px] lg:w-[130px]">
-      <img :src="imageUrls.step2_inactive" class="w-6 h-6 object-contain lg:w-12 lg:h-12" alt="Step 2">
-      <img :src="imageUrls.horizontal" class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px] lg:w-[130px]">
-      <img :src="imageUrls.step3_inactive" class="w-6 h-6 object-contain lg:w-12 lg:h-12" alt="Step 3">
+    <!-- 步驟進度條 (手機版) -->
+    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap mx-auto mt-6">
+      <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step2_inactive" class="w-6 h-6 object-contain" alt="Step 2">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step3_inactive" class="w-6 h-6 object-contain" alt="Step 3">
     </div>
+    
 
-    <!-- 步驟文字 -->
-    <div class="flex gap-5 justify-between max-w-full text-sm text-center text-[#EBD8B2] w-[218px] mx-auto lg:w-[436px] lg:text-2xl lg:gap-10">
+    <!-- 步驟文字 (僅手機版) -->
+    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#EBD8B2] mx-auto">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
     </div>
 
-    <div class="mt-14 w-full max-w-[338px] mx-auto lg:max-w-[90%] lg:mt-14">
+    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-14'" class="w-full mx-auto">
       <div class="flex flex-col w-full">
         <div class="flex flex-col w-full">
-          <div class="flex gap-2.5 items-center font-bold whitespace-nowrap lg:justify-start">
-            <div class="self-stretch my-auto text-lg text-[#333333] w-6 h-6 lg:w-12 lg:h-12">
+          <div :class="isKioskMode ? 'justify-center' : ''" class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-6">
+            <!-- 手機版：顯示打勾圖標 -->
+            <div v-if="!isKioskMode" class="w-6 h-6 self-stretch my-auto">
               <img
                 src="/resources/images/step1.png"
-                class="w-6 h-6 object-contain lg:w-12 lg:h-12"
+                class="w-6 h-6 object-contain"
                 alt="Step 1"
               />
             </div>
-            <div class="self-stretch my-auto text-base text-[#EBD8B2] lg:text-3xl">
+            <!-- Kiosk 版：顯示數字圓圈 -->
+            <div v-else class="w-16 h-16 rounded-full bg-[#EBD8B2] flex items-center justify-center flex-shrink-0">
+              <span class="text-4xl font-bold text-black">2</span>
+            </div>
+            
+            <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#EBD8B2]">
               請選擇要換臉的人物
             </div>
           </div>
 
-          <div class="mt-9 w-full">
+          <div :class="isKioskMode ? 'mt-16' : 'mt-9'" class="w-full">
             <!-- Selected Template Image -->
-            <div class="mb-8">
-              <div v-if="selectedTemplate" class="w-full h-[273px] lg:h-[800px]">
+            <div :class="isKioskMode ? 'mb-16' : 'mb-8'">
+              <div v-if="selectedTemplate" :class="isKioskMode ? 'h-[710px]' : 'h-[273px]'" class="w-full">
                 <img
-                  class="w-full h-full object-cover rounded-md lg:rounded-xl"
+                  class="w-full h-full object-contain rounded-md"
                   :src="getTemplateImage(selectedTemplate)"
                   :alt="getTemplateName(selectedTemplate)"
                 />
               </div>
-              <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-[#EBD8B2] lg:h-[800px] lg:rounded-xl">
+              <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-[#EBD8B2]">
                 <div class="text-center text-[#EBD8B2]">
-                  <div class="text-lg font-bold mb-2 lg:text-3xl lg:mb-4">請先選擇模板</div>
-                  <div class="text-sm lg:text-xl">請回到上一步選擇您想要的換臉模板</div>
+                  <div class="text-lg font-bold mb-2">請先選擇模板</div>
+                  <div class="text-sm">請回到上一步選擇您想要的換臉模板</div>
                 </div>
               </div>
             </div>
 
             <!-- Character Selection -->
-            <div v-if="selectedTemplate" class="mb-8">
-              <h3 class="text-base font-bold text-center text-[#EBD8B2] mb-4 lg:text-3xl lg:mb-8">
+            <div v-if="selectedTemplate" :class="isKioskMode ? 'mb-16' : 'mb-8'">
+              <h3 v-if="!isKioskMode" class="text-base mb-4 font-bold text-center text-[#EBD8B2]">
                 請選擇要換臉的人物
               </h3>
-              <div class="flex justify-center gap-4 lg:gap-8">
+              <div :class="isKioskMode ? 'gap-10' : 'gap-4'" class="flex justify-center">
                 <button
                   v-for="(character, index) in getTemplateCharacters()"
                   :key="index"
-                  class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold lg:h-24 lg:text-3xl lg:rounded-xl"
-                  :class="
+                  :class="[
+                    isKioskMode ? 'h-[114px] text-4xl px-8' : 'h-11 text-base px-3',
                     selectedCharacter === `character${index + 1}`
                       ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] shadow-lg text-gray-800'
                       : 'text-[#333]'
-                  "
+                  ]"
+                  class="flex-1 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold"
+                  style="touch-action: manipulation;"
                   :style="
                     selectedCharacter === `character${index + 1}`
                       ? ''
                       : 'background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);'
                   "
                   @click="selectCharacter(`character${index + 1}`, index)"
+                  @touchend.prevent="selectCharacter(`character${index + 1}`, index)"
                 >
                   {{ character }}
                 </button>
@@ -96,23 +110,28 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="w-full text-base font-bold text-white whitespace-nowrap rounded-md lg:text-3xl">
-          <div class="flex gap-3 mb-8 lg:gap-6 lg:mb-16">
+        <div :class="isKioskMode ? 'text-3xl mt-16' : 'text-base mt-8'" class="w-full font-bold text-white whitespace-nowrap rounded-md">
+          <div :class="isKioskMode ? 'gap-8 mb-16' : 'gap-3 mb-8'" class="flex">
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300 text-base font-bold text-[#333] lg:h-24 lg:text-3xl lg:rounded-xl"
-              style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+              :class="isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base'"
+              class="flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300 font-bold text-[#333]"
+              style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25); touch-action: manipulation;"
               @click="goBack"
+              @touchend.prevent="goBack"
             >
               重選範本
             </button>
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold lg:h-24 lg:text-3xl lg:rounded-xl"
-              :class="
+              :class="[
+                isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base',
                 selectedCharacter
                   ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg text-gray-800'
                   : 'bg-[#C7C7C7] text-white'
-              "
+              ]"
+              class="flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold"
+              style="touch-action: manipulation;"
               @click="nextStep"
+              @touchend.prevent="nextStep"
               :disabled="!selectedCharacter"
             >
               下一步
@@ -122,10 +141,10 @@
       </div>
 
       <div v-if="!selectedTemplate" class="text-center text-[#EBD8B2] py-8">
-        <div class="text-lg font-bold mb-4 lg:text-3xl lg:mb-8">無法進行換臉操作</div>
-        <div class="text-sm mb-6 lg:text-xl lg:mb-12">您需要先選擇一個模板才能繼續</div>
+        <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
+        <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
         <button
-          class="px-6 py-3 text-[#333] rounded-md font-bold hover:shadow-lg transition-all duration-300 lg:px-12 lg:py-6 lg:text-2xl lg:rounded-xl"
+          class="px-6 py-3 text-[#333] rounded-md font-bold hover:shadow-lg transition-all duration-300"
           style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
           @click="goBack"
         >
@@ -144,6 +163,10 @@ const props = defineProps({
   selectedTemplate: {
     type: String,
     default: ''
+  },
+  isKioskMode: {
+    type: Boolean,
+    default: false
   }
 })
 

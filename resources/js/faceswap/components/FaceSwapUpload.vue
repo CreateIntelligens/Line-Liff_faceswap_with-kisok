@@ -1,18 +1,21 @@
 <template>
   <div
-    class="relative mx-auto my-0 bg-black h-[774px] w-[375px] max-md:w-full max-md:max-w-screen-md max-sm:w-full max-sm:h-auto max-sm:min-h-[774px]"
+    class="relative bg-black min-h-screen w-full flex flex-col"
   >
     <!-- Header -->
-    <div class="flex gap-5 justify-center items-center px-12 py-6 w-full font-bold min-h-20">
+    <div class="flex gap-5 justify-center items-center px-12 py-4 w-full font-bold">
       <img
         :src="imageUrls.header"
-        class="h-20 object-contain"
+        class="h-11 object-contain"
         alt="2025三立集團內容創新發布會"
       />
     </div>
+    
+    <!-- 分隔線 -->
+    <div class="w-full border-t border-[#EBD8B2] opacity-30"></div>
     <!-- 步驟 -->
     <div
-      class="flex mt-8 max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto"
+      class="flex mt-6 max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto"
     >
       <img
         :src="imageUrls.finish"
