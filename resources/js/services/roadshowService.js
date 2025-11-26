@@ -562,18 +562,12 @@ export const roadshowService = {
             const config = getApiConfig();
             // SMS API 使用 production 端點
             // 在開發環境中使用相對路徑（通過 vite proxy），生產環境使用完整 URL
-            const isDevelopment = typeof window !== 'undefined' && 
-                                 (window.location.hostname === 'localhost' || 
-                                  window.location.hostname === '127.0.0.1' ||
-                                  window.location.port !== '');
-            const url = isDevelopment 
-                ? '/api/roadshow/sms'  // 開發環境：使用相對路徑，通過 vite proxy
-                : 'https://pp.2025.aitago.tw/api/roadshow/sms';  // 生產環境：使用完整 URL
+
+            const url = config.baseURL + '/roadshow/sms';
             
             console.log('📱 發送簡訊...');
             console.log('📋 簡訊參數:', params);
             console.log('🌐 使用端點:', url);
-            console.log('🔧 環境模式:', isDevelopment ? '開發環境 (使用 proxy)' : '生產環境');
 
             // 處理 email：空字串轉為 null
             const emailValue = params.email && params.email.trim() !== '' ? params.email : null;
