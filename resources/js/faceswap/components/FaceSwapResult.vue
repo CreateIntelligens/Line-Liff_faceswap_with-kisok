@@ -251,7 +251,25 @@ async function checkTaskStatus() {
       } else if (taskData.status === 'failed') {
         const errorMsg = taskData.error_message || taskData.error || taskData.message || '任務處理失敗'
         errorMessage.value = errorMsg
-        console.error('❌ 任務處理失敗:', errorMsg)
+        console.error('❌ 任務處理失敗:', {
+          taskId: props.taskId,
+          status: taskData.status,
+          error_message: taskData.error_message,
+          error: taskData.error,
+          message: taskData.message,
+          template_id: taskData.template_id,
+          images: taskData.images,
+          fullData: taskData
+        });
+        // 單獨輸出每個字段以便查看
+        console.error('❌ 任務 ID:', props.taskId);
+        console.error('❌ 任務狀態:', taskData.status);
+        console.error('❌ 錯誤訊息:', taskData.error_message || '無錯誤訊息');
+        console.error('❌ 錯誤對象:', taskData.error || '無錯誤對象');
+        console.error('❌ 狀態訊息:', taskData.message || '無狀態訊息');
+        console.error('❌ 模板 ID:', taskData.template_id);
+        console.error('❌ 圖片陣列:', taskData.images || []);
+        console.error('❌ 完整任務數據:', JSON.stringify(taskData, null, 2));
       } else if (taskData.status === 'pending' || taskData.status === 'processing') {
         // 還在處理中，3秒後重試
         setTimeout(checkTaskStatus, 3000)
@@ -279,26 +297,32 @@ async function handleSubmit() {
     successMessage.value = ''
     
     console.log('📤 送出表單資料:', formData.value)
+    console.log('🖼️ 圖片 URL:', generatedImageUrl.value)
     
-    // TODO: 調用後端 API 送出表單資料
-    // const response = await roadshowService.submitUserInfo({
-    //   taskId: props.taskId,
-    //   name: formData.value.name,
-    //   phone: formData.value.phone,
-    //   email: formData.value.email,
-    //   imageUrl: generatedImageUrl.value
-    // })
+    // 調用後端 API 發送簡訊
+    const response = await roadshowService.sendSMS({
+      name: formData.value.name,
+      phone: formData.value.phone,
+      email: formData.value.email,
+      img_url: generatedImageUrl.value
+    })
     
-    // 模擬 API 調用
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    successMessage.value = '✅ 資料送出成功！簡訊將在稍後發送到您的手機'
-    console.log('✅ 表單送出成功')
-    
-    // 3秒後回到首頁
-    setTimeout(() => {
-      emit('restart')
-    }, 3000)
+    if (response.success) {
+      // 使用 API 返回的訊息或預設訊息
+      const message = response.data?.message || '簡訊發送成功'
+      successMessage.value = `✅ ${message}`
+      console.log('✅ 表單送出成功:', response.data)
+      
+      // 3秒後回到首頁
+      setTimeout(() => {
+        emit('restart')
+      }, 3000)
+    } else {
+      // API 返回錯誤
+      const errorMsg = response.error?.message || '送出失敗，請稍後再試'
+      errorMessage.value = errorMsg
+      console.error('❌ 表單送出失敗:', response.error)
+    }
     
   } catch (error) {
     errorMessage.value = '送出失敗，請稍後再試'

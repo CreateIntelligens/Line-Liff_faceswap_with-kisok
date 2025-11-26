@@ -25,6 +25,13 @@ export default defineConfig(({ command }) => ({
             '.ngrok-free.app',
         ],
         proxy: {
+            // 代理 SMS API 到 production 端點（需要放在 /api 之前，因為更具體的路徑優先匹配）
+            '/api/roadshow/sms': {
+                target: 'https://pp.2025.aitago.tw',
+                changeOrigin: true,
+                secure: true,
+                rewrite: (path) => path
+            },
             // 代理 API 請求到後端
             '/api': {
                 target: 'https://stg-line-crm.fanpokka.ai',

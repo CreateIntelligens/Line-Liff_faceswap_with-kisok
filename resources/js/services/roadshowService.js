@@ -181,6 +181,18 @@ export const roadshowService = {
             
             const data = await response.json();
             console.log('✅ 生成頭像成功:', data);
+            console.log('📋 完整響應數據:', JSON.stringify(data, null, 2));
+            
+            // 檢查響應結構
+            if (data.result) {
+                console.log('📋 任務結果:', {
+                    task_id: data.result.task_id,
+                    id: data.result.id,
+                    status: data.result.status,
+                    template_id: data.result.template_id
+                });
+            }
+            
             return data;
         } catch (error) {
             console.error('❌ 生成頭像失敗:', error);
@@ -244,7 +256,22 @@ export const roadshowService = {
             
             // 如果任務失敗，顯示詳細錯誤
             if (data.status === 'failed' || data.result?.status === 'failed' || data.data?.status === 'failed') {
+                const failedData = data.result || data.data || data;
                 console.error('⚠️ 任務狀態為失敗:', JSON.stringify(data, null, 2));
+                console.error('📋 失敗詳情:', {
+                    taskId: taskId,
+                    status: failedData.status,
+                    error_message: failedData.error_message,
+                    error: failedData.error,
+                    message: failedData.message,
+                    template_id: failedData.template_id,
+                    images: failedData.images,
+                    fullFailedData: failedData
+                });
+                // 單獨輸出每個字段以便查看
+                console.error('❌ 錯誤訊息:', failedData.error_message || '無錯誤訊息');
+                console.error('❌ 錯誤對象:', failedData.error || '無錯誤對象');
+                console.error('❌ 狀態訊息:', failedData.message || '無狀態訊息');
             }
             
             return data;
@@ -511,6 +538,83 @@ export const roadshowService = {
             };
         } catch (error) {
             console.error('❌ 通知發送失敗:', error);
+            return {
+                success: false,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    },
+
+    /**
+     * 發送簡訊給用戶
+     * 
+     * @param {Object} params - 簡訊參數
+     * @param {string} params.name - 用戶姓名 (required)
+     * @param {string} params.phone - 手機號碼 (required)
+     * @param {string|null} params.email - 電子郵件 (required, 可為 null)
+     * @param {string} params.img_url - 圖片 URL (required)
+     * @returns {Promise<Object>} 發送結果
+     */
+    async sendSMS(params = {}) {
+        try {
+            const config = getApiConfig();
+            // SMS API 使用 production 端點
+            // 在開發環境中使用相對路徑（通過 vite proxy），生產環境使用完整 URL
+            const isDevelopment = typeof window !== 'undefined' && 
+                                 (window.location.hostname === 'localhost' || 
+                                  window.location.hostname === '127.0.0.1' ||
+                                  window.location.port !== '');
+            const url = isDevelopment 
+                ? '/api/roadshow/sms'  // 開發環境：使用相對路徑，通過 vite proxy
+                : 'https://pp.2025.aitago.tw/api/roadshow/sms';  // 生產環境：使用完整 URL
+            
+            console.log('📱 發送簡訊...');
+            console.log('📋 簡訊參數:', params);
+            console.log('🌐 使用端點:', url);
+            console.log('🔧 環境模式:', isDevelopment ? '開發環境 (使用 proxy)' : '生產環境');
+
+            // 處理 email：空字串轉為 null
+            const emailValue = params.email && params.email.trim() !== '' ? params.email : null;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.authToken}`
+                },
+                body: JSON.stringify({
+                    name: params.name,
+                    phone: params.phone,
+                    email: emailValue,
+                    img_url: params.img_url
+                })
+            });
+
+            console.log('📡 響應狀態:', response.status, response.statusText);
+
+            if (!response.ok) {
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    // 無法解析錯誤內容
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            console.log('✅ 簡訊發送成功:', data);
+            
+            return {
+                success: true,
+                data: data
+            };
+        } catch (error) {
+            console.error('❌ 簡訊發送失敗:', error);
             return {
                 success: false,
                 error: {

@@ -397,13 +397,116 @@ async function generateFaceSwap() {
     showFirstDialog.value = true;
     
     try {
+      // 驗證上傳的檔案
+      if (!uploadedImage.value) {
+        throw new Error('未選擇圖片檔案');
+      }
+      
+      // 檢查檔案類型和大小
+      const file = uploadedImage.value;
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      
+      console.log('📁 檔案資訊:', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        sizeMB: (file.size / 1024 / 1024).toFixed(2) + 'MB',
+        lastModified: new Date(file.lastModified).toISOString()
+      });
+      // 單獨輸出以便查看
+      console.log('📁 檔案名稱:', file.name);
+      console.log('📁 檔案類型:', file.type);
+      console.log('📁 檔案大小:', file.size, 'bytes', '(', (file.size / 1024 / 1024).toFixed(2), 'MB)');
+      
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('不支援的檔案格式，請上傳 JPG 或 PNG 格式的圖片');
+      }
+      
+      if (file.size > maxSize) {
+        throw new Error('檔案大小超過 10MB，請選擇較小的圖片');
+      }
+      
       // 使用新的 getFaceIndex 函數獲取正確的 face_index
       const targetFaceIndex = getFaceIndex(props.selectedTemplate, selectedCharacter.value)
       
+      console.log('🎯 生成參數:', {
+        template: props.selectedTemplate,
+        character: selectedCharacter.value,
+        targetFaceIndex: targetFaceIndex,
+        userId: props.userId
+      });
+      // 單獨輸出以便查看
+      console.log('🎯 模板 ID (字串):', props.selectedTemplate);
+      console.log('🎯 角色選擇:', selectedCharacter.value);
+      console.log('🎯 Target Face Index:', targetFaceIndex);
+      console.log('🎯 User ID:', props.userId);
+      
+      // 處理圖片：通過 canvas 重新繪製，確保格式一致（類似 Kiosk 模式）
+      // 這樣可以統一圖片格式，避免元數據問題
+      let processedFile = file;
+      
+      try {
+        console.log('🖼️ 開始處理圖片，確保格式一致...');
+        
+        // 創建圖片對象
+        const img = new Image();
+        const imageUrl = URL.createObjectURL(file);
+        
+        await new Promise((resolve, reject) => {
+          img.onload = () => {
+            // 創建 canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            // 轉換為 blob，然後創建 File 對象（類似 Kiosk 模式）
+            canvas.toBlob((blob) => {
+              if (blob) {
+                // 使用原始檔案名稱，但確保類型為 image/jpeg
+                const fileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                processedFile = new File([blob], fileName, { type: 'image/jpeg' });
+                console.log('✅ 圖片處理完成:', {
+                  originalName: file.name,
+                  processedName: processedFile.name,
+                  originalType: file.type,
+                  processedType: processedFile.type,
+                  originalSize: file.size,
+                  processedSize: processedFile.size,
+                  imageWidth: img.width,
+                  imageHeight: img.height,
+                  aspectRatio: (img.width / img.height).toFixed(2)
+                });
+                console.log('📐 圖片尺寸:', `${img.width} x ${img.height}`, `(比例: ${(img.width / img.height).toFixed(2)})`);
+                URL.revokeObjectURL(imageUrl);
+                resolve();
+              } else {
+                URL.revokeObjectURL(imageUrl);
+                reject(new Error('圖片處理失敗'));
+              }
+            }, 'image/jpeg', 0.95); // 使用 0.95 質量，與 Kiosk 模式一致
+          };
+          
+          img.onerror = () => {
+            URL.revokeObjectURL(imageUrl);
+            reject(new Error('圖片載入失敗'));
+          };
+          
+          img.src = imageUrl;
+        });
+      } catch (error) {
+        console.warn('⚠️ 圖片處理失敗，使用原始檔案:', error);
+        // 如果處理失敗，使用原始檔案
+        processedFile = file;
+      }
+      
       // 準備FormData - 純粹的API調用，不改變UI
       const formData = new FormData();
-              formData.append('userId', props.userId || 'abc'); // 使用傳入的用戶ID或後備值
-      formData.append('file', uploadedImage.value);
+      formData.append('userId', props.userId || 'abc'); // 使用傳入的用戶ID或後備值
+      formData.append('file', processedFile);
       
       // 將字符串模板ID轉換為對應的數字ID (1,2,3,4)
       const templateIdMap = {
@@ -417,6 +520,28 @@ async function generateFaceSwap() {
       
       formData.append('target_face_index', targetFaceIndex); // 使用新的 getFaceIndex 函數獲取正確的 face_index
       formData.append('userInfo', `選擇的角色: ${selectedCharacter.value}`);
+      
+      console.log('📤 準備發送 FormData:', {
+        userId: props.userId || 'abc',
+        template_id: numericTemplateId,
+        target_face_index: targetFaceIndex,
+        file_name: processedFile.name,
+        file_size: processedFile.size,
+        file_type: processedFile.type,
+        original_file_name: file.name,
+        original_file_size: file.size,
+        original_file_type: file.type
+      });
+      // 單獨輸出以便查看
+      console.log('📤 Template ID (數字):', numericTemplateId);
+      console.log('📤 Target Face Index:', targetFaceIndex);
+      console.log('📤 User ID:', props.userId || 'abc');
+      console.log('📤 處理後的檔案:', {
+        name: processedFile.name,
+        type: processedFile.type,
+        size: processedFile.size,
+        sizeKB: (processedFile.size / 1024).toFixed(2) + 'KB'
+      });
       
       // 調用API生成頭像
       const result = await roadshowService.generateAvatar(formData);
