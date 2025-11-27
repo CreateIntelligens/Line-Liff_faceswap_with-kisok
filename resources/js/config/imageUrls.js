@@ -20,6 +20,7 @@ import logo1Img from '../../../public/images/logo-2.png'
 import newLogoImg from '../../../public/images/logo.32ec7d19 1 (1).png'
 import resultHeaderImg from '../../../public/images/Group 138678 (1).png'
 import profileImg from '../../../public/images/profile.png'
+import loadingImg from '../../../public/images/loading.png'
 import resultImg from '../../../public/images/result.png'
 import starImg from '../../images/star.png'
 import uploadImg from '../../images/upload.png'
@@ -50,6 +51,7 @@ export const imageUrls = {
   resultHeader: resultHeaderImg,
   logo: newLogoImg,
   profile: profileImg,
+  loading: loadingImg,
   result: resultImg,
   star: starImg,
   upload: uploadImg,

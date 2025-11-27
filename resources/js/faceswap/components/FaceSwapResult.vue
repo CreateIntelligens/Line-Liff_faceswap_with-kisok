@@ -21,10 +21,10 @@
 
       <!-- 載入中狀態 -->
       <div v-if="isLoading" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <!-- Kiosk: 顯示 profile.png 圖片 -->
+        <!-- Kiosk: 顯示 loading.png 圖片 -->
         <img 
           v-if="isKioskMode"
-          :src="imageUrls.profile"
+          :src="imageUrls.loading"
           alt="載入中"
           class="w-[700px] h-[933px] object-contain mb-8"
         />
