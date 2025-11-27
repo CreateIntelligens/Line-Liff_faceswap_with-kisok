@@ -199,11 +199,8 @@ const isFormValid = computed(() => {
 
 // 組件掛載時檢查任務狀態
 onMounted(async () => {
-  console.log('🚀 FaceSwapResult 組件已掛載，taskId:', props.taskId)
-  
   // 如果是測試模式，直接顯示預覽
   if (props.taskId === 'test-task-preview') {
-    console.log('🎨 測試模式：直接顯示預覽畫面')
     isLoading.value = false
     generatedImageUrl.value = '' // 使用預設的 result.png
     return
@@ -215,7 +212,6 @@ onMounted(async () => {
 // 檢查任務狀態
 async function checkTaskStatus() {
   if (!props.taskId) {
-    console.warn('⚠️ 沒有taskId，無法檢查狀態')
     errorMessage.value = '缺少任務 ID'
     isLoading.value = false
     return
@@ -227,12 +223,9 @@ async function checkTaskStatus() {
     
     const result = await roadshowService.checkTaskStatus(props.taskId)
     
-    console.log('📋 收到任務狀態響應:', result)
-    
     // 檢查是否為錯誤響應
     if (result && result.success === false && result.error) {
       errorMessage.value = result.error.message || '檢查任務狀態失敗'
-      console.error('❌ 檢查任務狀態失敗:', result.error)
       isLoading.value = false
       return
     }
@@ -242,34 +235,12 @@ async function checkTaskStatus() {
     if (result) {
       taskData = result.data?.result || result.result || result.data || result
       
-      console.log('📊 解析後的任務數據:', taskData)
-      
       // 處理任務狀態
       if (taskData.status === 'completed' && taskData.images && taskData.images.length > 0) {
         generatedImageUrl.value = taskData.images[0]
-        console.log('✅ 圖片生成成功:', generatedImageUrl.value)
       } else if (taskData.status === 'failed') {
         const errorMsg = taskData.error_message || taskData.error || taskData.message || '任務處理失敗'
         errorMessage.value = errorMsg
-        console.error('❌ 任務處理失敗:', {
-          taskId: props.taskId,
-          status: taskData.status,
-          error_message: taskData.error_message,
-          error: taskData.error,
-          message: taskData.message,
-          template_id: taskData.template_id,
-          images: taskData.images,
-          fullData: taskData
-        });
-        // 單獨輸出每個字段以便查看
-        console.error('❌ 任務 ID:', props.taskId);
-        console.error('❌ 任務狀態:', taskData.status);
-        console.error('❌ 錯誤訊息:', taskData.error_message || '無錯誤訊息');
-        console.error('❌ 錯誤對象:', taskData.error || '無錯誤對象');
-        console.error('❌ 狀態訊息:', taskData.message || '無狀態訊息');
-        console.error('❌ 模板 ID:', taskData.template_id);
-        console.error('❌ 圖片陣列:', taskData.images || []);
-        console.error('❌ 完整任務數據:', JSON.stringify(taskData, null, 2));
       } else if (taskData.status === 'pending' || taskData.status === 'processing') {
         // 還在處理中，3秒後重試
         setTimeout(checkTaskStatus, 3000)
@@ -277,11 +248,9 @@ async function checkTaskStatus() {
       }
     } else {
       errorMessage.value = '無法獲取任務狀態'
-      console.error('❌ 收到空的響應')
     }
   } catch (err) {
     errorMessage.value = '網路錯誤，請檢查連線'
-    console.error('❌ 檢查任務狀態時發生錯誤:', err)
   } finally {
     isLoading.value = false
   }
@@ -296,9 +265,6 @@ async function handleSubmit() {
     errorMessage.value = ''
     successMessage.value = ''
     
-    console.log('📤 送出表單資料:', formData.value)
-    console.log('🖼️ 圖片 URL:', generatedImageUrl.value)
-    
     // 調用後端 API 發送簡訊
     const response = await roadshowService.sendSMS({
       name: formData.value.name,
@@ -311,7 +277,6 @@ async function handleSubmit() {
       // 使用 API 返回的訊息或預設訊息
       const message = response.data?.message || '簡訊發送成功'
       successMessage.value = `✅ ${message}`
-      console.log('✅ 表單送出成功:', response.data)
       
       // 3秒後回到首頁
       setTimeout(() => {
@@ -321,12 +286,10 @@ async function handleSubmit() {
       // API 返回錯誤
       const errorMsg = response.error?.message || '送出失敗，請稍後再試'
       errorMessage.value = errorMsg
-      console.error('❌ 表單送出失敗:', response.error)
     }
     
   } catch (error) {
     errorMessage.value = '送出失敗，請稍後再試'
-    console.error('❌ 表單送出失敗:', error)
   } finally {
     isSubmitting.value = false
   }
