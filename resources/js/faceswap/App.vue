@@ -1,6 +1,9 @@
 <template>
+  <!-- 表單頁面（獨立頁面，不依賴裝置模式） -->
+  <FormPage v-if="showFormPage" />
+  
   <!-- 根據裝置模式切換不同的容器樣式 -->
-  <div :class="appContainerClass">
+  <div v-else :class="appContainerClass">
     <!-- ==================== Mobile 模式 ==================== -->
     <template v-if="!isKioskMode">
       <!-- Mobile 模式：外層黑色全螢幕容器，內層固定 414px 寬度 -->
@@ -116,6 +119,7 @@ import FaceSwapCharacterSelection from './components/FaceSwapCharacterSelection.
 import FaceSwapUpload from './components/FaceSwapUpload.vue'
 import FaceSwapCameraCapture from './components/FaceSwapCameraCapture.vue'
 import FaceSwapResult from './components/FaceSwapResult.vue'
+import FormPage from './components/FormPage.vue'
 import { roadshowService } from '../services/roadshowService.js'
 import { deviceService } from '../services/deviceService.js'
 
@@ -133,6 +137,24 @@ const selectedTemplate = ref('')
 const selectedCharacter = ref('') // Kiosk 模式下選擇的角色
 const isInitialized = ref(false)
 const userUsage = ref(0) // 用戶已生成的圖片數量
+
+// 檢查 URL 參數，如果 to_form=true 則顯示表單頁面
+const urlParams = new URLSearchParams(window.location.search)
+const toForm = urlParams.get('to_form')
+// 支援多種格式：true, True, TRUE, 1
+const showFormPage = ref(toForm === 'true' || toForm === 'True' || toForm === 'TRUE' || toForm === '1')
+
+// 調試日誌 - 總是輸出，方便診斷
+console.log('🔍 URL 參數檢查:')
+console.log('  - 完整 URL:', window.location.href)
+console.log('  - 完整 search:', window.location.search)
+console.log('  - to_form 參數值:', toForm)
+console.log('  - showFormPage 值:', showFormPage.value)
+if (toForm) {
+  console.log('✅ 檢測到 to_form 參數，將顯示表單頁面')
+} else {
+  console.log('ℹ️ 未檢測到 to_form 參數，將顯示正常頁面')
+}
 
 // 裝置模式: 'kiosk' | 'mobile'
 const deviceMode = ref('mobile')
@@ -178,6 +200,14 @@ async function initializeApp() {
   console.log('=== 換臉應用程序初始化開始 ===')
 
   try {
+    // 如果顯示表單頁面，直接返回，不執行其他初始化
+    if (showFormPage.value) {
+      console.log('📋 表單頁面模式，跳過其他初始化')
+      isInitialized.value = true
+      console.log('=== 表單模式初始化完成 ===')
+      return
+    }
+    
     // 檢查 URL 參數，用於測試/預覽特定步驟
     const urlParams = new URLSearchParams(window.location.search)
     const stepParam = urlParams.get('step')

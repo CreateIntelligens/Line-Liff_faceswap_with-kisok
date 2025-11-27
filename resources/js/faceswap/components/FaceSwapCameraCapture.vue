@@ -66,10 +66,10 @@
           <div :class="isKioskMode ? 'h-[936px]' : 'h-[360px]'" class="bg-black rounded-lg overflow-hidden relative">
         <!-- Camera Preview State (showing loading while camera initializes) -->
         <div v-if="cameraState === 'idle'" class="flex flex-col items-center justify-center h-full">
-          <!-- Kiosk: 顯示 loading.png -->
+          <!-- Kiosk: 顯示 load.png -->
           <img 
             v-if="isKioskMode"
-            :src="imageUrls.loading"
+            :src="imageUrls.load"
             alt="載入中"
             class="w-[600px] h-[800px] object-contain mb-8"
           />
@@ -102,9 +102,9 @@
 
         <!-- Loading State -->
         <div v-if="cameraState === 'loading'" class="flex flex-col items-center justify-center h-full">
-          <!-- 顯示 loading.png 圖片 -->
+          <!-- 顯示 load.png 圖片 -->
           <img
-            :src="imageUrls.loading"
+            :src="imageUrls.load"
             alt="處理中"
             :class="isKioskMode ? 'w-[700px] h-[933px] mb-16' : 'w-[300px] h-[400px] mb-6'"
             class="object-contain"

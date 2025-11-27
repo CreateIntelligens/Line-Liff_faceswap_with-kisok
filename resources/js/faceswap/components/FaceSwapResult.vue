@@ -21,10 +21,10 @@
 
       <!-- 載入中狀態 -->
       <div v-if="isLoading" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <!-- Kiosk: 顯示 loading.png 圖片 -->
+        <!-- Kiosk: 顯示 load.png 圖片 -->
         <img 
           v-if="isKioskMode"
-          :src="imageUrls.loading"
+          :src="imageUrls.load"
           alt="載入中"
           class="w-[700px] h-[933px] object-contain mb-8"
         />
@@ -32,7 +32,7 @@
         <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#EBD8B2]">圖片生成中，請稍候...</p>
     </div>
 
-      <!-- 生成的圖片 with 成功訊息覆蓋 -->
+      <!-- 生成的圖片 -->
       <div v-else :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20">
         <!-- 背景圖片 - 始終顯示固定的 result.png -->
         <img
@@ -41,22 +41,12 @@
           :class="isKioskMode ? 'w-[900px]' : 'w-full'"
           class="object-contain rounded-lg shadow-lg"
         />
-        
-        <!-- 粉紅色成功訊息覆蓋層 -->
-        <div :class="isKioskMode ? 'py-16' : 'py-6'" class="absolute bottom-0 left-0 right-0 bg-[#e91e63] text-white text-center rounded-b-lg">
-          <h2 :class="isKioskMode ? 'text-6xl mb-8' : 'text-2xl mb-2'" class="font-bold">圖片生成成功！</h2>
-          <p :class="isKioskMode ? 'text-3xl px-12 leading-relaxed' : 'text-sm px-4 leading-relaxed'">
-            請填寫下方資料，即可參加抽獎！<br>
-            生成圖片會發送簡訊到您的手機，<br>
-            點選簡訊內的連結即可下載圖片
-          </p>
-            </div>
-          </div>
+      </div>
           
       <!-- 表單 -->
       <div v-if="!isLoading" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative;">
-        <!-- 真實姓名 -->
-        <div class="relative z-40">
+        <!-- 真實姓名 (僅手機版) -->
+        <div v-if="!isKioskMode" class="relative z-40">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
             真實姓名<span class="text-red-500">*</span>
           </label>
@@ -87,8 +77,8 @@
                 />
               </div>
 
-        <!-- Email -->
-        <div class="relative z-40">
+        <!-- Email (僅手機版) -->
+        <div v-if="!isKioskMode" class="relative z-40">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
             Email
           </label>
@@ -134,7 +124,7 @@
       <!-- 底部說明文字 -->
       <div v-if="!isLoading" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
         此個人資料會提供給PP石墨烯作為<br>
-        此次抽獎活動使用後銷毀行銷推廣
+        此次抽獎活動使用與後續行銷推廣
     </div>
     </div>
   </div>
@@ -188,10 +178,17 @@ const generatedImageUrl = ref('')
 const isSubmitting = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
-const isLoading = ref(true)
+// 初始不顯示 loading，等檢查任務狀態後再決定
+const isLoading = ref(false)
 
 // 表單驗證
 const isFormValid = computed(() => {
+  // Kiosk 模式：只驗證電話
+  if (props.isKioskMode) {
+    return formData.value.phone.trim() !== '' &&
+           /^09\d{8}$/.test(formData.value.phone.trim())
+  }
+  // 手機版：驗證姓名和電話
   return formData.value.name.trim() !== '' && 
          formData.value.phone.trim() !== '' &&
          /^09\d{8}$/.test(formData.value.phone.trim())
@@ -218,7 +215,6 @@ async function checkTaskStatus() {
   }
   
   try {
-    isLoading.value = true
     errorMessage.value = ''
     
     const result = await roadshowService.checkTaskStatus(props.taskId)
@@ -238,20 +234,26 @@ async function checkTaskStatus() {
       // 處理任務狀態
       if (taskData.status === 'completed' && taskData.images && taskData.images.length > 0) {
         generatedImageUrl.value = taskData.images[0]
+        isLoading.value = false
+        return
       } else if (taskData.status === 'failed') {
         const errorMsg = taskData.error_message || taskData.error || taskData.message || '任務處理失敗'
         errorMessage.value = errorMsg
+        isLoading.value = false
+        return
       } else if (taskData.status === 'pending' || taskData.status === 'processing') {
-        // 還在處理中，3秒後重試
+        // 還在處理中，顯示 loading 並在 3 秒後重試
+        isLoading.value = true
         setTimeout(checkTaskStatus, 3000)
         return
       }
     } else {
       errorMessage.value = '無法獲取任務狀態'
+      isLoading.value = false
+      return
     }
   } catch (err) {
     errorMessage.value = '網路錯誤，請檢查連線'
-  } finally {
     isLoading.value = false
   }
 }
@@ -265,13 +267,27 @@ async function handleSubmit() {
     errorMessage.value = ''
     successMessage.value = ''
     
+    // 根據模式決定傳送的參數
+    let smsParams
+    if (props.isKioskMode) {
+      // Kiosk 模式：只傳電話和圖片 URL，加上 fromKiosk 標記
+      smsParams = {
+        phone: formData.value.phone,
+        img_url: generatedImageUrl.value,
+        fromKiosk: true
+      }
+    } else {
+      // 手機版：傳送所有欄位
+      smsParams = {
+        name: formData.value.name,
+        phone: formData.value.phone,
+        email: formData.value.email,
+        img_url: generatedImageUrl.value
+      }
+    }
+    
     // 調用後端 API 發送簡訊
-    const response = await roadshowService.sendSMS({
-      name: formData.value.name,
-      phone: formData.value.phone,
-      email: formData.value.email,
-      img_url: generatedImageUrl.value
-    })
+    const response = await roadshowService.sendSMS(smsParams)
     
     if (response.success) {
       // 使用 API 返回的訊息或預設訊息

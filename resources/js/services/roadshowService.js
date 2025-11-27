@@ -551,10 +551,11 @@ export const roadshowService = {
      * 發送簡訊給用戶
      * 
      * @param {Object} params - 簡訊參數
-     * @param {string} params.name - 用戶姓名 (required)
+     * @param {string} [params.name] - 用戶姓名 (手機版必填，Kiosk 模式不需要)
      * @param {string} params.phone - 手機號碼 (required)
-     * @param {string|null} params.email - 電子郵件 (required, 可為 null)
+     * @param {string|null} [params.email] - 電子郵件 (手機版可選，Kiosk 模式不需要)
      * @param {string} params.img_url - 圖片 URL (required)
+     * @param {boolean} [params.fromKiosk] - 是否為 Kiosk 模式 (optional)
      * @returns {Promise<Object>} 發送結果
      */
     async sendSMS(params = {}) {
@@ -563,10 +564,108 @@ export const roadshowService = {
             // SMS API 使用 production 端點
             // 在開發環境中使用相對路徑（通過 vite proxy），生產環境使用完整 URL
 
-            const url = config.baseURL + '/roadshow/sms';
+            // 根據 fromKiosk 參數決定 URL 和請求 body
+            const isKioskMode = params.fromKiosk === true;
+            const url = config.baseURL + '/roadshow/sms' + (isKioskMode ? '?fromKiosk=true' : '');
             
             console.log('📱 發送簡訊...');
             console.log('📋 簡訊參數:', params);
+            console.log('🌐 使用端點:', url);
+            console.log('🖥️ Kiosk 模式:', isKioskMode);
+
+            // 構建請求 body
+            let requestBody;
+            if (isKioskMode) {
+                // Kiosk 模式：只傳 phone 和 img_url
+                requestBody = {
+                    phone: params.phone,
+                    img_url: params.img_url,
+                    fromKiosk: true
+                };
+            } else {
+                // 手機版：傳送所有欄位
+                // 處理 email：空字串轉為 null
+                const emailValue = params.email && params.email.trim() !== '' ? params.email : null;
+                requestBody = {
+                    name: params.name,
+                    phone: params.phone,
+                    email: emailValue,
+                    img_url: params.img_url
+                };
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.authToken}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log('📡 響應狀態:', response.status, response.statusText);
+
+            if (!response.ok) {
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    // 無法解析錯誤內容
+                }
+                throw new Error(errorMessage);
+            }
+
+            // 處理響應：可能是空響應或 JSON
+            let data = null;
+            const contentType = response.headers.get('content-type');
+            const responseText = await response.text();
+            
+            if (responseText && contentType && contentType.includes('application/json')) {
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('✅ 簡訊發送成功:', data);
+                } catch (e) {
+                    console.warn('⚠️ 響應不是有效的 JSON，但狀態碼為 200，視為成功');
+                    // 即使解析失敗，如果狀態碼是 200，也視為成功
+                }
+            } else if (response.status === 200) {
+                // 空響應但狀態碼為 200，視為成功
+                console.log('✅ 簡訊發送成功（空響應）');
+            }
+            
+            return {
+                success: true,
+                data: data
+            };
+        } catch (error) {
+            console.error('❌ 簡訊發送失敗:', error);
+            return {
+                success: false,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    },
+
+    /**
+     * 提交表單資料
+     * 
+     * @param {Object} params - 表單參數
+     * @param {string} params.name - 用戶姓名 (required)
+     * @param {string} params.phone - 手機號碼 (required)
+     * @param {string|null} [params.email] - 電子郵件 (optional)
+     * @returns {Promise<Object>} 提交結果
+     */
+    async saveForm(params = {}) {
+        try {
+            const config = getApiConfig();
+            const url = config.baseURL + '/roadshow/form';
+            
+            console.log('📝 提交表單...');
+            console.log('📋 表單參數:', params);
             console.log('🌐 使用端點:', url);
 
             // 處理 email：空字串轉為 null
@@ -582,8 +681,7 @@ export const roadshowService = {
                 body: JSON.stringify({
                     name: params.name,
                     phone: params.phone,
-                    email: emailValue,
-                    img_url: params.img_url
+                    email: emailValue
                 })
             });
 
@@ -600,15 +698,30 @@ export const roadshowService = {
                 throw new Error(errorMessage);
             }
 
-            const data = await response.json();
-            console.log('✅ 簡訊發送成功:', data);
+            // 處理響應：可能是空響應或 JSON
+            let data = null;
+            const contentType = response.headers.get('content-type');
+            const responseText = await response.text();
+            
+            if (responseText && contentType && contentType.includes('application/json')) {
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('✅ 表單提交成功:', data);
+                } catch (e) {
+                    console.warn('⚠️ 響應不是有效的 JSON，但狀態碼為 200，視為成功');
+                    // 即使解析失敗，如果狀態碼是 200，也視為成功
+                }
+            } else if (response.status === 200) {
+                // 空響應但狀態碼為 200，視為成功
+                console.log('✅ 表單提交成功（空響應）');
+            }
             
             return {
                 success: true,
                 data: data
             };
         } catch (error) {
-            console.error('❌ 簡訊發送失敗:', error);
+            console.error('❌ 表單提交失敗:', error);
             return {
                 success: false,
                 error: {
