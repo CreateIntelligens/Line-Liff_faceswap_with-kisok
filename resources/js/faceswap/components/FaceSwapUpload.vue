@@ -402,7 +402,7 @@ async function generateFaceSwap() {
         throw new Error('未選擇圖片檔案');
       }
       
-      // 檢查檔案類型和大小
+      // 檢查檔案類型和大小1;
       const file = uploadedImage.value;
       const maxSize = 10 * 1024 * 1024; // 10MB
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];

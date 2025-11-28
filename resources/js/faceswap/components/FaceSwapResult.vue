@@ -20,7 +20,7 @@
       <div v-if="isKioskMode" class="absolute right-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] rotate-90 origin-right pointer-events-none z-10"></div>
 
       <!-- 載入中狀態 -->
-      <div v-if="isLoading" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
+      <div v-if="isLoading && !isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
         <!-- Kiosk: 顯示 load.png 圖片 -->
         <img 
           v-if="isKioskMode"
@@ -32,8 +32,18 @@
         <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#EBD8B2]">圖片生成中，請稍候...</p>
     </div>
 
+      <!-- 任務失敗錯誤訊息 -->
+      <div v-if="isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
+        <p :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-red-400 text-center font-bold mb-4">
+          {{ errorMessage }}
+        </p>
+        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#EBD8B2] text-center">
+          3秒後將自動返回首頁...
+        </p>
+      </div>
+
       <!-- 生成的圖片 -->
-      <div v-else :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20">
+      <div v-else-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20">
         <!-- 背景圖片 - 始終顯示固定的 result.png -->
         <img
           :src="imageUrls.result"
@@ -44,7 +54,7 @@
       </div>
           
       <!-- 表單 -->
-      <div v-if="!isLoading" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative;">
+      <div v-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative;">
         <!-- 真實姓名 (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
@@ -122,7 +132,7 @@
       </div>
 
       <!-- 底部說明文字 -->
-      <div v-if="!isLoading" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
+      <div v-if="!isLoading && !isFailed" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
         此個人資料會提供給PP石墨烯作為<br>
         此次抽獎活動使用與後續行銷推廣
     </div>
@@ -178,8 +188,10 @@ const generatedImageUrl = ref('')
 const isSubmitting = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
-// 初始不顯示 loading，等檢查任務狀態後再決定
-const isLoading = ref(false)
+// 初始顯示 loading，避免表單閃現，等檢查任務狀態後再決定
+const isLoading = ref(true)
+// 任務失敗狀態
+const isFailed = ref(false)
 
 // 表單驗證
 const isFormValid = computed(() => {
@@ -203,6 +215,8 @@ onMounted(async () => {
     return
   }
   
+  // 開始檢查任務狀態時先顯示 loading，避免表單閃現
+  isLoading.value = true
   await checkTaskStatus()
 })
 
@@ -216,6 +230,8 @@ async function checkTaskStatus() {
   
   try {
     errorMessage.value = ''
+    // 確保在檢查期間顯示 loading
+    isLoading.value = true
     
     const result = await roadshowService.checkTaskStatus(props.taskId)
     
@@ -237,9 +253,15 @@ async function checkTaskStatus() {
         isLoading.value = false
         return
       } else if (taskData.status === 'failed') {
-        const errorMsg = taskData.error_message || taskData.error || taskData.message || '任務處理失敗'
-        errorMessage.value = errorMsg
+        // 任務失敗：顯示錯誤訊息，3秒後跳轉回首頁
+        isFailed.value = true
         isLoading.value = false
+        errorMessage.value = '換臉處理失敗：在目標圖片中沒有偵測到臉部'
+        console.error('❌ 任務處理失敗:', errorMessage.value)
+        // 3秒後自動跳轉回首頁
+        setTimeout(() => {
+          emit('restart')
+        }, 3000)
         return
       } else if (taskData.status === 'pending' || taskData.status === 'processing') {
         // 還在處理中，顯示 loading 並在 3 秒後重試

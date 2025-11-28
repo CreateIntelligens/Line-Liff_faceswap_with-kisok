@@ -27,7 +27,7 @@
     <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30"></div>
     <!-- 步驟 (手機版) -->
     <div v-if="!isKioskMode"
-      class="flex max-w-full w-[202px] text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap mx-auto mt-6"
+      class="flex max-w-full w-[202px] text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap mx-auto mt-4"
     >
       <img
         :src="imageUrls.step1"
@@ -57,18 +57,18 @@
     
     <!-- 步驟文字 (僅手機版) -->
     <div v-if="!isKioskMode"
-      class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#EBD8B2] mx-auto"
+      class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#EBD8B2] mx-auto mt-1"
     >
       <div data-name="Step 1">Step 1</div>
       <div data-name="Step 2">Step 2</div>
       <div data-name="Step 3">Step 3</div>
     </div>
-    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-14'" class="w-full mx-auto">
+    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto">
       <div class="flex flex-col w-full">
         <div class="flex flex-col w-full">
           <div
             :class="isKioskMode ? 'justify-center' : ''"
-            class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-6"
+            class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-2"
           >
             <!-- 手機版：顯示打勾圖標 -->
             <div v-if="!isKioskMode" class="w-6 h-6 self-stretch my-auto">
@@ -180,12 +180,12 @@
           </div>
 
           <!-- Usage Counter -->
-          <div class="mt-8 mb-8 text-right">
+          <div class="mt-4 mb-4 text-right">
             <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
           </div>
         </div>
         <div
-          :class="isKioskMode ? 'text-4xl mt-16' : 'text-base mt-8'"
+          :class="isKioskMode ? 'text-4xl mt-16' : 'text-base mt-4'"
           class="self-end w-full font-bold text-white whitespace-nowrap rounded-md"
         >
           <div
