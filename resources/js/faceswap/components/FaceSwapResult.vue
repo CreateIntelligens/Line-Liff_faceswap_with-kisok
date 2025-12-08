@@ -44,17 +44,17 @@
 
       <!-- 生成的圖片 -->
       <div v-else-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20" style="pointer-events: none;">
-        <!-- 背景圖片 - 始終顯示固定的 result.png -->
+        <!-- 如果已送出成功，顯示實際生成的圖片；否則顯示固定的 result.png -->
         <img
-          :src="imageUrls.result"
+          :src="showResultImage && generatedImageUrl ? generatedImageUrl : imageUrls.result"
           alt="生成的圖片"
           :class="isKioskMode ? 'w-[900px]' : 'w-full'"
           class="object-contain rounded-lg shadow-lg"
         />
       </div>
           
-      <!-- 表單 -->
-      <div v-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
+      <!-- 表單（送出成功後隱藏） -->
+      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
         <!-- 真實姓名 (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40" style="pointer-events: auto;">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
@@ -134,8 +134,25 @@
         </div>
       </div>
 
-      <!-- 底部說明文字 -->
-      <div v-if="!isLoading && !isFailed" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
+      <!-- 關閉並回到首頁按鈕（送出成功後顯示） -->
+      <div v-if="!isLoading && !isFailed && showResultImage" :class="isKioskMode ? 'w-[700px] mt-12' : 'w-full max-w-[335px] mt-8'" class="relative z-30" style="position: relative; pointer-events: auto;">
+        <button
+          type="button"
+          @click="handleCloseAndRestart"
+          @touchstart.prevent="handleCloseAndRestart"
+          :class="[
+            isKioskMode ? 'py-8 text-4xl' : 'py-3.5',
+            'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800 cursor-pointer'
+          ]"
+          class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
+          style="position: relative; pointer-events: auto !important; cursor: pointer !important;"
+        >
+          關閉並回到首頁
+        </button>
+      </div>
+
+      <!-- 底部說明文字（僅在表單顯示時顯示） -->
+      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
         此個人資料會提供給PP石墨烯作為<br>
         此次抽獎活動使用與後續行銷推廣
     </div>
@@ -195,6 +212,8 @@ const successMessage = ref('')
 const isLoading = ref(true)
 // 任務失敗狀態
 const isFailed = ref(false)
+// 控制是否顯示結果圖片頁面（送出成功後）
+const showResultImage = ref(false)
 
 // 表單驗證
 const isFormValid = computed(() => {
@@ -345,10 +364,8 @@ async function handleSubmit() {
       const message = response.data?.message || '簡訊發送成功'
       successMessage.value = `✅ ${message}`
       
-      // 3秒後回到首頁
-      setTimeout(() => {
-        emit('restart')
-      }, 3000)
+      // 切換到結果顯示模式，顯示生成的圖片
+      showResultImage.value = true
     } else {
       // API 返回錯誤
       // 詳細錯誤
@@ -365,5 +382,10 @@ async function handleSubmit() {
   } finally {
     isSubmitting.value = false
   }
+}
+
+// 處理關閉並回到首頁
+function handleCloseAndRestart() {
+  emit('restart')
 }
 </script>
