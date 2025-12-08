@@ -201,8 +201,10 @@ const formData = ref({
   email: ''
 })
 
-// 生成的圖片 URL
+// 生成的圖片 URL（處理後的 URL，用於顯示）
 const generatedImageUrl = ref('')
+// 原始圖片 URL（用於簡訊發送）
+const originalImageUrl = ref('')
 
 // UI 狀態
 const isSubmitting = ref(false)
@@ -329,9 +331,20 @@ async function checkTaskStatus() {
       
       // 處理任務狀態
       if (taskData.status === 'completed' && taskData.images && taskData.images.length > 0) {
-        // 使用 imageProcessApi 處理圖片 URL
-        const processedUrl = processImageUrl(taskData.images[0])
-        generatedImageUrl.value = processedUrl || taskData.images[0]
+        const rawImage = taskData.images[0]
+        
+        // 1. 處理原始圖片 URL（確保是絕對路徑，用於發簡訊）
+        // 如果是相對路徑，補上 CRM 的域名
+        if (rawImage.startsWith('/')) {
+          originalImageUrl.value = `https://stg-line-crm.fanpokka.ai${rawImage}`
+        } else {
+          originalImageUrl.value = rawImage
+        }
+        
+        // 2. 處理顯示圖片 URL（加上 imageProcessApi，用於畫面顯示）
+        const processedUrl = processImageUrl(rawImage)
+        generatedImageUrl.value = processedUrl || originalImageUrl.value // 如果處理失敗降級使用原始圖
+        
         isLoading.value = false
         return
       } else if (taskData.status === 'failed') {
@@ -389,18 +402,20 @@ async function handleSubmit() {
     let smsParams
     if (props.isKioskMode) {
       // Kiosk 模式：只傳電話和圖片 URL，加上 fromKiosk 標記
+      // 使用原始圖片 URL，而不是處理後的 API URL
       smsParams = {
         phone: formData.value.phone,
-        img_url: generatedImageUrl.value,
+        img_url: originalImageUrl.value || generatedImageUrl.value,
         fromKiosk: true
       }
     } else {
       // 手機版：傳送所有欄位
+      // 使用原始圖片 URL，而不是處理後的 API URL
       smsParams = {
         name: formData.value.name,
         phone: formData.value.phone,
         email: formData.value.email,
-        img_url: generatedImageUrl.value
+        img_url: originalImageUrl.value || generatedImageUrl.value
       }
     }
     
