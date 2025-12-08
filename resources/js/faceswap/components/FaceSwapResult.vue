@@ -14,7 +14,7 @@
     <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30 mb-6"></div>
 
     <!-- Main Content -->
-    <div :class="isKioskMode ? 'px-16 py-12 relative' : 'px-6 py-8'" class="flex-1 flex flex-col items-center">
+    <div :class="isKioskMode ? 'px-16 py-12 relative' : 'px-6 py-8'" class="flex-1 flex flex-col items-center" style="pointer-events: auto;">
       <!-- Decorative Bars (Kiosk only) -->
       <div v-if="isKioskMode" class="absolute left-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] -rotate-90 origin-left pointer-events-none z-10"></div>
       <div v-if="isKioskMode" class="absolute right-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] rotate-90 origin-right pointer-events-none z-10"></div>
@@ -43,7 +43,7 @@
       </div>
 
       <!-- 生成的圖片 -->
-      <div v-else-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20">
+      <div v-else-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20" style="pointer-events: none;">
         <!-- 背景圖片 - 始終顯示固定的 result.png -->
         <img
           :src="imageUrls.result"
@@ -54,9 +54,9 @@
       </div>
           
       <!-- 表單 -->
-      <div v-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative;">
+      <div v-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
         <!-- 真實姓名 (僅手機版) -->
-        <div v-if="!isKioskMode" class="relative z-40">
+        <div v-if="!isKioskMode" class="relative z-40" style="pointer-events: auto;">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
             真實姓名<span class="text-red-500">*</span>
           </label>
@@ -66,13 +66,13 @@
             placeholder="請輸入真實姓名"
             :class="isKioskMode ? 'px-10 py-8 text-3xl' : 'px-4 py-3'"
             class="w-full rounded-md bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e91e63] relative z-50"
-            style="touch-action: manipulation; position: relative;"
+            style="touch-action: manipulation; position: relative; pointer-events: auto;"
             required
               />
             </div>
 
         <!-- 聯絡電話 -->
-        <div class="relative z-40">
+        <div class="relative z-40" style="pointer-events: auto;">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
             聯絡電話<span class="text-red-500">*</span>
           </label>
@@ -82,7 +82,10 @@
             placeholder="請輸入聯絡電話"
             :class="isKioskMode ? 'px-10 py-8 text-3xl' : 'px-4 py-3'"
             class="w-full rounded-md bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e91e63] relative z-50"
-            style="touch-action: manipulation; position: relative;"
+            style="position: relative !important; z-index: 9999 !important; pointer-events: auto !important; cursor: text !important; touch-action: auto !important;"
+            @click.stop
+            @mousedown.stop
+            @touchstart.stop
             required
                 />
               </div>
@@ -115,7 +118,7 @@
               : 'bg-[#C7C7C7] text-white cursor-not-allowed'
           ]"
           class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          style="touch-action: manipulation; position: relative;"
+          style="position: relative; pointer-events: auto !important; cursor: pointer !important;"
         >
           {{ isSubmitting ? '送出中...' : '送出' }}
         </button>
