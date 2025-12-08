@@ -223,8 +223,13 @@ onMounted(async () => {
 // 檢查任務狀態
 async function checkTaskStatus() {
   if (!props.taskId) {
-    errorMessage.value = '缺少任務 ID'
+    console.error('❌ [CheckTaskStatus Error]: 缺少任務 ID')
+    isFailed.value = true
     isLoading.value = false
+    errorMessage.value = '系統忙碌中，將返回首頁'
+    setTimeout(() => {
+      emit('restart')
+    }, 3000)
     return
   }
   
@@ -237,8 +242,15 @@ async function checkTaskStatus() {
     
     // 檢查是否為錯誤響應
     if (result && result.success === false && result.error) {
-      errorMessage.value = result.error.message || '檢查任務狀態失敗'
+      // 詳細錯誤
+      console.error('❌ [CheckTaskStatus Error]:', result.error)
+      // 畫面顯示錯誤訊息
+      isFailed.value = true
       isLoading.value = false
+      errorMessage.value = '系統忙碌中，將返回首頁'
+      setTimeout(() => {
+        emit('restart')
+      }, 3000)
       return
     }
     
@@ -270,13 +282,27 @@ async function checkTaskStatus() {
         return
       }
     } else {
-      errorMessage.value = '無法獲取任務狀態'
+      // 詳細錯誤
+      console.error('❌ [CheckTaskStatus Error]: 無法獲取任務狀態，result:', result)
+      // 畫面顯示錯誤訊息
+      isFailed.value = true
       isLoading.value = false
+      errorMessage.value = '系統忙碌中，將返回首頁'
+      setTimeout(() => {
+        emit('restart')
+      }, 3000)
       return
     }
   } catch (err) {
-    errorMessage.value = '網路錯誤，請檢查連線'
+    // 詳細錯誤
+    console.error('❌ [CheckTaskStatus Error]:', err)
+    // 畫面顯示錯誤訊息
+    isFailed.value = true
     isLoading.value = false
+    errorMessage.value = '系統忙碌中，將返回首頁'
+    setTimeout(() => {
+      emit('restart')
+    }, 3000)
   }
 }
 
@@ -322,12 +348,17 @@ async function handleSubmit() {
       }, 3000)
     } else {
       // API 返回錯誤
-      const errorMsg = response.error?.message || '送出失敗，請稍後再試'
-      errorMessage.value = errorMsg
+      // 詳細錯誤
+      console.error('❌ [Submit Error]:', response.error)
+      // 畫面顯示錯誤訊息（不直接顯示 error.message）
+      errorMessage.value = '網路連線異常，請稍後再試'
     }
     
   } catch (error) {
-    errorMessage.value = '送出失敗，請稍後再試'
+    // 詳細錯誤
+    console.error('❌ [Submit Error]:', error)
+    // 畫面顯示錯誤訊息
+    errorMessage.value = '網路連線異常，請稍後再試'
   } finally {
     isSubmitting.value = false
   }

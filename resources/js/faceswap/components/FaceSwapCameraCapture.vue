@@ -80,7 +80,7 @@
         <video v-if="cameraState === 'preview' || cameraState === 'countdown'"
                ref="videoElement"
                :class="isKioskMode ? 'border-4' : 'border-2'"
-               class="w-full h-full object-cover border-[#EBD8B2] rounded-lg"
+               class="w-full h-full object-cover border-[#EBD8B2] rounded-lg -scale-x-100"
                autoplay
                playsinline>
         </video>
@@ -269,13 +269,60 @@ function startCountdown() {
 function capturePhoto() {
   if (!videoElement.value) return
 
+  const video = videoElement.value
+
+  // 1. 獲取原始視訊尺寸 (例如 1280x720)
+  const videoW = video.videoWidth
+  const videoH = video.videoHeight
+  const videoRatio = videoW / videoH
+
+  // 2. 獲取螢幕上實際顯示的方框尺寸 (例如 300x400)
+  const rect = video.getBoundingClientRect()
+  const displayW = rect.width
+  const displayH = rect.height
+  const displayRatio = displayW / displayH
+
+  // 3. 計算裁切參數 (source x, source y, source width, source height)
+  let sx, sy, sWidth, sHeight
+
+  if (videoRatio > displayRatio) {
+    // 情況 A：視訊比顯示框更「寬」 (例如視訊 16:9，顯示框 1:1)
+    // 邏輯：保留高度，裁掉左右兩邊
+    sHeight = videoH
+    sWidth = sHeight * displayRatio // 根據顯示比例算出應該保留的寬度
+    sy = 0
+    sx = (videoW - sWidth) / 2 // 從中間開始裁
+  } else {
+    // 情況 B：視訊比顯示框更「瘦」 (例如視訊 4:3，顯示框 9:16)
+    // 邏輯：保留寬度，裁掉上下兩邊
+    sWidth = videoW
+    sHeight = sWidth / displayRatio // 根據顯示比例算出應該保留的高度
+    sx = 0
+    sy = (videoH - sHeight) / 2 // 從中間開始裁
+  }
+
+  // 4. 創建 Canvas
   const canvas = document.createElement('canvas')
-  canvas.width = videoElement.value.videoWidth
-  canvas.height = videoElement.value.videoHeight
+
+  // 【關鍵修正】: 設定 Canvas 大小為「裁切後的高解析度尺寸」，而不是螢幕顯示尺寸
+  // 這樣可以確保圖片清晰度
+  canvas.width = sWidth
+  canvas.height = sHeight
 
   const ctx = canvas.getContext('2d')
-  ctx.drawImage(videoElement.value, 0, 0)
 
+  // 5. 執行鏡像翻轉和裁切繪製
+  // 先進行鏡像翻轉變換
+  ctx.translate(canvas.width, 0) // 將原點移到右邊
+  ctx.scale(-1, 1) // 水平翻轉
+  
+  // drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+  ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight)
+  
+  // 重置變換矩陣
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+  // 6. 輸出圖片
   capturedImage.value = canvas.toDataURL('image/jpeg', 0.95)
   cameraState.value = 'captured'
 
