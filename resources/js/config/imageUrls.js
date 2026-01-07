@@ -6,23 +6,24 @@ import step3InactiveImg from '../../images/step3_inactive.png'
 import step3InprogressImg from '../../images/step3_inprogress.png'
 import finishImg from '../../images/finish.png'
 import horizontalImg from '../../images/horizontal.png'
-import playImg from '../../images/play.png'
-import wifeImg from '../../images/wife.png'
-import loveImg from '../../images/love.png'
-import superImg from '../../images/super.png'
+// 大同品牌模板圖片
+import godofwealthImg from '../../images/1godofwealth.png'
+import baseballImg from '../../images/2baseball.png'
+import ricecookerImg from '../../images/3ricecooker.png'
+import moonblocksImg from '../../images/4moonblocks.png'
 import backImg from '../../images/back.png'
 import crownImg from '../../images/crown.png'
 import group13948Img from '../../images/Group13948.png'
 import headerImg from '../../images/header.png'
 import newHeaderImg from '../../images/2025內容創新發布會-KV-FIN0805 2.png'
 import logoImg from '../../images/logo.png'
-import logo1Img from '../../../public/images/logo-2.png'
-import newLogoImg from '../../../public/images/logo.32ec7d19 1 (1).png'
-import resultHeaderImg from '../../../public/images/Group 138678 (1).png'
-import profileImg from '../../../public/images/profile.png'
-import prizeImg from '../../../public/images/prize.png'
-import loadImg from '../../../public/images/load.png'
-import resultImg from '../../../public/images/result.png'
+import logo1Img from '../../images/logo-2.png'
+import newLogoImg from '../../images/logo-32ec7d19.png'
+import resultHeaderImg from '../../images/Group138678-1.png'
+import prizeImg from '../../images/prize.png'
+import loadImg from '../../images/load.png'
+import resultImg from '../../images/result.png'
+import profileImg from '../../images/profile.png'
 import starImg from '../../images/star.png'
 import uploadImg from '../../images/upload.png'
 import rectangle8Img from '../../images/Rectangle 8.png'
@@ -38,23 +39,24 @@ export const imageUrls = {
   finish: finishImg,
   horizontal: horizontalImg,
 
-  // 模板圖片
-  play: playImg,
-  wife: wifeImg,
-  love: loveImg,
-  super: superImg,
+  // 大同品牌模板圖片
+  play: godofwealthImg,      // 財運亨通馬上發
+  wife: baseballImg,         // 強棒出擊馬力夯
+  love: ricecookerImg,       // 山珍海味馬不停
+  super: moonblocksImg,      // 心想事成馬上有
 
   // 其他圖片
   back: backImg,
   crown: crownImg,
   Group13948: group13948Img,
   header: logo1Img,
+  header1: logo1Img,  // 新增別名
   resultHeader: resultHeaderImg,
   logo: newLogoImg,
-  profile: profileImg,
-  prize: prizeImg,
-  load: loadImg,
-  result: resultImg,
+  profile: godofwealthImg,   // 首頁主圖使用財神爺
+  prize: godofwealthImg,     // 獎品圖使用財神爺
+  load: godofwealthImg,      // 載入圖使用財神爺
+  result: godofwealthImg,    // 結果圖使用財神爺
   star: starImg,
   upload: uploadImg,
   rectangle8: rectangle8Img,
@@ -73,10 +75,10 @@ export const stepImages = {
 
 // 模板圖片集合 (兼容 images.js 的 API)
 export const templateImages = {
-  play: imageUrls.play,
-  wife: imageUrls.wife,
-  love: imageUrls.love,
-  super: imageUrls.super,
+  play: imageUrls.play,      // 財運亨通馬上發
+  wife: imageUrls.wife,      // 強棒出擊馬力夯
+  love: imageUrls.love,      // 山珍海味馬不停
+  super: imageUrls.super,    // 心想事成馬上有
 };
 
 // 其他圖片集合 (兼容 images.js 的 API)
@@ -101,10 +103,10 @@ export const allImages = {
 // 根據模板 ID 獲取圖片
 export const getTemplateImage = (templateId) => {
   const imageMap = {
-    '1': imageUrls.play,   // 綜藝玩很大
-    '2': imageUrls.wife,   // 犀利人妻
-    '3': imageUrls.love,   // 命中註定我愛你
-    '4': imageUrls.super,  // 超級夜總會
+    '1': imageUrls.play,   // 財運亨通馬上發
+    '2': imageUrls.wife,   // 強棒出擊馬力夯
+    '3': imageUrls.love,   // 山珍海味馬不停
+    '4': imageUrls.super,  // 心想事成馬上有
     'play': imageUrls.play,
     'wife': imageUrls.wife,
     'love': imageUrls.love,

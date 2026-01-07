@@ -73,14 +73,14 @@
         @back="goBack"
       />
 
-      <!-- Kiosk Character Selection -->
-      <FaceSwapCharacterSelection
+      <!-- Kiosk Character Selection - 已廢棄,不再使用 -->
+      <!-- <FaceSwapCharacterSelection
         v-if="currentStep === 'character-selection'"
         :selectedTemplate="selectedTemplate"
         :isKioskMode="isKioskMode"
         @next-step="handleCharacterSelection"
         @back="goBack"
-      />
+      /> -->
 
       <!-- Kiosk Camera Capture (串流服務) -->
       <FaceSwapCameraCapture
@@ -339,21 +339,16 @@ function enterFaceSwap() {
 // 處理模板選擇
 function handleTemplateSelection(data) {
   selectedTemplate.value = data.selectedTemplate
-
-  // Kiosk 模式下先進入人物選擇步驟，Mobile 模式直接進入上傳步驟
-  if (isKioskMode.value) {
-    currentStep.value = 'character-selection'
-  } else {
-    currentStep.value = 'upload'
-  }
-}
-
-// 處理人物選擇 (Kiosk 模式)
-function handleCharacterSelection(data) {
-  selectedTemplate.value = data.selectedTemplate
-  selectedCharacter.value = data.selectedCharacter
+  // Mobile 和 Kiosk 模式都直接進入上傳步驟,不再有人物選擇
   currentStep.value = 'upload'
 }
+
+// 處理人物選擇 (Kiosk 模式) - 已廢棄,不再使用
+// function handleCharacterSelection(data) {
+//   selectedTemplate.value = data.selectedTemplate
+//   selectedCharacter.value = data.selectedCharacter
+//   currentStep.value = 'upload'
+// }
 
 // Handle camera capture (Kiosk mode)
 function handleCameraCapture(imageFile) {
@@ -492,15 +487,9 @@ async function handleShowHistory() {
 function goBack() {
   if (currentStep.value === 'template-selection') {
     currentStep.value = 'faceswap-home'
-  } else if (currentStep.value === 'character-selection') {
-    currentStep.value = 'template-selection'
   } else if (currentStep.value === 'upload') {
-    // Kiosk 模式下從相機回到人物選擇，Mobile 模式回到模板選擇
-    if (isKioskMode.value) {
-      currentStep.value = 'character-selection'
-    } else {
-      currentStep.value = 'template-selection'
-    }
+    // Mobile 和 Kiosk 模式都回到模板選擇
+    currentStep.value = 'template-selection'
   } else if (currentStep.value === 'result') {
     currentStep.value = 'upload'
   }
@@ -512,7 +501,7 @@ function goBack() {
 .app {
   font-family: 'Noto Sans TC', 'Inter', sans-serif;
   overflow-x: hidden;
-  background-color: #000000;
+  background-color: #333333;
 }
 
 /* Mobile 模式：響應式全螢幕 */
@@ -521,11 +510,11 @@ function goBack() {
   width: 100%;
 }
 
-/* Mobile 外層容器：全螢幕黑色背景，內容置中 */
+/* Mobile 外層容器：全螢幕背景，內容置中 */
 .mobile-wrapper {
   min-height: 100vh;
   width: 100%;
-  background-color: #000000;
+  background-color: #333333;
   display: flex;
   justify-content: center;
 }
@@ -535,7 +524,7 @@ function goBack() {
   width: 100%;
   max-width: 414px;
   min-height: 100vh;
-  background-color: #000000;
+  background-color: #333333;
   overflow-x: hidden; /* 防止內容溢出 */
 }
 

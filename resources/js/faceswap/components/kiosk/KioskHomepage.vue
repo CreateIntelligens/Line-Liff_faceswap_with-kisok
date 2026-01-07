@@ -1,15 +1,9 @@
 <template>
   <!-- Kiosk Homepage - 1080x1920 直立式全螢幕 -->
-  <div class="relative w-full h-full min-h-screen bg-black flex flex-col justify-between">
+  <div class="relative w-full h-full min-h-screen flex flex-col justify-between" style="background-color: #333333;">
     <!-- Header -->
     <div class="flex gap-5 justify-center items-center px-16 pt-12 pb-8 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        class="h-48 object-contain"
-        alt="將你的照片打造成熱門IP"
-        @load="handleImageLoad"
-        @error="handleImageError"
-      />
+      <h1 class="text-5xl font-bold text-white">標題</h1>
     </div>
 
     <!-- Main Content -->
@@ -17,21 +11,17 @@
       <!-- Hero Image (可點擊進入) -->
       <img
         :src="imageUrls.profile"
-        alt="青山王祭 - 點擊開始"
-        class="relative w-[850px] h-[1133px] object-cover z-10 cursor-pointer hover:opacity-95 active:opacity-90 transition-opacity duration-300"
+        alt="點擊開始"
+        class="relative w-[850px] h-[1133px] object-contain z-10 cursor-pointer hover:opacity-95 active:opacity-90 transition-opacity duration-300"
         style="object-position: center; touch-action: manipulation;"
         @click="enterFaceSwap"
         @touchend.prevent="enterFaceSwap"
       />
-
-      <!-- Decorative Bars -->
-      <div class="absolute left-2 top-[60%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] -rotate-90 origin-left pointer-events-none z-20"></div>
-      <div class="absolute right-2 top-1/2 transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] rotate-90 origin-right pointer-events-none z-20"></div>
     </div>
 
     <!-- Footer -->
-    <div class="bg-black py-8">
-      <p class="text-2xl text-[#f5f5f5] whitespace-nowrap text-center">
+    <div class="py-8" style="background-color: #333333;">
+      <p class="text-2xl text-gray-300 whitespace-nowrap text-center">
         此服務由 創造智能 提供技術支持
       </p>
     </div>

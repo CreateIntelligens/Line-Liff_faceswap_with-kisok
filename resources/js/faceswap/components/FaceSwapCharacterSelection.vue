@@ -13,10 +13,10 @@
     </div>
     
     <!-- 分隔線 (僅手機版) -->
-    <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30"></div>
+    <div v-if="!isKioskMode" class="w-full border-t border-gray-400 opacity-30"></div>
 
     <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap mx-auto mt-6">
+    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
       <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
       <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
       <img :src="imageUrls.step2_inactive" class="w-6 h-6 object-contain" alt="Step 2">
@@ -26,7 +26,7 @@
     
 
     <!-- 步驟文字 (僅手機版) -->
-    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#EBD8B2] mx-auto">
+    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
@@ -45,11 +45,11 @@
               />
             </div>
             <!-- Kiosk 版：顯示數字圓圈 -->
-            <div v-else class="w-16 h-16 rounded-full bg-[#EBD8B2] flex items-center justify-center flex-shrink-0">
+            <div v-else class="w-16 h-16 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0">
               <span class="text-4xl font-bold text-black">2</span>
             </div>
             
-            <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#EBD8B2]">
+            <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-white">
               請選擇要換臉的人物
             </div>
           </div>
@@ -64,8 +64,8 @@
                   :alt="getTemplateName(selectedTemplate)"
                 />
               </div>
-              <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-[#EBD8B2]">
-                <div class="text-center text-[#EBD8B2]">
+              <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-gray-400">
+                <div class="text-center text-white">
                   <div class="text-lg font-bold mb-2">請先選擇模板</div>
                   <div class="text-sm">請回到上一步選擇您想要的換臉模板</div>
                 </div>
@@ -74,7 +74,7 @@
 
             <!-- Character Selection -->
             <div v-if="selectedTemplate" :class="isKioskMode ? 'mb-16' : 'mb-8'">
-              <h3 v-if="!isKioskMode" class="text-base mb-4 font-bold text-center text-[#EBD8B2]">
+              <h3 v-if="!isKioskMode" class="text-base mb-4 font-bold text-center text-white">
                 請選擇要換臉的人物
               </h3>
               <div :class="isKioskMode ? 'gap-10' : 'gap-4'" class="flex justify-center">
@@ -140,7 +140,7 @@
         </div>
       </div>
 
-      <div v-if="!selectedTemplate" class="text-center text-[#EBD8B2] py-8">
+      <div v-if="!selectedTemplate" class="text-center text-white py-8">
         <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
         <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
         <button

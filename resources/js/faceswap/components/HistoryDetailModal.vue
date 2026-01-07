@@ -11,7 +11,7 @@
       @click.stop
     >
       <!-- Header -->
-      <div class="flex justify-between items-center px-5 py-5 border-b border-[#EBD8B2]">
+      <div class="flex justify-between items-center px-5 py-5 border-b border-gray-400">
         <!-- Back arrow -->
         <button 
           class="w-[17px] h-[19px] cursor-pointer hover:opacity-80 transition-opacity"
@@ -25,7 +25,7 @@
         </button>
         
         <!-- Title -->
-        <div class="font-noto-sans-tc text-xl font-bold text-[#EBD8B2]">
+        <div class="font-noto-sans-tc text-xl font-bold text-white">
           生成詳情
         </div>
         
@@ -49,7 +49,7 @@
           ></div>
           <!-- 載入狀態 -->
           <div v-if="isLoading" class="flex flex-col items-center justify-center h-60">
-            <div class="text-[#EBD8B2] text-center">
+            <div class="text-white text-center">
               <div class="text-lg font-bold mb-2">載入中...</div>
               <div class="text-sm">正在獲取生成詳情</div>
             </div>
@@ -121,7 +121,7 @@
               </div>
             </div>
             <div v-else class="w-full h-60 bg-gray-700 rounded-md flex items-center justify-center">
-              <div class="text-[#EBD8B2] text-center">
+              <div class="text-white text-center">
                 <div class="text-lg font-bold mb-2">生成中...</div>
                 <div class="text-sm">請稍候，正在處理您的圖片</div>
               </div>
@@ -134,7 +134,7 @@
                  class="h-7 object-contain"
                  alt="0815"
                />
-               <div class="text-center mt-4 text-[#EBD8B2] text-xs font-normal font-noto-sans-tc">
+               <div class="text-center mt-4 text-gray-300 text-xs font-normal font-noto-sans-tc">
                  此 AI 服務由創造智能支持，讓你一秒變主角
                </div>
              </div>

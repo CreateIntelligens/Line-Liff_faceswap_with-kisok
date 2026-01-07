@@ -1,63 +1,58 @@
 <template>
-  <div class="min-h-screen bg-black w-full flex flex-col">
+  <div style="min-height: 100vh; width: 100%; display: flex; flex-direction: column; background-color: #333333;">
     <!-- Header -->
-    <div class="flex gap-5 justify-center items-center px-12 py-4 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        class="h-11 object-contain"
-        alt="2025三立集團內容創新發布會"
-      />
+    <div style="display: flex; gap: 1.25rem; justify-content: center; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; background-color: #333333; border-bottom: 1px solid #555;">
+      <div style="align-self: stretch; margin: auto 0;">
+        <img
+          :src="imageUrls.header1"
+          style="height: 4rem; object-fit: contain;"
+          alt="AI換臉"
+        />
+      </div>
+      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
     </div>
-    
-    <!-- 分隔線 -->
-    <div class="w-full border-t border-[#EBD8B2] opacity-30 mb-6"></div>
 
     <!-- Sub Header with Back Button and Title -->
-    <div class="flex justify-between items-center px-5 py-4">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; background-color: #333333;">
       <!-- Back arrow -->
       <button
-        class="w-[17px] h-[19px] cursor-pointer hover:opacity-80 transition-opacity"
+        style="width: 17px; height: 19px; cursor: pointer;"
         @click="goBack"
       >
         <img
           :src="imageUrls.back"
           alt="Back Arrow"
-          class="w-[17px] h-[19px] object-contain"
+          style="width: 17px; height: 19px; object-fit: contain;"
         />
       </button>
 
       <!-- Title -->
-      <div class="font-noto-sans-tc text-xl font-bold text-[#EBD8B2]">
+      <div style="font-family: 'Noto Sans TC', sans-serif; font-size: 1.25rem; font-weight: bold; color: #ffffff;">
         圖片生成紀錄
       </div>
 
       <!-- Spacer to center the title -->
-      <div class="w-[17px]"></div>
+      <div style="width: 17px;"></div>
     </div>
 
-    <!-- Usage Counter -->
-    <div class="flex justify-end px-6 py-2">
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
-    </div>
-
-    <div class="flex-1 px-6 py-8">
+    <div style="flex: 1; padding: 2rem 1.5rem; background-color: #333333;">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
-        <div class="text-[#EBD8B2] text-center">
+        <div class="text-white text-center">
           <div class="text-lg font-bold mb-2">載入中...</div>
-          <div class="text-sm">正在獲取您的生成紀錄</div>
+          <div class="text-sm text-gray-300">正在獲取您的生成紀錄</div>
         </div>
       </div>
 
       <!-- Error state -->
       <div v-else-if="error" class="flex flex-col items-center justify-center py-12">
-        <div class="text-red-400 text-center">
+        <div class="text-white text-center">
           <div class="text-lg font-bold mb-2">載入失敗</div>
-          <div class="text-sm mb-4">{{ error }}</div>
+          <div class="text-sm text-gray-300 mb-4">{{ error }}</div>
           <button 
             @click="loadUserHistory"
-            class="px-4 py-2 text-[#333] rounded-md hover:shadow-lg transition-all duration-300"
-            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+            class="px-6 py-3 text-[#0E0E0E] font-bold rounded-md hover:shadow-lg transition-all duration-300"
+            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
           >
             重試
           </button>
@@ -66,9 +61,9 @@
 
       <!-- Empty state -->
       <div v-else-if="!historyData || historyData.length === 0" class="flex flex-col items-center justify-center py-12">
-        <div class="text-[#EBD8B2] text-center">
+        <div class="text-white text-center">
           <div class="text-lg font-bold mb-2">尚無生成紀錄</div>
-          <div class="text-sm">您還沒有生成過任何圖片</div>
+          <div class="text-sm text-gray-300">您還沒有生成過任何圖片</div>
         </div>
       </div>
 
@@ -77,21 +72,21 @@
         <div 
           v-for="(item, index) in historyData" 
           :key="item.id || index"
-          class="flex w-full h-40 p-4 items-center gap-3 bg-[#6A6A6A] rounded-[5px] cursor-pointer hover:bg-[#7A7A7A] transition-colors"
+          class="flex w-full p-3 items-center gap-2 bg-white border border-[#CCCCCC] rounded-md cursor-pointer hover:shadow-lg transition-all duration-200"
           @click="viewHistoryItem(item)"
         >
-          <div class="flex w-full flex-col items-start gap-3">
+          <div class="flex w-full flex-col items-start gap-2">
             <img 
               v-if="getHistoryImage(item)"
               :src="getHistoryImage(item)" 
               :alt="`生成圖片 ${index + 1}`" 
-              class="h-24 w-full object-cover rounded"
+              class="h-32 w-full object-cover rounded"
               @error="handleImageError"
             />
-            <div v-else class="h-24 w-full bg-[#444444] rounded flex items-center justify-center">
+            <div v-else class="h-32 w-full bg-[#F5F5F5] rounded flex items-center justify-center">
               <span class="text-[#999999] text-xs">無圖片</span>
             </div>
-            <div class="text-white font-normal text-xs">
+            <div class="text-[#666666] font-normal text-xs">
               {{ formatDate(item.created_at || item.date || item.timestamp) }}
             </div>
           </div>

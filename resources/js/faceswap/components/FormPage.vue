@@ -10,7 +10,7 @@
     </div>
     
     <!-- 分隔線 -->
-    <div class="w-full border-t border-[#EBD8B2] opacity-30 mb-6"></div>
+    <div class="w-full border-t border-gray-400 opacity-30 mb-6"></div>
 
     <!-- Main Content -->
     <div class="px-6 py-8 flex-1 flex flex-col items-center">
@@ -28,7 +28,7 @@
       <div class="w-full max-w-[335px] space-y-6 relative z-30" style="position: relative;">
         <!-- 真實姓名 -->
         <div class="relative z-40">
-          <label class="block text-sm mb-2 text-[#EBD8B2] font-bold">
+          <label class="block text-sm mb-2 text-white font-bold">
             真實姓名<span class="text-red-500">*</span>
           </label>
           <input
@@ -43,7 +43,7 @@
 
         <!-- 聯絡電話 -->
         <div class="relative z-40">
-          <label class="block text-sm mb-2 text-[#EBD8B2] font-bold">
+          <label class="block text-sm mb-2 text-white font-bold">
             聯絡電話<span class="text-red-500">*</span>
           </label>
           <input
@@ -58,7 +58,7 @@
 
         <!-- Email -->
         <div class="relative z-40">
-          <label class="block text-sm mb-2 text-[#EBD8B2] font-bold">
+          <label class="block text-sm mb-2 text-white font-bold">
             Email
           </label>
           <input
@@ -93,13 +93,13 @@
         </div>
 
         <!-- 成功訊息 -->
-        <div v-if="successMessage" class="text-sm text-[#EBD8B2] text-center font-bold">
+        <div v-if="successMessage" class="text-sm text-white text-center font-bold">
           {{ successMessage }}
         </div>
       </div>
 
       <!-- 底部說明文字 -->
-      <div class="mt-8 text-xs px-6 text-[#EBD8B2] text-center leading-relaxed relative">
+      <div class="mt-8 text-xs px-6 text-gray-300 text-center leading-relaxed relative">
         此個人資料會提供給PP石墨烯作為<br>
         此次抽獎活動使用與後續行銷推廣
       </div>

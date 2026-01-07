@@ -11,7 +11,7 @@
     </div>
 
     <!-- 步驟指示器 -->
-    <div class="flex max-w-full text-2xl font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[600px] mx-auto mb-8">
+    <div class="flex max-w-full text-2xl font-bold text-center text-white whitespace-nowrap w-[600px] mx-auto mb-8">
       <img
         :src="imageUrls.step1"
         class="w-16 h-16 object-contain"
@@ -38,7 +38,7 @@
     </div>
 
     <!-- 步驟文字 -->
-    <div class="flex gap-10 justify-between max-w-full text-2xl text-center text-[#EBD8B2] w-[700px] mx-auto mb-16">
+    <div class="flex gap-10 justify-between max-w-full text-2xl text-center text-white w-[700px] mx-auto mb-16">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
@@ -53,7 +53,7 @@
           class="w-16 h-16 object-contain"
           alt="Step 1"
         />
-        <div class="text-4xl text-[#EBD8B2]">選擇節目模板</div>
+        <div class="text-4xl text-white">選擇節目模板</div>
       </div>
 
       <!-- 模板網格 - 2x2 大卡片 -->
@@ -63,7 +63,7 @@
           :key="template.id"
           @click="selectTemplate(template.id)"
           class="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-          :class="selectedTemplate === template.id ? 'ring-4 ring-[#EBD8B2] shadow-2xl' : 'opacity-80 hover:opacity-100'"
+          :class="selectedTemplate === template.id ? 'ring-4 ring-gray-400 shadow-2xl' : 'opacity-80 hover:opacity-100'"
         >
           <img
             :src="template.image"
@@ -73,7 +73,7 @@
           <!-- 選中標記 -->
           <div
             v-if="selectedTemplate === template.id"
-            class="absolute top-4 right-4 w-12 h-12 bg-[#EBD8B2] rounded-full flex items-center justify-center"
+            class="absolute top-4 right-4 w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center"
           >
             <svg class="w-8 h-8 text-[#333]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -93,9 +93,9 @@
         <!-- 返回按鈕 -->
         <button
           @click="goBack"
-          class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer border-2 border-[#EBD8B2] hover:bg-[#EBD8B2]/10 transition-all duration-300"
+          class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer border-2 border-gray-400 hover:bg-gray-700 transition-all duration-300"
         >
-          <span class="text-3xl font-bold text-[#EBD8B2]">返回</span>
+          <span class="text-3xl font-bold text-white">返回</span>
         </button>
         
         <!-- 下一步按鈕 -->

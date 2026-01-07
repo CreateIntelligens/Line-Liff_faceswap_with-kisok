@@ -1,70 +1,28 @@
 <template>
   <div
-    class="relative bg-black min-h-screen w-full flex flex-col"
+    class="relative min-h-screen w-full flex flex-col"
+    style="background-color: #333333;"
   >
     <!-- Header -->
     <div class="flex gap-5 justify-center items-center px-12 py-4 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        class="h-11 object-contain"
-        alt="2025三立集團內容創新發布會"
-      />
-    </div>
-    
-    <!-- 分隔線 -->
-    <div class="w-full border-t border-[#EBD8B2] opacity-30"></div>
-    <!-- 步驟 -->
-    <div
-      class="flex mt-6 max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto"
-    >
-      <img
-        :src="imageUrls.finish"
-        class="w-6 h-6 object-contain"
-        alt="Step 1"
-      />
-      <img
-        :src="imageUrls.horizontal"
-        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px]"
-      />
-      <img
-        :src="imageUrls.step2_inprogress"
-        class="w-6 h-6 object-contain"
-        alt="Step 2"
-      />
-      <img
-        :src="imageUrls.horizontal"
-        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px]"
-      />
-      <img
-        :src="imageUrls.step3_inactive"
-        class="w-6 h-6 object-contain"
-        alt="Step 3"
-      />
-    </div>
-    <!-- 步驟文字 -->
-    <div
-      class="flex gap-5 justify-between max-w-full text-sm text-center text-[#EBD8B2] w-[218px] mx-auto mb-8"
-    >
-      <div data-name="Step 1">Step 1</div>
-      <div data-name="Step 2">Step 2</div>
-      <div data-name="Step 3">Step 3</div>
+      <h1 class="text-2xl font-bold text-white">標題</h1>
     </div>
 
     <!-- Main Content Container -->
     <div class="flex-1 flex flex-col max-w-md mx-auto w-full px-5">
       <!-- Selected Template Image -->
       <div class="mb-8">
-        <div v-if="props.selectedTemplate" class="w-full h-[273px]">
+        <div v-if="props.selectedTemplate" class="w-full">
           <img
-            class="w-full h-full object-cover rounded-md"
+            class="w-full object-cover rounded-md"
             :src="getTemplateImage(props.selectedTemplate)"
             :alt="getTemplateName(props.selectedTemplate)"
           />
         </div>
-        <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-[#EBD8B2]">
-          <div class="text-center text-[#EBD8B2]">
+        <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md">
+          <div class="text-center text-white">
             <div class="text-lg font-bold mb-2">請先選擇模板</div>
-            <div class="text-sm">請回到上一步選擇您想要的換臉模板</div>
+            <div class="text-sm text-gray-300">請回到上一步選擇您想要的換臉模板</div>
           </div>
         </div>
 
@@ -74,44 +32,11 @@
         </div>
       </div>
 
-      <!-- Character Selection -->
-      <div v-if="props.selectedTemplate" class="mb-8">
-        <h3 class="text-base font-bold text-center text-[#EBD8B2] mb-4">
-          請選擇要換臉的人物
-        </h3>
-        <div class="flex justify-center gap-4">
-          <button
-            v-for="(character, index) in getTemplateCharacters()"
-            :key="index"
-            class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold"
-            :class="
-              selectedCharacter === `character${index + 1}`
-                ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] shadow-lg text-gray-800'
-                : 'text-[#333]'
-            "
-            :style="
-              selectedCharacter === `character${index + 1}`
-                ? ''
-                : 'background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);'
-            "
-            @click="selectCharacter(`character${index + 1}`, index)"
-          >
-            {{ character }}
-          </button>
-        </div>
-
-      </div>
-
       <!-- Upload Section -->
       <div class="flex-1">
         <div v-if="props.selectedTemplate">
           <div class="flex items-center gap-3 mb-6">
-            <img
-              :src="imageUrls.step2_inprogress"
-              class="w-[26px] h-[26px] object-contain"
-              alt="Step 2 In Progress"
-            />
-            <h3 class="text-base font-bold text-[#EBD8B2]">
+            <h3 class="text-base font-bold text-white">
               請上傳一張正面清晰的原始圖片
             </h3>
           </div>
@@ -119,7 +44,7 @@
           <!-- Upload Area -->
           <div class="mb-6">
             <div
-              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#EBD8B2] bg-[#969696] cursor-pointer hover:bg-[#a0a0a0] transition-colors rounded-md"
+              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-gray-300 bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors rounded-md"
               @click="triggerFileUpload"
               @dragover.prevent
               @drop.prevent="handleDrop"
@@ -133,10 +58,10 @@
                     class="w-[50px] h-[35px] object-contain"
                   />
                 </div>
-                <div class="text-base font-medium text-[#333] text-center">
+                <div class="text-base font-medium text-white text-center">
                   點擊上傳
                 </div>
-                <div class="text-sm font-medium text-[#333] text-center">
+                <div class="text-sm font-medium text-gray-300 text-center">
                   支援 JPG, PNG 格式
                 </div>
               </div>
@@ -145,7 +70,7 @@
                 <img
                   :src="uploadedImagePreview"
                   :alt="uploadedImage.name"
-                  class="w-full h-full object-contain rounded-md bg-gray-800"
+                  class="w-full h-full object-contain rounded-md bg-white"
                 />
               </div>
             </div>
@@ -154,7 +79,7 @@
           <!-- Upload Instructions -->
           <div class="mb-8">
             <h4 class="text-sm font-bold text-white mb-3">上傳注意事項：</h4>
-            <div class="text-[13px] font-normal text-white space-y-2">
+            <div class="text-[13px] font-normal text-gray-300 space-y-2">
               <div>1.請上傳單人清晰正面照，避免多人合照，以利準確辨識</div>
               <div>2.僅支援人像照片，請勿上傳風景、動物或其他非人物圖片</div>
               <div>3.請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>
@@ -165,19 +90,20 @@
           <!-- Action Buttons -->
           <div class="flex gap-3 mb-8">
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300 text-base font-bold text-[#333]"
-              style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#0E0E0E]"
+              style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
               @click="goBack"
             >
               重選範本
             </button>
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold"
+              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#0E0E0E]"
               :class="
                 canGenerate
-                  ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg text-gray-800'
-                  : 'bg-[#C7C7C7] text-white'
+                  ? ''
+                  : 'opacity-50 cursor-not-allowed'
               "
+              :style="canGenerate ? 'background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);' : 'background: #999999;'"
               @click="generateFaceSwap"
               :disabled="!canGenerate"
             >
@@ -185,12 +111,12 @@
             </button>
           </div>
         </div>
-        <div v-else class="text-center text-[#EBD8B2] py-8">
+        <div v-else class="text-center text-white py-8">
           <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
-          <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
+          <div class="text-sm text-gray-300 mb-6">您需要先選擇一個模板才能繼續</div>
           <button
-            class="px-6 py-3 text-[#333] rounded-md font-bold hover:shadow-lg transition-all duration-300"
-            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+            class="px-6 py-3 text-[#0E0E0E] rounded-md font-bold transition-all duration-300"
+            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
             @click="goBack"
           >
             返回選擇模板
@@ -266,39 +192,7 @@ const props = defineProps({
 
 const emit = defineEmits(["back", "generate", "showHistory"]);
 
-// 根據模板 ID 和角色選擇，返回正確的 face_index
-const getFaceIndex = (templateId, characterId) => {
-  if (templateId === 'play') {
-    // 模板1 (綜藝玩很大)：吳宗憲在中間，face_index = 1
-    // 0=左邊角色(不支援換臉), 1=中間吳宗憲(支援換臉), 2=右邊角色(不支援換臉)
-    return 1;
-  } else if (templateId === 'wife') {
-    // 模板2 (犀利人妻)：3個人都支援換臉
-    const wifeMapping = { 'character1': 0, 'character2': 1, 'character3': 2 };
-    return wifeMapping[characterId] || 0;
-  } else if (templateId === 'love') {
-    // 模板3 (命中註定我愛你)：2個人都支援換臉
-    const loveMapping = { 'character1': 0, 'character2': 1 };
-    return loveMapping[characterId] || 0;
-  } else if (templateId === 'super') {
-    // 模板4 (超級夜總會)：3個人都支援換臉
-    const superMapping = { 'character1': 0, 'character2': 1, 'character3': 2 };
-    return superMapping[characterId] || 0;
-  }
-  
-  // 預設值
-  return 0;
-};
-
-// 模板對應的角色選項 - 只保留需要的 4 個模板
-const templateCharacters = {
-  'play': ['吳宗憲'],                    // 模板 10 (綜藝玩很大)：1個人
-  'wife': ['朱芯儀', '溫昇豪', '隋棠'],  // 模板 8 (犀利人妻)：3個人
-  'love': ['陳喬恩', '阮經天'],          // 模板 9 (命中註定我愛你)：2個人
-  'super': ['許效舜', '苗可麗', '澎恰恰'] // 模板 11 (超級夜總會)：3個人
-};
-
-const selectedCharacter = ref("");
+// 人物選擇功能已移除,統一使用 target_face_index = 0
 const uploadedImage = ref(null);
 const uploadedImagePreview = ref(null);
 const fileInput = ref(null);
@@ -308,31 +202,16 @@ const showSecondDialog = ref(false);
 
 
 const canGenerate = computed(() => {
-  return props.selectedTemplate && selectedCharacter.value && uploadedImage.value;
+  // 不再檢查 selectedCharacter,只需確認模板和圖片已選擇
+  return props.selectedTemplate && uploadedImage.value;
 });
-
-function selectCharacter(characterId, index) {
-  selectedCharacter.value = characterId;
-  console.log('👤 選擇角色:', characterId, '索引:', index);
-}
-
-function getTemplateCharacters() {
-  const templateId = props.selectedTemplate;
-  
-  if (templateId && templateCharacters[templateId]) {
-    return templateCharacters[templateId];
-  }
-  
-  // 當沒有選擇模板時返回空陣列
-  return [];
-}
 
 function getTemplateImage(templateKey) {
   const imageMap = {
-    'play': imageUrls.play,   // 綜藝玩很大
-    'wife': imageUrls.wife,   // 犀利人妻
-    'love': imageUrls.love,   // 命中註定我愛你
-    'super': imageUrls.super  // 超級夜總會
+    'play': imageUrls.play,   // 財運亨通馬上發
+    'wife': imageUrls.wife,   // 強棒出擊馬力夯
+    'love': imageUrls.love,   // 山珍海味馬不停
+    'super': imageUrls.super  // 心想事成馬上有
   };
   
   return imageMap[templateKey] || imageUrls.play;
@@ -341,10 +220,10 @@ function getTemplateImage(templateKey) {
 function getTemplateName(templateId) {
   // 根據模板 ID 返回對應的名稱
   const nameMap = {
-    'play': '綜藝玩很大',
-    'wife': '犀利人妻',
-    'love': '命中註定我愛你',
-    'super': '超級夜總會'
+    'play': '財運亨通馬上發',
+    'wife': '強棒出擊馬力夯',
+    'love': '山珍海味馬不停',
+    'super': '心想事成馬上有'
   };
   
   return nameMap[templateId] || '';
@@ -427,18 +306,16 @@ async function generateFaceSwap() {
         throw new Error('檔案大小超過 10MB，請選擇較小的圖片');
       }
       
-      // 使用新的 getFaceIndex 函數獲取正確的 face_index
-      const targetFaceIndex = getFaceIndex(props.selectedTemplate, selectedCharacter.value)
+      // 統一使用 target_face_index = 0 (不再有人物選擇)
+      const targetFaceIndex = 0
       
       console.log('🎯 生成參數:', {
         template: props.selectedTemplate,
-        character: selectedCharacter.value,
         targetFaceIndex: targetFaceIndex,
         userId: props.userId
       });
       // 單獨輸出以便查看
       console.log('🎯 模板 ID (字串):', props.selectedTemplate);
-      console.log('🎯 角色選擇:', selectedCharacter.value);
       console.log('🎯 Target Face Index:', targetFaceIndex);
       console.log('🎯 User ID:', props.userId);
       
@@ -518,8 +395,8 @@ async function generateFaceSwap() {
       const numericTemplateId = templateIdMap[props.selectedTemplate] || '1';
       formData.append('template_id', numericTemplateId);
       
-      formData.append('target_face_index', targetFaceIndex); // 使用新的 getFaceIndex 函數獲取正確的 face_index
-      formData.append('userInfo', `選擇的角色: ${selectedCharacter.value}`);
+      formData.append('target_face_index', targetFaceIndex); // 固定為 0
+      formData.append('userInfo', `模板: ${props.selectedTemplate}`);
       
       console.log('📤 準備發送 FormData:', {
         userId: props.userId || 'abc',
@@ -553,7 +430,6 @@ async function generateFaceSwap() {
           showSecondDialog.value = true;
           setTimeout(() => {
             emit("generate", {
-              selectedCharacter: selectedCharacter.value,
               uploadedImage: uploadedImage.value,
               taskId: result.result?.task_id || result.result?.id,
               selectedTemplate: props.selectedTemplate  // 添加選擇的模板ID

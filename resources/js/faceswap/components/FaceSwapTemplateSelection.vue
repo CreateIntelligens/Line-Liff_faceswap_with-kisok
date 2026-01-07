@@ -11,57 +11,12 @@
   <!-- Main Template Selection Page -->
   <div
     v-if="!showHistoryPage"
-    class="relative bg-black min-h-screen w-full flex flex-col"
+    class="relative min-h-screen w-full flex flex-col"
+    style="background-color: #333333;"
     data-name="換臉_橫式範本"
   >
     <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
-        class="object-contain"
-        alt="2025三立集團內容創新發布會"
-      />
-    </div>
-    
-    <!-- 分隔線 (僅手機版) -->
-    <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30"></div>
-    <!-- 步驟 (手機版) -->
-    <div v-if="!isKioskMode"
-      class="flex max-w-full w-[202px] text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap mx-auto mt-4"
-    >
-      <img
-        :src="imageUrls.step1"
-        class="w-6 h-6 object-contain"
-        alt="Step 1"
-      />
-      <img
-        :src="imageUrls.horizontal"
-        class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]"
-      />
-      <img
-        :src="imageUrls.step2_inactive"
-        class="w-6 h-6 object-contain"
-        alt="Step 2"
-      />
-      <img
-        :src="imageUrls.horizontal"
-        class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]"
-      />
-      <img
-        :src="imageUrls.step3_inactive"
-        class="w-6 h-6 object-contain"
-        alt="Step 3"
-      />
-    </div>
-    
-    
-    <!-- 步驟文字 (僅手機版) -->
-    <div v-if="!isKioskMode"
-      class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#EBD8B2] mx-auto mt-1"
-    >
-      <div data-name="Step 1">Step 1</div>
-      <div data-name="Step 2">Step 2</div>
-      <div data-name="Step 3">Step 3</div>
+      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">標題</h1>
     </div>
     <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto">
       <div class="flex flex-col w-full">
@@ -70,22 +25,9 @@
             :class="isKioskMode ? 'justify-center' : ''"
             class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-2"
           >
-            <!-- 手機版：顯示打勾圖標 -->
-            <div v-if="!isKioskMode" class="w-6 h-6 self-stretch my-auto">
-              <img
-                :src="imageUrls.step1"
-                class="w-6 h-6 object-contain"
-                alt="Step 1"
-              />
-            </div>
-            <!-- Kiosk 版：顯示數字圓圈 -->
-            <div v-else class="w-16 h-16 rounded-full bg-[#EBD8B2] flex items-center justify-center flex-shrink-0">
-              <span class="text-4xl font-bold text-black">1</span>
-            </div>
-            
             <div
-              :class="isKioskMode ? 'text-5xl' : 'text-base'"
-              class="self-stretch my-auto text-[#EBD8B2]"
+              :class="isKioskMode ? 'text-3xl' : 'text-base'"
+              class="self-stretch my-auto text-white"
               data-name="請選擇以下IP圖片範本（請點擊圖片）"
             >
               請選擇以下IP圖片範本（請點擊圖片）
@@ -98,15 +40,15 @@
                 class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 style="touch-action: manipulation;"
                 :class="{
-                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'play',
+                  'border-4 border-gray-400 scale-105': selectedTemplate === 'play'
                 }"
                 @click="selectTemplate('play')"
                 @touchend.prevent="selectTemplate('play')"
               >
                 <img
                   :src="getTemplateImage('play')"
-                  alt="綜藝玩很大"
-                  class="w-full object-contain rounded-md bg-gray-900"
+                  alt="財運亨通馬上發"
+                  class="w-full object-contain rounded-md bg-white"
                   :class="{
                     'opacity-100': selectedTemplate === 'play',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'play'
@@ -114,20 +56,20 @@
                 />
               </div>
 
-              <!-- 模板 8 (犀利人妻) -->
+              <!-- 模板 2 (強棒出擊馬力夯) -->
               <div
                 class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 style="touch-action: manipulation;"
                 :class="{
-                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'wife',
+                  'border-4 border-gray-400 scale-105': selectedTemplate === 'wife'
                 }"
                 @click="selectTemplate('wife')"
                 @touchend.prevent="selectTemplate('wife')"
               >
                 <img
                   :src="getTemplateImage('wife')"
-                  alt="犀利人妻"
-                  class="w-full object-contain rounded-md bg-gray-900"
+                  alt="強棒出擊馬力夯"
+                  class="w-full object-contain rounded-md bg-white"
                   :class="{
                     'opacity-100': selectedTemplate === 'wife',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'wife'
@@ -135,20 +77,20 @@
                 />
               </div>
 
-              <!-- 模板 9 (命中註定我愛你) -->
+              <!-- 模板 3 (山珍海味馬不停) -->
               <div
                 class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 style="touch-action: manipulation;"
                 :class="{
-                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'love',
+                  'border-4 border-gray-400 scale-105': selectedTemplate === 'love'
                 }"
                 @click="selectTemplate('love')"
                 @touchend.prevent="selectTemplate('love')"
               >
                 <img
                   :src="getTemplateImage('love')"
-                  alt="命中註定我愛你"
-                  class="w-full object-contain rounded-md bg-gray-900"
+                  alt="山珍海味馬不停"
+                  class="w-full object-contain rounded-md bg-white"
                   :class="{
                     'opacity-100': selectedTemplate === 'love',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'love'
@@ -156,20 +98,20 @@
                 />
               </div>
 
-              <!-- 模板 11 (超級夜總會) -->
+              <!-- 模板 4 (心想事成馬上有) -->
               <div
                 class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 style="touch-action: manipulation;"
                 :class="{
-                  'p-[6px] bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] scale-105': selectedTemplate === 'super',
+                  'border-4 border-gray-400 scale-105': selectedTemplate === 'super'
                 }"
                 @click="selectTemplate('super')"
                 @touchend.prevent="selectTemplate('super')"
               >
                 <img
                   :src="getTemplateImage('super')"
-                  alt="超級夜總會"
-                  class="w-full object-contain rounded-md bg-gray-900"
+                  alt="心想事成馬上有"
+                  class="w-full object-contain rounded-md bg-white"
                   :class="{
                     'opacity-100': selectedTemplate === 'super',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'super'
@@ -190,13 +132,11 @@
         >
           <div
             :class="[
-              isKioskMode ? 'h-[114px] rounded-xl' : 'h-11 rounded-md',
-              selectedTemplate
-                ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800'
-                : 'bg-[#C7C7C7] text-white'
+              isKioskMode ? 'h-[114px] rounded-xl text-3xl' : 'h-11 rounded-md text-base',
+              selectedTemplate ? '' : 'opacity-50 cursor-not-allowed'
             ]"
-            class="flex gap-5 justify-center items-center cursor-pointer transition-all duration-300"
-            style="touch-action: manipulation;"
+            class="flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#0E0E0E]"
+            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); touch-action: manipulation;"
             @click="nextStep"
             @touchend.prevent="nextStep"
           >
@@ -207,7 +147,7 @@
       <div
         v-if="!isPCMode"
         :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-9 text-base'"
-        class="font-bold text-center text-[#EBD8B2] cursor-pointer hover:text-[#d4c29a] transition-colors"
+        class="font-bold text-center text-white cursor-pointer hover:opacity-80 transition-opacity"
         data-name="圖片生成紀錄"
         @click="showHistory"
       >
@@ -282,10 +222,10 @@ function showHistory() {
 
 function getTemplateImage(templateKey) {
   const imageMap = {
-    'play': imageUrls.play,   // 綜藝玩很大
-    'wife': imageUrls.wife,   // 犀利人妻
-    'love': imageUrls.love,   // 命中註定我愛你
-    'super': imageUrls.super  // 超級夜總會
+    'play': imageUrls.play,   // 財運亨通馬上發
+    'wife': imageUrls.wife,   // 強棒出擊馬力夯
+    'love': imageUrls.love,   // 山珍海味馬不停
+    'super': imageUrls.super  // 心想事成馬上有
   };
   
   return imageMap[templateKey] || imageUrls.play;

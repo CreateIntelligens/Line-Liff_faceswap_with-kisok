@@ -1,23 +1,12 @@
 <template>
-  <div class="relative bg-black min-h-screen w-full flex flex-col">
+  <div class="relative min-h-screen w-full flex flex-col" style="background-color: #333333;">
       <!-- Header -->
     <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
-      <img
-        :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
-        class="object-contain"
-        alt="一秒變成大明星"
-      />
+      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">標題</h1>
     </div>
-    
-    <!-- 分隔線 (僅手機版) -->
-    <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30 mb-6"></div>
 
     <!-- Main Content -->
     <div :class="isKioskMode ? 'px-16 py-12 relative' : 'px-6 py-8'" class="flex-1 flex flex-col items-center" style="pointer-events: auto;">
-      <!-- Decorative Bars (Kiosk only) -->
-      <div v-if="isKioskMode" class="absolute left-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] -rotate-90 origin-left pointer-events-none z-10"></div>
-      <div v-if="isKioskMode" class="absolute right-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] rotate-90 origin-right pointer-events-none z-10"></div>
 
       <!-- 載入中狀態 -->
       <div v-if="isLoading && !isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
@@ -29,15 +18,15 @@
           class="w-[700px] h-[933px] object-contain mb-8"
         />
         <!-- 載入中文字 -->
-        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#EBD8B2]">圖片生成中，請稍候...</p>
+        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-gray-300">圖片生成中，請稍候...</p>
     </div>
 
       <!-- 任務失敗錯誤訊息 -->
       <div v-if="isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <p :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-red-400 text-center font-bold mb-4">
+        <p :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-red-500 text-center font-bold mb-4">
           {{ errorMessage }}
         </p>
-        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#EBD8B2] text-center">
+        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-gray-300 text-center">
           3秒後將自動返回首頁...
         </p>
       </div>
@@ -57,7 +46,7 @@
       <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
         <!-- 真實姓名 (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40" style="pointer-events: auto;">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
+          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
             真實姓名<span class="text-red-500">*</span>
           </label>
           <input
@@ -73,7 +62,7 @@
 
         <!-- 聯絡電話 -->
         <div class="relative z-40" style="pointer-events: auto;">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
+          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
             聯絡電話<span class="text-red-500">*</span>
           </label>
           <input
@@ -92,7 +81,7 @@
 
         <!-- Email (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
+          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
             Email
           </label>
           <input
@@ -114,22 +103,22 @@
           :class="[
             isKioskMode ? 'py-8 text-4xl !mt-20' : 'py-3.5',
             isFormValid && !isSubmitting 
-              ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800 cursor-pointer' 
-              : 'bg-[#C7C7C7] text-white cursor-not-allowed'
+              ? 'text-[#0E0E0E] cursor-pointer' 
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           ]"
           class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          style="position: relative; pointer-events: auto !important; cursor: pointer !important;"
+          :style="(isFormValid && !isSubmitting) ? 'background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); position: relative; pointer-events: auto !important; cursor: pointer !important;' : 'position: relative; pointer-events: auto !important; cursor: pointer !important;'"
         >
           {{ isSubmitting ? '送出中...' : '送出' }}
         </button>
 
         <!-- 錯誤訊息 -->
-        <div v-if="errorMessage" :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-red-400 text-center font-bold">
+        <div v-if="errorMessage" :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-red-500 text-center font-bold">
           {{ errorMessage }}
       </div>
 
         <!-- 成功訊息 -->
-        <div v-if="successMessage" :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#EBD8B2] text-center font-bold">
+        <div v-if="successMessage" :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-green-600 text-center font-bold">
           {{ successMessage }}
         </div>
       </div>
@@ -142,28 +131,28 @@
           @touchstart.prevent="handleCloseAndRestart"
           :class="[
             isKioskMode ? 'py-8 text-4xl' : 'py-3.5',
-            'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800 cursor-pointer'
+            'text-[#0E0E0E] cursor-pointer'
           ]"
           class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          style="position: relative; pointer-events: auto !important; cursor: pointer !important;"
+          style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); position: relative; pointer-events: auto !important; cursor: pointer !important;"
         >
           關閉並回到首頁
         </button>
       </div>
 
       <!-- 底部說明文字（僅在表單顯示時顯示） -->
-      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
-        此個人資料會提供給PP石墨烯作為<br>
-        此次抽獎活動使用與後續行銷推廣
+      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-gray-600 text-center leading-relaxed relative">
+        此個人資料會提供作為此次活動使用與後續行銷推廣
     </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 import { roadshowService } from '../../services/roadshowService.js'
+import QRCode from 'qrcode'
 
 const props = defineProps({
   taskId: {
