@@ -8,6 +8,22 @@
       <h1 class="text-2xl font-bold text-white">標題</h1>
     </div>
 
+    <!-- 步驟進度條 (手機版) -->
+    <div v-if="!isPCMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
+      <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step2_inprogress" class="w-6 h-6 object-contain" alt="Step 2">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step3_inactive" class="w-6 h-6 object-contain" alt="Step 3">
+    </div>
+
+    <!-- 步驟文字 (手機版) -->
+    <div v-if="!isPCMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto mt-2 mb-4">
+      <div>Step 1</div>
+      <div>Step 2</div>
+      <div>Step 3</div>
+    </div>
+
     <!-- Main Content Container -->
     <div class="flex-1 flex flex-col max-w-md mx-auto w-full px-5">
       <!-- Selected Template Image -->
@@ -58,10 +74,10 @@
                     class="w-[50px] h-[35px] object-contain"
                   />
                 </div>
-                <div class="text-base font-medium text-white text-center">
+                <div class="text-base font-medium text-gray-800 text-center">
                   點擊上傳
                 </div>
-                <div class="text-sm font-medium text-gray-300 text-center">
+                <div class="text-sm font-medium text-gray-600 text-center">
                   支援 JPG, PNG 格式
                 </div>
               </div>
@@ -82,7 +98,7 @@
             <div class="text-[13px] font-normal text-gray-300 space-y-2">
               <div>1.請上傳單人清晰正面照，避免多人合照，以利準確辨識</div>
               <div>2.僅支援人像照片，請勿上傳風景、動物或其他非人物圖片</div>
-              <div>3.請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>
+              <div>請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>
               <div>4.避免模糊、晃動或低解析度圖片，以免影響生成品質</div>
             </div>
           </div>

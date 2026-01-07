@@ -18,6 +18,23 @@
     <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
       <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">標題</h1>
     </div>
+
+    <!-- 步驟進度條 (手機版) -->
+    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
+      <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step2_inactive" class="w-6 h-6 object-contain" alt="Step 2">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step3_inactive" class="w-6 h-6 object-contain" alt="Step 3">
+    </div>
+
+    <!-- 步驟文字 (手機版) -->
+    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto mt-2 mb-4">
+      <div>Step 1</div>
+      <div>Step 2</div>
+      <div>Step 3</div>
+    </div>
+
     <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto">
       <div class="flex flex-col w-full">
         <div class="flex flex-col w-full">

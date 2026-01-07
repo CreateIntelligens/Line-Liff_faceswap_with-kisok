@@ -9,10 +9,6 @@
       <div class="flex flex-col w-full">
         <!-- Step indicator -->
         <div :class="isKioskMode ? 'justify-center' : ''" class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-6">
-          <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-white">
-            <span class="text-4xl font-bold text-black">3</span>
-          </div>
-          
           <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-white">
             {{
               cameraState === 'countdown' ? '拍照倒數中，請勿移動' :
@@ -78,7 +74,7 @@
 
         <!-- Countdown Instructions - Show only during countdown -->
         <div v-if="cameraState === 'countdown'" :class="isKioskMode ? 'mt-12 mb-12' : 'mt-8 mb-8'">
-          <div class="text-center text-gray-800 space-y-2">
+          <div class="text-center text-white space-y-2">
             <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">請在五秒內確認你的位置</div>
             <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">並保持畫面內僅有一人</div>
             <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">五官清晰無遮擋</div>

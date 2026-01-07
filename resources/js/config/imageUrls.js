@@ -31,7 +31,7 @@ import rectangle8Img from '../../images/Rectangle 8.png'
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
   // 步驟圖片
-  step1: finishImg,
+  step1: step1Img,
   step2_inactive: step2InactiveImg,
   step2_inprogress: step2InprogressImg,
   step3_inactive: step3InactiveImg,

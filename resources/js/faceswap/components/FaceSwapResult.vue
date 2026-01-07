@@ -1,8 +1,34 @@
 <template>
-  <div class="relative min-h-screen w-full flex flex-col" style="background-color: #333333;">
+  <!-- History Page -->
+  <FaceSwapHistory
+    v-if="showHistoryPage"
+    :userId="props.userId"
+    :userUsage="userUsage"
+    :isPCMode="isPCMode"
+    @back="showHistoryPage = false"
+  />
+
+  <!-- Main Result Page -->
+  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" style="background-color: #333333;">
       <!-- Header -->
     <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
       <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">標題</h1>
+    </div>
+
+    <!-- 步驟進度條 (手機版) -->
+    <div v-if="!isKioskMode && !isLoading && !isFailed" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
+      <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step2_inprogress" class="w-6 h-6 object-contain" alt="Step 2">
+      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
+      <img :src="imageUrls.step3_inprogress" class="w-6 h-6 object-contain" alt="Step 3">
+    </div>
+
+    <!-- 步驟文字 (手機版) -->
+    <div v-if="!isKioskMode && !isLoading && !isFailed" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto mt-2 mb-4">
+      <div>Step 1</div>
+      <div>Step 2</div>
+      <div>Step 3</div>
     </div>
 
     <!-- Main Content -->
@@ -31,19 +57,77 @@
         </p>
       </div>
 
-      <!-- 生成的圖片 -->
-      <div v-else-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20" style="pointer-events: none;">
-        <!-- 如果已送出成功，顯示實際生成的圖片；否則顯示固定的 result.png -->
-        <img
-          :src="showResultImage && generatedImageUrl ? generatedImageUrl : imageUrls.result"
-          alt="生成的圖片"
-          :class="isKioskMode ? 'w-[900px]' : 'w-full'"
-          class="object-contain rounded-lg shadow-lg"
-        />
+      <!-- 生成的圖片 (已廢棄，圖片顯示移到 LIFF 模式區塊中) -->
+      <!-- <div v-else-if="!isLoading && !isFailed && !isKioskMode">...</div> -->
+
+      <!-- Kiosk 模式：生成成功顯示 -->
+      <div v-else-if="!isLoading && !isFailed && isKioskMode" class="flex flex-col items-center w-full">
+        <!-- 成功文字 -->
+        <div class="text-5xl font-bold text-white mb-16 text-center">
+          圖片生成成功！
+        </div>
+        
+        <!-- QR Code -->
+        <div class="mb-8">
+          <div ref="qrcodeContainer" class="bg-white p-8 rounded-2xl shadow-2xl"></div>
+        </div>
+        
+        <!-- QR Code 說明文字 -->
+        <div class="text-3xl text-white text-center mt-8">
+          掃描獲得生成結果
+        </div>
       </div>
           
-      <!-- 表單（送出成功後隱藏） -->
-      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
+      <!-- LIFF 模式：生成結果顯示 -->
+      <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col">
+        <!-- 生成的圖片 -->
+        <div class="mb-6">
+          <img
+            :src="generatedImageUrl || imageUrls.result"
+            alt="生成的圖片"
+            class="w-full object-contain rounded-lg"
+          />
+        </div>
+        
+        <!-- 重新生成按鈕 -->
+        <button
+          @click="handleRegenerate"
+          class="w-full py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300 mb-3"
+          style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+        >
+          重新生成
+        </button>
+        
+        <!-- 下載至官方版號按鈕 -->
+        <button
+          @click="handleDownload"
+          class="w-full py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300 mb-3"
+          style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+        >
+          下載至官方版號
+        </button>
+        
+        <!-- 圖片生成紀錄連結 -->
+        <div 
+          class="text-center text-white text-base font-bold cursor-pointer hover:opacity-80 transition-opacity mb-6"
+          @click="handleShowHistory"
+        >
+          圖片生成紀錄
+        </div>
+        
+        <!-- Barcode 預留區域 -->
+        <div class="w-full h-20 bg-gray-700 rounded-md flex items-center justify-center mb-3">
+          <span class="text-gray-400 text-sm">barcode</span>
+        </div>
+        
+        <!-- Barcode 說明文字 -->
+        <div class="text-center text-white text-sm">
+          掃描條碼
+        </div>
+      </div>
+          
+      <!-- 表單（僅 LIFF 模式顯示，且送出成功後隱藏） - 已廢棄，改為上方按鈕區塊 -->
+      <div v-if="false" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
         <!-- 真實姓名 (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40" style="pointer-events: auto;">
           <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
@@ -122,28 +206,8 @@
           {{ successMessage }}
         </div>
       </div>
-
-      <!-- 關閉並回到首頁按鈕（送出成功後顯示） -->
-      <div v-if="!isLoading && !isFailed && showResultImage" :class="isKioskMode ? 'w-[700px] mt-12' : 'w-full max-w-[335px] mt-8'" class="relative z-30" style="position: relative; pointer-events: auto;">
-        <button
-          type="button"
-          @click="handleCloseAndRestart"
-          @touchstart.prevent="handleCloseAndRestart"
-          :class="[
-            isKioskMode ? 'py-8 text-4xl' : 'py-3.5',
-            'text-[#0E0E0E] cursor-pointer'
-          ]"
-          class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); position: relative; pointer-events: auto !important; cursor: pointer !important;"
-        >
-          關閉並回到首頁
-        </button>
-      </div>
-
-      <!-- 底部說明文字（僅在表單顯示時顯示） -->
-      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-gray-600 text-center leading-relaxed relative">
-        此個人資料會提供作為此次活動使用與後續行銷推廣
-    </div>
+      
+      <!-- 底部說明文字 - 已移除 -->
     </div>
   </div>
 </template>
@@ -151,8 +215,10 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
+import { appConfig, getLiffUrl } from '@/config/appConfig'
 import { roadshowService } from '../../services/roadshowService.js'
 import QRCode from 'qrcode'
+import FaceSwapHistory from './FaceSwapHistory.vue'
 
 const props = defineProps({
   taskId: {
@@ -183,6 +249,9 @@ const props = defineProps({
 
 const emit = defineEmits(['back', 'regenerate', 'download', 'restart'])
 
+// 控制歷史頁面顯示
+const showHistoryPage = ref(false)
+
 // 表單數據
 const formData = ref({
   name: '',
@@ -205,6 +274,10 @@ const isLoading = ref(true)
 const isFailed = ref(false)
 // 控制是否顯示結果圖片頁面（送出成功後）
 const showResultImage = ref(false)
+
+// QR Code 相關
+const qrcodeContainer = ref(null)
+const qrcodeUrl = ref('')
 
 // 表單驗證
 const isFormValid = computed(() => {
@@ -440,4 +513,113 @@ async function handleSubmit() {
 function handleCloseAndRestart() {
   emit('restart')
 }
+
+// 處理重新生成
+function handleRegenerate() {
+  emit('regenerate')
+}
+
+// 處理下載
+function handleDownload() {
+  if (generatedImageUrl.value || originalImageUrl.value) {
+    // 創建一個臨時 a 標籤來觸發下載
+    const link = document.createElement('a')
+    link.href = generatedImageUrl.value || originalImageUrl.value
+    link.download = `faceswap_${props.taskId}.jpg`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    console.log('✅ 下載圖片:', link.href)
+  }
+}
+
+// 處理分享到 LINE (需要 LIFF SDK)
+async function handleShareToLine() {
+  try {
+    // 檢查 LIFF 是否可用
+    if (typeof liff === 'undefined') {
+      console.warn('⚠️ LIFF SDK 未載入，無法分享')
+      alert('此功能需要在 LINE 中開啟')
+      return
+    }
+    
+    // 檢查 LIFF 是否已初始化
+    if (!liff.isLoggedIn()) {
+      console.warn('⚠️ LIFF 未登入')
+      await liff.login()
+      return
+    }
+    
+    // 分享圖片到 LINE
+    const shareUrl = generatedImageUrl.value || originalImageUrl.value
+    if (!shareUrl) {
+      alert('沒有可分享的圖片')
+      return
+    }
+    
+    await liff.shareTargetPicker([
+      {
+        type: 'image',
+        originalContentUrl: shareUrl,
+        previewImageUrl: shareUrl
+      }
+    ])
+    
+    console.log('✅ 分享成功')
+  } catch (error) {
+    console.error('❌ 分享失敗:', error)
+    alert('分享失敗，請稍後再試')
+  }
+}
+
+// 處理顯示歷史
+function handleShowHistory() {
+  // 顯示歷史頁面
+  showHistoryPage.value = true
+}
+
+// 生成 QR code
+async function generateQRCode() {
+  if (!props.taskId || !qrcodeContainer.value) return
+  
+  try {
+    // 使用配置文件中的 LIFF URL
+    qrcodeUrl.value = getLiffUrl({
+      step: 'result',
+      taskId: props.taskId
+    })
+    console.log('🔗 生成 QR code URL:', qrcodeUrl.value)
+    
+    // 清空之前的 QR code
+    qrcodeContainer.value.innerHTML = ''
+    
+    // 生成 QR code
+    const qrSize = 400 // Kiosk 模式使用較大尺寸
+    const canvas = await QRCode.toCanvas(qrcodeUrl.value, {
+      width: qrSize,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    })
+    
+    // 添加圓角
+    canvas.style.borderRadius = '16px'
+    
+    qrcodeContainer.value.appendChild(canvas)
+    console.log('✅ QR code 生成成功')
+  } catch (error) {
+    console.error('❌ QR code 生成失敗:', error)
+  }
+}
+
+// 監聽任務完成狀態，在 Kiosk 模式下生成 QR code
+watch(() => [isLoading.value, isFailed.value, props.isKioskMode, props.taskId], async () => {
+  if (!isLoading.value && !isFailed.value && props.isKioskMode && props.taskId) {
+    await nextTick()
+    generateQRCode()
+  }
+}, { immediate: false })
+
 </script>

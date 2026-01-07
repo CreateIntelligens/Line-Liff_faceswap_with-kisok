@@ -3,11 +3,7 @@
     <!-- Header -->
     <div style="display: flex; gap: 1.25rem; justify-content: center; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; background-color: #333333; border-bottom: 1px solid #555;">
       <div style="align-self: stretch; margin: auto 0;">
-        <img
-          :src="imageUrls.header1"
-          style="height: 4rem; object-fit: contain;"
-          alt="AI換臉"
-        />
+        <h1 style="font-size: 1.5rem; font-weight: bold; color: #ffffff;">標題</h1>
       </div>
       <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
     </div>
