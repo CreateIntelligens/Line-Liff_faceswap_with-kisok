@@ -195,7 +195,8 @@ function getHistoryImage(item) {
   
   // 如果圖片URL是相對路徑，添加API基礎URL
   if (imageUrl.startsWith('/')) {
-    imageUrl = `https://stg-line-crm.fanpokka.ai${imageUrl}`;
+    const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
+    imageUrl = `${baseURL.replace('/api', '')}${imageUrl}`;
   }
   
   // 使用新的圖片處理 API 來處理歷史圖片

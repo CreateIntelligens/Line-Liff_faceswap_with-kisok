@@ -5,12 +5,12 @@
 import { ref, readonly, computed } from 'vue'
 import { roadshowService } from '../services/roadshowService.js'
 
-// 模板 ID 映射
+// 模板 ID 映射（新 API 使用數字 ID）
 const TEMPLATE_ID_MAP = {
-  'play': '1',     // 綜藝玩很大 → 模板 1
-  'wife': '2',     // 犀利人妻 → 模板 2
-  'love': '3',     // 命中註定我愛你 → 模板 3
-  'super': '4'     // 超級夜總會 → 模板 4
+  'play': '7',     // 財運亨通馬上發 → 財神大同寶寶 (id: 7)
+  'wife': '4',     // 強棒出擊馬力夯 → 打棒球的大同寶寶 (id: 4)
+  'love': '6',     // 山珍海味馬不停 → 拿電鍋的大同寶寶 (id: 6)
+  'super': '5'     // 心想事成馬上有 → 擲筊大同寶寶 (id: 5)
 }
 
 // 角色對應的 face index
@@ -81,9 +81,10 @@ export function useFaceSwap() {
    * @param {string} params.templateId - 模板 ID (play, wife, love, super)
    * @param {string} params.characterId - 角色 ID (character1, character2, etc.)
    * @param {string} params.userId - 用戶 ID
+   * @param {string} params.userName - 用戶名稱（新 API 必填參數）
    * @returns {Promise<Object>} 生成結果
    */
-  const generateAvatar = async ({ file, templateId, characterId, userId }) => {
+  const generateAvatar = async ({ file, templateId, characterId, userId, userName }) => {
     isLoading.value = true
     error.value = null
     
@@ -92,13 +93,18 @@ export function useFaceSwap() {
       formData.append('userId', userId)
       formData.append('file', file)
       
-      // 轉換模板 ID 為數字
-      const numericTemplateId = TEMPLATE_ID_MAP[templateId] || '1'
+      // 轉換模板 ID 為新 API 格式 (4, 5, 6, 7)
+      const numericTemplateId = TEMPLATE_ID_MAP[templateId] || '7'
       formData.append('template_id', numericTemplateId)
       
-      // 計算 face index
+      // 添加必填的 userName 參數
+      formData.append('userName', userName || userId || '用戶')
+      
+      // 計算 face index (可選參數，如果需要的話)
       const targetFaceIndex = getFaceIndex(templateId, characterId)
-      formData.append('target_face_index', targetFaceIndex)
+      if (targetFaceIndex !== undefined && targetFaceIndex !== null) {
+        formData.append('target_face_index', targetFaceIndex)
+      }
       
       // 添加額外信息
       if (characterId) {

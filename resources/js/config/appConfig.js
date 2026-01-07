@@ -8,7 +8,7 @@ export const appConfig = {
   maxUsageLimit: 10,
   
   // API 配置
-  apiBaseUrl: 'https://stg-line-crm.fanpokka.ai',
+  apiBaseUrl: 'https://line.uat.tatung2025.aitago.tw/api',
   imageProcessApi: 'https://stg-api.fanpokka.ai/api/static-resource',
   
   // 圖片處理參數

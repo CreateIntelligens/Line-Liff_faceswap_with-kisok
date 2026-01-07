@@ -11,7 +11,7 @@
     // 這些配置可以在打包後的 dist 目錄中直接修改
     window.endpoint = {
       // API 基礎 URL - 修改這裡來改變 API 伺服器地址
-      baseURL: 'https://pp.2025.aitago.tw/api',
+      baseURL: 'https://line.uat.tatung2025.aitago.tw/api',
       // 認證 Token
       authToken: '123',
       // 請求超時時間（毫秒）
@@ -30,8 +30,8 @@
         width: 800,      // 圖片寬度（像素）
         height: 600      // 圖片高度（像素）
       },
-      // 是否啟用圖片處理功能
-      enableImageProcessing: true,
+      // 是否啟用圖片處理功能（暫時關閉，直接使用原始圖片）
+      enableImageProcessing: false,
 
       // ===== 圖片上傳 API 配置 =====
       // 圖片上傳 API 端點

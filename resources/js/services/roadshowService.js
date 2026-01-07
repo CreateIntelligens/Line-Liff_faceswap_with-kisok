@@ -27,7 +27,7 @@ export const roadshowService = {
     async getTemplates() {
         try {
             const config = getApiConfig();
-            const url = `${config.baseURL}/roadshow/templates`;
+            const url = `${config.baseURL}/face-swap/templates`;
             
             console.log('🔍 發送請求到:', url);
             console.log('🔐 使用認證token:', config.authToken);
@@ -59,7 +59,13 @@ export const roadshowService = {
             }
             
             const data = JSON.parse(responseText);
-            return data;
+            console.log('📋 完整模板數據:', JSON.stringify(data, null, 2));
+            
+            // 新 API 返回的是模板數組，需要轉換為前端可用的格式
+            return {
+                success: true,
+                templates: data // 直接返回數組
+            };
         } catch (error) {
             console.error('❌ 獲取模板失敗:', error);
             return null;
@@ -72,7 +78,7 @@ export const roadshowService = {
     async getUserHistory(userId) {
         try {
             const config = getApiConfig();
-            const url = `${config.baseURL}/roadshow/user/${userId}/avatars`;
+            const url = `${config.baseURL}/face-swap/user/${userId}/avatars`;
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -129,7 +135,7 @@ export const roadshowService = {
     async generateAvatar(formData) {
         try {
             const config = getApiConfig();
-            const url = `${config.baseURL}/roadshow`;
+            const url = `${config.baseURL}/face-swap`;
             
             console.log('🚀 發送生成頭像請求到:', url);
             console.log('🔐 使用認證token:', config.authToken);
@@ -213,7 +219,7 @@ export const roadshowService = {
     async checkTaskStatus(taskId) {
         try {
             const config = getApiConfig();
-            const url = `${config.baseURL}/roadshow/status/${taskId}`;
+            const url = `${config.baseURL}/face-swap/status/${taskId}`;
             
             console.log('🔍 檢查任務狀態:', url);
             console.log('🔐 使用認證token:', config.authToken);

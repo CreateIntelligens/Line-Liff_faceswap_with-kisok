@@ -89,23 +89,26 @@
           />
         </div>
         
-        <!-- 重新生成按鈕 -->
-        <button
-          @click="handleRegenerate"
-          class="w-full py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300 mb-3"
-          style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
-        >
-          重新生成
-        </button>
-        
-        <!-- 下載至官方版號按鈕 -->
-        <button
-          @click="handleDownload"
-          class="w-full py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300 mb-3"
-          style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
-        >
-          下載至官方版號
-        </button>
+        <!-- 按鈕區域 - 左右排列 -->
+        <div class="flex gap-3 mb-3">
+          <!-- 重新生成按鈕 -->
+          <button
+            @click="handleRegenerate"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
+            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+          >
+            重新生成
+          </button>
+          
+          <!-- 下載至官方版號按鈕 -->
+          <button
+            @click="handleDownload"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
+            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+          >
+            下載至官方版號
+          </button>
+        </div>
         
         <!-- 圖片生成紀錄連結 -->
         <div 
@@ -319,35 +322,43 @@ function processImageUrl(imageUrl) {
   
   // 如果圖片 URL 是相對路徑，添加 API 基礎 URL
   if (imageUrl.startsWith('/')) {
-    fullUrl = `https://stg-line-crm.fanpokka.ai${imageUrl}`
+    const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
+    fullUrl = `${baseURL.replace('/api', '')}${imageUrl}`
     console.log('🖼️ 完整圖片 URL:', fullUrl)
   }
   
-  // 使用新的圖片處理 API 來處理圖片
-  try {
-    console.log('🔄 使用 imageProcessApi 處理圖片:', fullUrl)
-    
-    // 從全局配置獲取圖片處理 API 設置
-    const config = window.endpoint || {}
-    const apiUrl = config.imageProcessApi || 'https://stg-api.fanpokka.ai/api/static-resource'
-    const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 }
-    
-    // 構建查詢參數
-    const queryParams = new URLSearchParams()
-    queryParams.append('url', fullUrl)
-    if (params.scale) queryParams.append('scale', params.scale)
-    if (params.format) queryParams.append('format', params.format)
-    if (params.quality) queryParams.append('quality', params.quality)
-    if (params.width) queryParams.append('width', params.width)
-    if (params.height) queryParams.append('height', params.height)
-    
-    const processedImageUrl = `${apiUrl}?${queryParams.toString()}`
-    console.log('✅ 圖片處理 API URL:', processedImageUrl)
-    
-    return processedImageUrl
-  } catch (error) {
-    console.error('❌ 處理圖片時發生錯誤:', error)
-    // 如果處理失敗，返回原始圖片 URL
+  // 檢查是否啟用圖片處理 API
+  const config = window.endpoint || {}
+  const enableImageProcessing = config.enableImageProcessing || false
+  
+  if (enableImageProcessing && config.imageProcessApi) {
+    try {
+      console.log('🔄 使用 imageProcessApi 處理圖片:', fullUrl)
+      
+      const apiUrl = config.imageProcessApi
+      const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 }
+      
+      // 構建查詢參數
+      const queryParams = new URLSearchParams()
+      queryParams.append('url', fullUrl)
+      if (params.scale) queryParams.append('scale', params.scale)
+      if (params.format) queryParams.append('format', params.format)
+      if (params.quality) queryParams.append('quality', params.quality)
+      if (params.width) queryParams.append('width', params.width)
+      if (params.height) queryParams.append('height', params.height)
+      
+      const processedImageUrl = `${apiUrl}?${queryParams.toString()}`
+      console.log('✅ 圖片處理 API URL:', processedImageUrl)
+      
+      return processedImageUrl
+    } catch (error) {
+      console.error('❌ 處理圖片時發生錯誤:', error)
+      // 如果處理失敗，返回原始圖片 URL
+      return fullUrl
+    }
+  } else {
+    // 不使用圖片處理 API，直接返回完整 URL
+    console.log('✅ 直接使用圖片 URL:', fullUrl)
     return fullUrl
   }
 }
@@ -396,9 +407,10 @@ async function checkTaskStatus() {
         const rawImage = taskData.images[0]
         
         // 1. 處理原始圖片 URL（確保是絕對路徑，用於發簡訊）
-        // 如果是相對路徑，補上 CRM 的域名
+        // 如果是相對路徑，補上基礎域名
         if (rawImage.startsWith('/')) {
-          originalImageUrl.value = `https://stg-line-crm.fanpokka.ai${rawImage}`
+          const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
+          originalImageUrl.value = `${baseURL.replace('/api', '')}${rawImage}`
         } else {
           originalImageUrl.value = rawImage
         }

@@ -372,7 +372,7 @@ export function useScreenshot() {
     formData.append('type', 'image')
     formData.append('uid', userId)
 
-    const response = await fetch(`${window.endpoint.baseURL}/roadshow/files`, {
+    const response = await fetch(`${window.endpoint.baseURL}/face-swap/files`, {
       method: 'POST',
       headers: {
         'X-Requested-With': 'XMLHttpRequest'

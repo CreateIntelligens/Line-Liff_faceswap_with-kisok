@@ -367,15 +367,18 @@ async function handleCameraGenerate(imageFile) {
     formData.append('userId', userId.value || 'abc') // 修正參數名為 userId
     formData.append('file', imageFile)
 
-    // 將字符串模板ID轉換為對應的數字ID (1,2,3,4)
+    // 將字符串模板ID轉換為新 API 格式 (4,5,6,7)
     const templateIdMap = {
-      'play': '1',     // 綜藝玩很大 → 模板 1
-      'wife': '2',     // 犀利人妻 → 模板 2
-      'love': '3',     // 命中註定我愛你 → 模板 3
-      'super': '4'     // 超級夜總會 → 模板 4
+      'play': '7',     // 財運亨通馬上發 → 財神大同寶寶 (id: 7)
+      'wife': '4',     // 強棒出擊馬力夯 → 打棒球的大同寶寶 (id: 4)
+      'love': '6',     // 山珍海味馬不停 → 拿電鍋的大同寶寶 (id: 6)
+      'super': '5'     // 心想事成馬上有 → 擲筊大同寶寶 (id: 5)
     };
-    const numericTemplateId = templateIdMap[templateId] || '1';
+    const numericTemplateId = templateIdMap[templateId] || '7';
     formData.append('template_id', numericTemplateId)
+    
+    // 添加必填的 userName 參數（新 API 要求）
+    formData.append('userName', userId.value || 'User')
 
     // 根據選擇的角色計算 target_face_index（與LINE模式一致）
     function getFaceIndex(templateId, characterId) {
@@ -407,7 +410,7 @@ async function handleCameraGenerate(imageFile) {
 
     if (result && (result.success || result.status === 'success')) {
       console.log('✅ 生成任務已提交:', result.result)
-      taskId.value = result.result?.task_id || result.result?.id || result.result
+      taskId.value = String(result.result?.task_id || result.result?.id || result.result) // 確保為字符串
 
       // Navigate to result page
       await nextTick()

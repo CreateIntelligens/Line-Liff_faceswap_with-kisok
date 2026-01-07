@@ -401,15 +401,18 @@ async function generateFaceSwap() {
       formData.append('userId', props.userId || 'abc'); // 使用傳入的用戶ID或後備值
       formData.append('file', processedFile);
       
-      // 將字符串模板ID轉換為對應的數字ID (1,2,3,4)
+      // 將字符串模板ID轉換為新 API 格式 (4,5,6,7)
       const templateIdMap = {
-        'play': '1',     // 綜藝玩很大 → 模板 1
-        'wife': '2',     // 犀利人妻 → 模板 2
-        'love': '3',     // 命中註定我愛你 → 模板 3
-        'super': '4'     // 超級夜總會 → 模板 4
+        'play': '7',     // 財運亨通馬上發 → 財神大同寶寶 (id: 7)
+        'wife': '4',     // 強棒出擊馬力夯 → 打棒球的大同寶寶 (id: 4)
+        'love': '6',     // 山珍海味馬不停 → 拿電鍋的大同寶寶 (id: 6)
+        'super': '5'     // 心想事成馬上有 → 擲筊大同寶寶 (id: 5)
       };
-      const numericTemplateId = templateIdMap[props.selectedTemplate] || '1';
+      const numericTemplateId = templateIdMap[props.selectedTemplate] || '7';
       formData.append('template_id', numericTemplateId);
+      
+      // 添加必填的 userName 參數（新 API 要求）
+      formData.append('userName', props.userId || 'User');
       
       formData.append('target_face_index', targetFaceIndex); // 固定為 0
       formData.append('userInfo', `模板: ${props.selectedTemplate}`);
@@ -447,7 +450,7 @@ async function generateFaceSwap() {
           setTimeout(() => {
             emit("generate", {
               uploadedImage: uploadedImage.value,
-              taskId: result.result?.task_id || result.result?.id,
+              taskId: String(result.result?.task_id || result.result?.id), // 確保為字符串
               selectedTemplate: props.selectedTemplate  // 添加選擇的模板ID
             });
           }, 1000);

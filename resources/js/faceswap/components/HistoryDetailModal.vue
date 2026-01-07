@@ -284,11 +284,15 @@ function getTemplateImage(templateId) {
     'wife': imageUrls.wife,
     'love': imageUrls.love,
     'super': imageUrls.super,
-    // 數字形式 (根據 FaceSwapUpload.vue 中的映射)
-    '1': imageUrls.play, // 綜藝玩很大
-    '2': imageUrls.wife, // 犀利人妻
-    '3': imageUrls.love, // 命中註定我愛你
-    '4': imageUrls.super  // 超級夜總會
+    // 數字形式（新 API 格式）
+    '7': imageUrls.play,  // 財神大同寶寶 → 財運亨通馬上發
+    '4': imageUrls.wife,  // 打棒球的大同寶寶 → 強棒出擊馬力夯
+    '6': imageUrls.love,  // 拿電鍋的大同寶寶 → 山珍海味馬不停
+    '5': imageUrls.super, // 擲筊大同寶寶 → 心想事成馬上有
+    // 其他模板使用默認圖片
+    '1': imageUrls.play,  // Q版大同寶寶
+    '2': imageUrls.play,  // 真人大同寶寶
+    '3': imageUrls.play   // 模型樣板
   }
   
   const imageUrl = imageMap[templateId] || imageUrls.play
@@ -301,15 +305,19 @@ function getTemplateName(templateId) {
   // 支持字符串和數字形式的 template_id
   const nameMap = {
     // 字符串形式
-    'play': '綜藝玩很大',
-    'wife': '犀利人妻',
-    'love': '命中註定我愛你',
-    'super': '超級夜總會',
-    // 數字形式 (根據 FaceSwapUpload.vue 中的映射)
-    '1': '綜藝玩很大',
-    '2': '犀利人妻',
-    '3': '命中註定我愛你',
-    '4': '超級夜總會'
+    'play': '財運亨通馬上發',
+    'wife': '強棒出擊馬力夯',
+    'love': '山珍海味馬不停',
+    'super': '心想事成馬上有',
+    // 數字形式（新 API 格式）
+    '7': '財神大同寶寶',
+    '4': '打棒球的大同寶寶',
+    '6': '拿電鍋的大同寶寶',
+    '5': '擲筊大同寶寶',
+    // 其他模板
+    '1': 'Q版大同寶寶',
+    '2': '真人大同寶寶',
+    '3': '模型樣板'
   }
   
   return nameMap[templateId] || '預設模板'
@@ -338,7 +346,8 @@ function getHistoryImage(item) {
   
   // 如果圖片URL是相對路徑，添加API基礎URL
   if (imageUrl.startsWith('/')) {
-    fullUrl = `https://stg-line-crm.fanpokka.ai${imageUrl}`
+    const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
+    fullUrl = `${baseURL.replace('/api', '')}${imageUrl}`
     console.log('🖼️ 完整圖片URL:', fullUrl)
   }
   
