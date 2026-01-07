@@ -12,23 +12,7 @@
   <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" style="background-color: #333333;">
       <!-- Header -->
     <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
-      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">標題</h1>
-    </div>
-
-    <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isKioskMode && !isLoading && !isFailed" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
-      <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
-      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
-      <img :src="imageUrls.step2_inprogress" class="w-6 h-6 object-contain" alt="Step 2">
-      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
-      <img :src="imageUrls.step3_inprogress" class="w-6 h-6 object-contain" alt="Step 3">
-    </div>
-
-    <!-- 步驟文字 (手機版) -->
-    <div v-if="!isKioskMode && !isLoading && !isFailed" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto mt-2 mb-4">
-      <div>Step 1</div>
-      <div>Step 2</div>
-      <div>Step 3</div>
+      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">生成詳情</h1>
     </div>
 
     <!-- Main Content -->
@@ -90,7 +74,7 @@
         </div>
         
         <!-- 按鈕區域 - 左右排列 -->
-        <div class="flex gap-3 mb-3">
+        <div class="flex gap-3">
           <!-- 重新生成按鈕 -->
           <button
             @click="handleRegenerate"
@@ -100,32 +84,14 @@
             重新生成
           </button>
           
-          <!-- 下載至官方版號按鈕 -->
+          <!-- 下載圖片按鈕 -->
           <button
             @click="handleDownload"
             class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
             style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
           >
-            下載至官方版號
+            下載圖片
           </button>
-        </div>
-        
-        <!-- 圖片生成紀錄連結 -->
-        <div 
-          class="text-center text-white text-base font-bold cursor-pointer hover:opacity-80 transition-opacity mb-6"
-          @click="handleShowHistory"
-        >
-          圖片生成紀錄
-        </div>
-        
-        <!-- Barcode 預留區域 -->
-        <div class="w-full h-20 bg-gray-700 rounded-md flex items-center justify-center mb-3">
-          <span class="text-gray-400 text-sm">barcode</span>
-        </div>
-        
-        <!-- Barcode 說明文字 -->
-        <div class="text-center text-white text-sm">
-          掃描條碼
         </div>
       </div>
           

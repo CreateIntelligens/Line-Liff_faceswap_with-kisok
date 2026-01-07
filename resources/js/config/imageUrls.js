@@ -12,21 +12,9 @@ import baseballImg from '../../images/2baseball.png'
 import ricecookerImg from '../../images/3ricecooker.png'
 import moonblocksImg from '../../images/4moonblocks.png'
 import backImg from '../../images/back.png'
-import crownImg from '../../images/crown.png'
-import group13948Img from '../../images/Group13948.png'
-import headerImg from '../../images/header.png'
-import newHeaderImg from '../../images/2025內容創新發布會-KV-FIN0805 2.png'
-import logoImg from '../../images/logo.png'
 import logo1Img from '../../images/logo-2.png'
 import newLogoImg from '../../images/logo-32ec7d19.png'
-import resultHeaderImg from '../../images/Group138678-1.png'
-import prizeImg from '../../images/prize.png'
-import loadImg from '../../images/load.png'
-import resultImg from '../../images/result.png'
-import profileImg from '../../images/profile.png'
-import starImg from '../../images/star.png'
 import uploadImg from '../../images/upload.png'
-import rectangle8Img from '../../images/Rectangle 8.png'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
@@ -47,19 +35,14 @@ export const imageUrls = {
 
   // 其他圖片
   back: backImg,
-  crown: crownImg,
-  Group13948: group13948Img,
   header: logo1Img,
   header1: logo1Img,  // 新增別名
-  resultHeader: resultHeaderImg,
   logo: newLogoImg,
   profile: godofwealthImg,   // 首頁主圖使用財神爺
   prize: godofwealthImg,     // 獎品圖使用財神爺
   load: godofwealthImg,      // 載入圖使用財神爺
   result: godofwealthImg,    // 結果圖使用財神爺
-  star: starImg,
   upload: uploadImg,
-  rectangle8: rectangle8Img,
 };
 
 // 步驟圖片集合 (兼容 images.js 的 API)
@@ -84,11 +67,8 @@ export const templateImages = {
 // 其他圖片集合 (兼容 images.js 的 API)
 export const otherImages = {
   back: imageUrls.back,
-  crown: imageUrls.crown,
-  Group13948: imageUrls.Group13948,
   header: imageUrls.header,
   logo: imageUrls.logo,
-  star: imageUrls.star,
   upload: imageUrls.upload,
   wife: imageUrls.wife,
 };

@@ -35,18 +35,7 @@
 
       <!-- Modal Body -->
       <div class="flex-1 px-8 pb-8 pt-8 bg-black">
-        <div class="bg-black p-6 relative" ref="captureArea">
-          <!-- Left Edge Decoration -->
-          <div 
-            class="absolute left-0 top-44 w-[7px] h-[183px] flex-shrink-0"
-            style="background: linear-gradient(180deg, #12E5DA 0%, #14E1D6 5.29%, #2FD4D3 11.84%, #3DD0D3 17.92%, #8CCBDA 23.69%, #A5ABC8 28.59%, #BFA2C2 32.33%, #D39BB3 37.03%, #D99BA9 41.51%, #DD9F95 46.52%, #DDA587 50.79%, #DBAC7B 55.81%, #D4B581 60.93%, #CDB78F 66.05%, #B9B6B5 73.09%, #A1B0D5 79.33%, #83A3E6 86.54%, #749CEB 92.31%, #5E90EE 100%);"
-          ></div>
-          
-          <!-- Right Edge Decoration -->
-          <div 
-            class="absolute right-0 top-10 w-[7px] h-[183px] flex-shrink-0"
-            style="background: linear-gradient(180deg, #C1F09C 0%, #B7F3A8 6.56%, #ACF5B5 12.19%, #9EF4D0 20.74%, #A4E5E0 29.06%, #9ED7D3 33.58%, #B0CEEA 37.98%, #BCBDED 41.83%, #CBA4EB 48.08%, #DE97CD 55.29%, #EB9FA2 61.06%, #F2A77B 65.85%, #F9AC55 70.67%, #FCA63B 77.88%, #FC9540 83.65%, #FC7B52 89.9%, #FA6263 93.27%, #F64377 100%);"
-          ></div>
+        <div class="bg-black p-6" ref="captureArea">
           <!-- 載入狀態 -->
           <div v-if="isLoading" class="flex flex-col items-center justify-center h-60">
             <div class="text-white text-center">
@@ -62,8 +51,8 @@
               <div class="text-sm mb-4">{{ error }}</div>
               <button 
                 @click="loadHistoryDetail"
-                class="px-4 py-2 text-[#333] rounded-md hover:shadow-lg transition-all duration-300"
-                style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+                class="px-4 py-2 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
+                style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
               >
                 重試
               </button>
@@ -71,45 +60,12 @@
           </div>
 
           <!-- 詳情內容 -->
-          <div v-else-if="historyDetail" ref="detailArea" class="space-y-6">
-
-          <!-- Header Logo -->
-          <div class="flex justify-center">
-            <img
-              :src="imageUrls.resultHeader"
-              class="h-16 object-contain mx-auto"
-              alt="標準字"
-            />
-          </div>
-
-          <!-- Images Section -->
-          <div class="space-y-6">
-            <!-- Original Image with Star -->
-            <div class="relative">
-              <!-- <img
-                :src="getTemplateImage(historyDetail.template_id)"
-                :alt="`模板圖片 - ${getTemplateName(historyDetail.template_id)}`"
-                class="w-full object-cover rounded-md"
-                @error="handleTemplateImageError"
-              /> -->
-              <img
-                :src="imageUrls.star"
-                class="absolute -left-4 -bottom-72 w-12 h-12 object-contain"
-                alt="星"
-              />
-            </div>
-
-            <!-- Result Image with Crown -->
+          <div v-else-if="historyDetail" ref="detailArea">
+            <!-- Result Image -->
             <div v-if="getHistoryImage(historyDetail)">
-              <div class="mb-4 relative">
-                <!-- Crown positioned at top-right corner edge -->
+              <div class="mb-6">
                 <img
-                  :src="imageUrls.crown"
-                  class="absolute -right-4 -top-4 w-12 h-12 object-contain transform -rotate-[14.809deg] z-50"
-                  alt="皇冠"
-                />
-                <img
-                  class="w-full object-cover rounded-md"
+                  class="w-full object-contain rounded-lg"
                   :src="getHistoryImage(historyDetail)"
                   alt="生成結果"
                   @error="handleResultImageError"
@@ -120,69 +76,45 @@
                 </div>
               </div>
             </div>
-            <div v-else class="w-full h-60 bg-gray-700 rounded-md flex items-center justify-center">
+            <div v-else class="w-full h-60 bg-gray-700 rounded-md flex items-center justify-center mb-6">
               <div class="text-white text-center">
                 <div class="text-lg font-bold mb-2">生成中...</div>
                 <div class="text-sm">請稍候，正在處理您的圖片</div>
               </div>
             </div>
-
-             <!-- Bottom Logo and Credit -->
-             <div class="flex flex-col items-center">
-               <img
-                 :src="imageUrls.logo"
-                 class="h-7 object-contain"
-                 alt="0815"
-               />
-               <div class="text-center mt-4 text-gray-300 text-xs font-normal font-noto-sans-tc">
-                 此 AI 服務由創造智能支持，讓你一秒變主角
-               </div>
-             </div>
-          </div>
-
-
           </div>
         </div>
       </div>
 
-      <!-- Usage Counter -->
-      <div class="flex justify-end px-8 py-2 bg-[#141414]">
-        <UsageCounter v-if="!isPCMode" :currentCount="props.userUsage" :maxLimit="10" />
-      </div>
-
       <!-- Action Buttons -->
-      <div class="bg-[#141414] px-12 py-8">
-        <div class="flex gap-3 mb-8">
+      <div class="bg-[#141414] px-8 py-8">
+        <div class="flex gap-3">
           <!-- Regenerate Button -->
           <button 
-            class="flex-1 h-11 flex justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300"
-            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
+            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
             @click="regenerate"
           >
-            <div class="font-noto-sans-tc text-base font-bold text-[#333]">
-              重新生成
-            </div>
+            重新生成
           </button>
           
           <!-- Download Button -->
           <button 
-            class="flex-1 h-11 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300"
+            class="flex-1 py-3.5 rounded-md font-bold transition-all duration-300"
             :class="
               historyDetail && historyDetail.status === 'completed' && !isDownloading
-                ? 'bg-gradient-to-r from-[#EE95FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg'
-                : 'bg-[#C7C7C7] cursor-not-allowed'
+                ? 'text-[#0E0E0E]'
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            "
+            :style="
+              historyDetail && historyDetail.status === 'completed' && !isDownloading
+                ? 'background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);'
+                : ''
             "
             @click="downloadToOfficial"
             :disabled="!historyDetail || historyDetail.status !== 'completed' || isDownloading"
           >
-            <div v-if="isDownloading" class="flex items-center gap-2">
-              <div class="font-noto-sans-tc text-base font-bold text-[#333]">
-                處理中...
-              </div>
-            </div>
-            <div v-else class="font-noto-sans-tc text-base font-bold text-[#333]">
-              下載圖片
-            </div>
+            {{ isDownloading ? '處理中...' : '下載圖片' }}
           </button>
         </div>
       </div>
@@ -194,7 +126,6 @@
 import { ref, watch } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import { imageUrls } from '@/config/imageUrls'
-import UsageCounter from './UsageCounter.vue'
 import { useScreenshot } from '../../composables/useScreenshot.js'
 
 const props = defineProps({
