@@ -18,6 +18,14 @@ import uploadImg from '../../images/upload.png'
 import pageBgImg from '../../images/page_bg.png'
 import kiosktitle1Img from '../../images/kiosktitle1.png'
 import title1Img from '../../images/title1.png'
+import title2Img from '../../images/title2.png'
+import title3Img from '../../images/title3.png'
+import kiosk1Img from '../../images/kiosk1.png'
+import kiosk2Img from '../../images/kiosk2.png'
+import kiosk2_1Img from '../../images/kiosk2_1.png'
+import kioskTextImg from '../../images/kiosk_text.png'
+import homepageImg from '../../images/homepage.png'
+import kioskHomepageImg from '../../images/kioskhomepage.png'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
@@ -49,6 +57,14 @@ export const imageUrls = {
   pageBg: pageBgImg,        // 頁面背景圖
   kiosktitle1: kiosktitle1Img,  // Kiosk 版標題圖片
   title1: title1Img,            // 手機版標題圖片
+  title2: title2Img,            // 上傳圖片標題
+  title3: title3Img,            // 生成結果標題
+  kiosk1: kiosk1Img,            // Kiosk 模式：需使用單人清晰正面照
+  kiosk2: kiosk2Img,            // Kiosk 模式：拍照倒數中，請勿移動
+  kiosk2_1: kiosk2_1Img,        // Kiosk 模式：請確認照片
+  kioskText: kioskTextImg,      // Kiosk 模式：拍照說明文字
+  homepage: homepageImg,        // 手機版首頁圖片
+  kioskHomepage: kioskHomepageImg,  // Kiosk 版首頁圖片
 };
 
 // 步驟圖片集合 (兼容 images.js 的 API)

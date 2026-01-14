@@ -12,7 +12,12 @@
   <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
       <!-- Header -->
     <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
-      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-[#A90205]">生成詳情</h1>
+      <img
+        :src="imageUrls.title3"
+        :class="isKioskMode ? 'h-auto' : 'h-auto'"
+        class="object-contain"
+        alt="生成結果"
+      />
     </div>
 
     <!-- Main Content -->

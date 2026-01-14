@@ -56,9 +56,11 @@
       <div class="flex-1">
         <div v-if="props.selectedTemplate">
           <div class="flex items-center gap-3 mb-6">
-            <h3 class="text-base font-bold text-[#A90205]">
-              請上傳一張正面清晰的原始圖片
-            </h3>
+            <img
+              :src="imageUrls.title2"
+              class="h-6 object-contain"
+              alt="請上傳一張正面清晰的原始圖片"
+            />
           </div>
 
           <!-- Upload Area -->

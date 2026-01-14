@@ -14,7 +14,23 @@
       <div class="flex flex-col w-full">
         <!-- Step indicator -->
         <div :class="isKioskMode ? 'justify-center' : ''" class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-6">
-          <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#A90205]">
+          <!-- Kiosk 模式：顯示圖片 -->
+          <img
+            v-if="isKioskMode"
+            :src="
+              cameraState === 'countdown' ? imageUrls.kiosk2 :
+              cameraState === 'captured' ? imageUrls.kiosk2_1 :
+              imageUrls.kiosk1
+            "
+            class="h-auto object-contain"
+            :alt="
+              cameraState === 'countdown' ? '拍照倒數中，請勿移動' :
+              cameraState === 'captured' ? '請確認照片' :
+              '需使用單人清晰正面照'
+            "
+          />
+          <!-- 手機版：顯示文字 -->
+          <div v-else class="text-base self-stretch my-auto text-[#A90205]">
             {{
               cameraState === 'countdown' ? '拍照倒數中，請勿移動' :
               cameraState === 'captured' ? '請確認照片' :
@@ -141,8 +157,17 @@
 
         <!-- Instructions Below Buttons - Only show when not captured and not countdown -->
         <div v-if="cameraState !== 'captured' && cameraState !== 'countdown'" :class="isKioskMode ? 'mt-12' : 'mt-9'" class="text-base font-bold">
-          <div :class="isKioskMode ? 'p-10' : 'p-4'" class="bg-gray-100 border-2 border-gray-300 rounded-lg">
-            <div :class="isKioskMode ? 'text-2xl space-y-4' : 'text-sm space-y-2'" class="text-gray-800 text-left">
+          <!-- Kiosk 模式：顯示圖片 -->
+          <div v-if="isKioskMode" class="flex justify-center">
+            <img
+              :src="imageUrls.kioskText"
+              class="max-w-[600px] h-auto object-contain"
+              alt="拍照說明"
+            />
+          </div>
+          <!-- 手機版：顯示文字 -->
+          <div v-else :class="'p-4'" class="bg-gray-100 border-2 border-gray-300 rounded-lg">
+            <div class="text-sm space-y-2 text-gray-800 text-left">
               <div>1. 點擊後會有5秒準備期，請在5秒內擺好姿勢</div>
               <div>2. 請保持畫面人物面向，避免多人以上亂識</div>
               <div>3. 請避免頭髮或帽子遮擋五官，避免過髮等遮擋</div>
