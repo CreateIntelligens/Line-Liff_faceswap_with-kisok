@@ -13,7 +13,7 @@
     </div>
 
     <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isPCMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
+    <div v-if="!isPCMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#A90205] whitespace-nowrap mx-auto mt-6">
       <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
       <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
       <img :src="imageUrls.step2_inprogress" class="w-6 h-6 object-contain" alt="Step 2">
@@ -22,7 +22,7 @@
     </div>
 
     <!-- 步驟文字 (手機版) -->
-    <div v-if="!isPCMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto mt-2 mb-4">
+    <div v-if="!isPCMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#A90205] mx-auto mt-2 mb-4">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
@@ -40,7 +40,7 @@
           />
         </div>
         <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md">
-          <div class="text-center text-white">
+          <div class="text-center text-[#A90205]">
             <div class="text-lg font-bold mb-2">請先選擇模板</div>
             <div class="text-sm text-gray-300">請回到上一步選擇您想要的換臉模板</div>
           </div>
@@ -56,7 +56,7 @@
       <div class="flex-1">
         <div v-if="props.selectedTemplate">
           <div class="flex items-center gap-3 mb-6">
-            <h3 class="text-base font-bold text-white">
+            <h3 class="text-base font-bold text-[#A90205]">
               請上傳一張正面清晰的原始圖片
             </h3>
           </div>
@@ -64,7 +64,7 @@
           <!-- Upload Area -->
           <div class="mb-6">
             <div
-              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-gray-300 bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors rounded-md"
+              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#A90205] bg-white cursor-pointer hover:bg-gray-200 transition-colors rounded-md"
               @click="triggerFileUpload"
               @dragover.prevent
               @drop.prevent="handleDrop"
@@ -78,10 +78,10 @@
                     class="w-[50px] h-[35px] object-contain"
                   />
                 </div>
-                <div class="text-base font-medium text-gray-800 text-center">
+                <div class="text-base font-medium text-[#A90205] text-center">
                   點擊上傳
                 </div>
-                <div class="text-sm font-medium text-gray-600 text-center">
+                <div class="text-sm font-medium text-[#A90205] text-center">
                   支援 JPG, PNG 格式
                 </div>
               </div>
@@ -98,8 +98,8 @@
 
           <!-- Upload Instructions -->
           <div class="mb-8">
-            <h4 class="text-sm font-bold text-white mb-3">上傳注意事項：</h4>
-            <div class="text-[13px] font-normal text-gray-300 space-y-2">
+            <h4 class="text-sm font-bold text-[#A90205] mb-3">上傳注意事項：</h4>
+            <div class="text-[13px] font-normal text-[#A90205] space-y-2">
               <div>1.請上傳單人清晰正面照，避免多人合照，以利準確辨識</div>
               <div>2.僅支援人像照片，請勿上傳風景、動物或其他非人物圖片</div>
               <div>請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>
@@ -110,20 +110,20 @@
           <!-- Action Buttons -->
           <div class="flex gap-3 mb-8">
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#0E0E0E]"
-              style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
+              style="background-color: #FF7824; touch-action: manipulation;"
               @click="goBack"
             >
               重選範本
             </button>
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#0E0E0E]"
+              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2]"
               :class="
                 canGenerate
-                  ? ''
-                  : 'opacity-50 cursor-not-allowed'
+                  ? 'hover:bg-[#FF7824] active:bg-[#FF7824]'
+                  : 'cursor-not-allowed'
               "
-              :style="canGenerate ? 'background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);' : 'background: #999999;'"
+              :style="canGenerate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
               @click="generateFaceSwap"
               :disabled="!canGenerate"
             >
@@ -131,12 +131,12 @@
             </button>
           </div>
         </div>
-        <div v-else class="text-center text-white py-8">
+        <div v-else class="text-center text-[#A90205] py-8">
           <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
           <div class="text-sm text-gray-300 mb-6">您需要先選擇一個模板才能繼續</div>
           <button
-            class="px-6 py-3 text-[#0E0E0E] rounded-md font-bold transition-all duration-300"
-            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+            class="px-6 py-3 text-[#FBEFC2] rounded-md font-bold transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            style="background-color: #D84729; touch-action: manipulation;"
             @click="goBack"
           >
             返回選擇模板

@@ -12,7 +12,7 @@
   <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
       <!-- Header -->
     <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
-      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">生成詳情</h1>
+      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-[#A90205]">生成詳情</h1>
     </div>
 
     <!-- Main Content -->
@@ -47,7 +47,7 @@
       <!-- Kiosk 模式：生成成功顯示 -->
       <div v-else-if="!isLoading && !isFailed && isKioskMode" class="flex flex-col items-center w-full">
         <!-- 成功文字 -->
-        <div class="text-5xl font-bold text-white mb-16 text-center">
+        <div class="text-5xl font-bold text-[#A90205] mb-16 text-center">
           圖片生成成功！
         </div>
         
@@ -57,7 +57,7 @@
         </div>
         
         <!-- QR Code 說明文字 -->
-        <div class="text-3xl text-white text-center mt-8">
+        <div class="text-3xl text-[#A90205] text-center mt-8">
           掃描獲得生成結果
         </div>
       </div>
@@ -84,8 +84,8 @@
           <!-- 重新生成按鈕 -->
           <button
             @click="handleRegenerate"
-            class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
-            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            style="background-color: #FF7824; touch-action: manipulation;"
           >
             重新生成
           </button>
@@ -93,8 +93,8 @@
           <!-- 下載圖片按鈕 -->
           <button
             @click="handleDownload"
-            class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
-            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            style="background-color: #FF7824; touch-action: manipulation;"
           >
             下載圖片
           </button>
@@ -105,7 +105,7 @@
       <div v-if="false" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
         <!-- 真實姓名 (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40" style="pointer-events: auto;">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
+          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#A90205] font-bold">
             真實姓名<span class="text-red-500">*</span>
           </label>
           <input
@@ -121,7 +121,7 @@
 
         <!-- 聯絡電話 -->
         <div class="relative z-40" style="pointer-events: auto;">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
+          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#A90205] font-bold">
             聯絡電話<span class="text-red-500">*</span>
           </label>
           <input
@@ -140,7 +140,7 @@
 
         <!-- Email (僅手機版) -->
         <div v-if="!isKioskMode" class="relative z-40">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-white font-bold">
+          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#A90205] font-bold">
             Email
           </label>
           <input
@@ -162,11 +162,11 @@
           :class="[
             isKioskMode ? 'py-8 text-4xl !mt-20' : 'py-3.5',
             isFormValid && !isSubmitting 
-              ? 'text-[#0E0E0E] cursor-pointer' 
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'text-[#FBEFC2] cursor-pointer hover:bg-[#FF7824] active:bg-[#FF7824]' 
+              : 'text-[#FBEFC2] cursor-not-allowed'
           ]"
           class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          :style="(isFormValid && !isSubmitting) ? 'background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); position: relative; pointer-events: auto !important; cursor: pointer !important;' : 'position: relative; pointer-events: auto !important; cursor: pointer !important;'"
+          :style="(isFormValid && !isSubmitting) ? 'background-color: #FF7824; position: relative; pointer-events: auto !important; cursor: pointer !important; touch-action: manipulation;' : 'background-color: #D84729; position: relative; pointer-events: auto !important; cursor: pointer !important; touch-action: manipulation;'"
         >
           {{ isSubmitting ? '送出中...' : '送出' }}
         </button>

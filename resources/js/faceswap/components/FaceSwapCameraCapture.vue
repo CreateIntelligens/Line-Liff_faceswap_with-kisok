@@ -14,7 +14,7 @@
       <div class="flex flex-col w-full">
         <!-- Step indicator -->
         <div :class="isKioskMode ? 'justify-center' : ''" class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-6">
-          <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-white">
+          <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#A90205]">
             {{
               cameraState === 'countdown' ? '拍照倒數中，請勿移動' :
               cameraState === 'captured' ? '請確認照片' :
@@ -51,7 +51,7 @@
         <!-- Countdown Overlay -->
         <div v-if="cameraState === 'countdown'"
              class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div :class="isKioskMode ? 'text-[20rem]' : 'text-9xl'" class="font-bold text-white animate-pulse">
+          <div :class="isKioskMode ? 'text-[20rem]' : 'text-9xl'" class="font-bold text-[#A90205] animate-pulse">
             {{ countdownNumber }}
           </div>
         </div>
@@ -79,7 +79,7 @@
 
         <!-- Countdown Instructions - Show only during countdown -->
         <div v-if="cameraState === 'countdown'" :class="isKioskMode ? 'mt-12 mb-12' : 'mt-8 mb-8'">
-          <div class="text-center text-white space-y-2">
+          <div class="text-center text-[#A90205] space-y-2">
             <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">請在五秒內確認你的位置</div>
             <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">並保持畫面內僅有一人</div>
             <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">五官清晰無遮擋</div>
@@ -92,11 +92,11 @@
             <!-- Back Button (重選IP) - Only show when not captured -->
             <button v-if="cameraState !== 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer hover:bg-gray-200 transition-all duration-300 bg-gray-100 border-2 border-gray-300"
-                    style="touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                    style="background-color: #FF7824; touch-action: manipulation;"
                     @click="goBack"
                     @touchend.prevent="goBack">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-gray-800">
+              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 重選IP
               </div>
             </button>
@@ -104,11 +104,11 @@
             <!-- Take Photo Button (開始拍照) when preview is ready -->
             <button v-if="cameraState === 'preview'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300"
-                    style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                    style="background-color: #FF7824; touch-action: manipulation;"
                     @click="startCountdown"
                     @touchend.prevent="startCountdown">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#0E0E0E]">
+              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 開始拍照
               </div>
             </button>
@@ -116,11 +116,11 @@
             <!-- Retake Photo Button when captured -->
             <button v-if="cameraState === 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300"
-                    style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                    style="background-color: #FF7824; touch-action: manipulation;"
                     @click="retakePhoto"
                     @touchend.prevent="retakePhoto">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#0E0E0E]">
+              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 再拍一次
               </div>
             </button>
@@ -128,11 +128,11 @@
             <!-- Next Step Button -->
             <button v-if="cameraState === 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300"
-                    style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                    style="background-color: #FF7824; touch-action: manipulation;"
                     @click="nextStep"
                     @touchend.prevent="nextStep">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#0E0E0E]">
+              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 下一步
               </div>
             </button>

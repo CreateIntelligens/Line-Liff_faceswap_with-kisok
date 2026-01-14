@@ -11,7 +11,7 @@
     </div>
 
     <!-- 步驟指示器 -->
-    <div class="flex max-w-full text-2xl font-bold text-center text-white whitespace-nowrap w-[600px] mx-auto mb-8">
+    <div class="flex max-w-full text-2xl font-bold text-center text-[#A90205] whitespace-nowrap w-[600px] mx-auto mb-8">
       <img
         :src="imageUrls.step1"
         class="w-16 h-16 object-contain"
@@ -38,7 +38,7 @@
     </div>
 
     <!-- 步驟文字 -->
-    <div class="flex gap-10 justify-between max-w-full text-2xl text-center text-white w-[700px] mx-auto mb-16">
+    <div class="flex gap-10 justify-between max-w-full text-2xl text-center text-[#A90205] w-[700px] mx-auto mb-16">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
@@ -53,7 +53,7 @@
           class="w-16 h-16 object-contain"
           alt="Step 1"
         />
-        <div class="text-4xl text-white">選擇節目模板</div>
+        <div class="text-4xl text-[#A90205]">選擇節目模板</div>
       </div>
 
       <!-- 模板網格 - 2x2 大卡片 -->
@@ -81,7 +81,7 @@
           </div>
           <!-- 模板名稱 -->
           <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
-            <div class="text-3xl font-bold text-white">{{ template.name }}</div>
+            <div class="text-3xl font-bold text-[#A90205]">{{ template.name }}</div>
           </div>
         </div>
       </div>
@@ -93,9 +93,10 @@
         <!-- 返回按鈕 -->
         <button
           @click="goBack"
-          class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer border-2 border-gray-400 hover:bg-gray-700 transition-all duration-300"
+          class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+          style="background-color: #FF7824; touch-action: manipulation;"
         >
-          <span class="text-3xl font-bold text-white">返回</span>
+          <span class="text-3xl font-bold text-[#FBEFC2]">返回</span>
         </button>
         
         <!-- 下一步按鈕 -->
@@ -104,11 +105,11 @@
           :disabled="!selectedTemplate"
           class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer transition-all duration-300"
           :class="selectedTemplate 
-            ? 'hover:scale-[1.02] hover:shadow-xl' 
-            : 'opacity-50 cursor-not-allowed'"
-          style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 4px 16px rgba(222, 199, 153, 0.4);"
+            ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' 
+            : 'cursor-not-allowed'"
+          :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
         >
-          <span class="text-3xl font-bold text-[#333]">下一步</span>
+          <span class="text-3xl font-bold text-[#FBEFC2]">下一步</span>
         </button>
       </div>
     </div>

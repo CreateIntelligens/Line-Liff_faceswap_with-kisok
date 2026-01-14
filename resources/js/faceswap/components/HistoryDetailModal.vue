@@ -25,7 +25,7 @@
         </button>
         
         <!-- Title -->
-        <div class="font-noto-sans-tc text-xl font-bold text-white">
+        <div class="font-noto-sans-tc text-xl font-bold text-[#A90205]">
           生成詳情
         </div>
         
@@ -38,7 +38,7 @@
         <div class="bg-black p-6" ref="captureArea">
           <!-- 載入狀態 -->
           <div v-if="isLoading" class="flex flex-col items-center justify-center h-60">
-            <div class="text-white text-center">
+            <div class="text-[#A90205] text-center">
               <div class="text-lg font-bold mb-2">載入中...</div>
               <div class="text-sm">正在獲取生成詳情</div>
             </div>
@@ -51,8 +51,8 @@
               <div class="text-sm mb-4">{{ error }}</div>
               <button 
                 @click="loadHistoryDetail"
-                class="px-4 py-2 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
-                style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+                class="px-4 py-2 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                style="background-color: #FF7824; touch-action: manipulation;"
               >
                 重試
               </button>
@@ -77,7 +77,7 @@
               </div>
             </div>
             <div v-else class="w-full h-60 bg-gray-700 rounded-md flex items-center justify-center mb-6">
-              <div class="text-white text-center">
+              <div class="text-[#A90205] text-center">
                 <div class="text-lg font-bold mb-2">生成中...</div>
                 <div class="text-sm">請稍候，正在處理您的圖片</div>
               </div>
@@ -91,8 +91,8 @@
         <div class="flex gap-3">
           <!-- Regenerate Button -->
           <button 
-            class="flex-1 py-3.5 rounded-md font-bold text-[#0E0E0E] transition-all duration-300"
-            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            style="background-color: #FF7824; touch-action: manipulation;"
             @click="regenerate"
           >
             重新生成
@@ -103,14 +103,10 @@
             class="flex-1 py-3.5 rounded-md font-bold transition-all duration-300"
             :class="
               historyDetail && historyDetail.status === 'completed' && !isDownloading
-                ? 'text-[#0E0E0E]'
-                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                ? 'text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]'
+                : 'text-[#FBEFC2] cursor-not-allowed'
             "
-            :style="
-              historyDetail && historyDetail.status === 'completed' && !isDownloading
-                ? 'background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);'
-                : ''
-            "
+            :style="historyDetail && historyDetail.status === 'completed' && !isDownloading ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
             @click="downloadToOfficial"
             :disabled="!historyDetail || historyDetail.status !== 'completed' || isDownloading"
           >

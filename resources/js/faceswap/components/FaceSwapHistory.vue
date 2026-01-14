@@ -27,7 +27,7 @@
       </button>
 
       <!-- Title -->
-      <div style="font-family: 'Noto Sans TC', sans-serif; font-size: 1.25rem; font-weight: bold; color: #ffffff;">
+      <div style="font-family: 'Noto Sans TC', sans-serif; font-size: 1.25rem; font-weight: bold; color: #A90205;">
         圖片生成紀錄
       </div>
 
@@ -38,7 +38,7 @@
     <div style="flex: 1; padding: 2rem 1.5rem; background-color: #333333;">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
-        <div class="text-white text-center">
+        <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">載入中...</div>
           <div class="text-sm text-gray-300">正在獲取您的生成紀錄</div>
         </div>
@@ -46,13 +46,13 @@
 
       <!-- Error state -->
       <div v-else-if="error" class="flex flex-col items-center justify-center py-12">
-        <div class="text-white text-center">
+        <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">載入失敗</div>
           <div class="text-sm text-gray-300 mb-4">{{ error }}</div>
           <button 
             @click="loadUserHistory"
-            class="px-6 py-3 text-[#0E0E0E] font-bold rounded-md hover:shadow-lg transition-all duration-300"
-            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%);"
+            class="px-6 py-3 text-[#FBEFC2] font-bold rounded-md transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            style="background-color: #FF7824; touch-action: manipulation;"
           >
             重試
           </button>
@@ -61,7 +61,7 @@
 
       <!-- Empty state -->
       <div v-else-if="!historyData || historyData.length === 0" class="flex flex-col items-center justify-center py-12">
-        <div class="text-white text-center">
+        <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">尚無生成紀錄</div>
           <div class="text-sm text-gray-300">您還沒有生成過任何圖片</div>
         </div>

@@ -25,7 +25,7 @@
     </div>
 
     <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
+    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#A90205] whitespace-nowrap mx-auto mt-6">
       <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
       <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
       <img :src="imageUrls.step2_inactive" class="w-6 h-6 object-contain" alt="Step 2">
@@ -34,7 +34,7 @@
     </div>
 
     <!-- 步驟文字 (手機版) -->
-    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto mt-2 mb-4">
+    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#A90205] mx-auto mt-2 mb-4">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
@@ -47,13 +47,13 @@
             :class="isKioskMode ? 'justify-center' : ''"
             class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-2"
           >
-            <div
-              :class="isKioskMode ? 'text-3xl' : 'text-base'"
-              class="self-stretch my-auto text-white"
+            <img
+              :src="isKioskMode ? imageUrls.kiosktitle1 : imageUrls.title1"
+              :class="isKioskMode ? 'h-auto' : 'h-auto'"
+              class="object-contain"
+              alt="請選擇以下IP圖片範本（請點擊圖片）"
               data-name="請選擇以下IP圖片範本（請點擊圖片）"
-            >
-              請選擇以下IP圖片範本（請點擊圖片）
-            </div>
+            />
           </div>
           <div :class="isKioskMode ? 'mt-12' : 'mt-9'" class="w-full">
             <div :class="isKioskMode ? 'gap-8' : 'gap-3'" class="grid grid-cols-2">
@@ -150,15 +150,15 @@
         </div>
         <div
           :class="isKioskMode ? 'text-4xl mt-16' : 'text-base mt-4'"
-          class="self-end w-full font-bold text-white whitespace-nowrap rounded-md"
+          class="self-end w-full font-bold text-[#A90205] whitespace-nowrap rounded-md"
         >
           <div
             :class="[
               isKioskMode ? 'h-[114px] rounded-xl text-3xl' : 'h-11 rounded-md text-base',
-              selectedTemplate ? '' : 'opacity-50 cursor-not-allowed'
+              'flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2]',
+              selectedTemplate ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
             ]"
-            class="flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#0E0E0E]"
-            style="background: linear-gradient(to bottom, #CCCCCC 0%, #999999 100%); touch-action: manipulation;"
+            :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
             @click="nextStep"
             @touchend.prevent="nextStep"
           >
@@ -169,7 +169,7 @@
       <div
         v-if="!isPCMode"
         :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-9 text-base'"
-        class="font-bold text-center text-white cursor-pointer hover:opacity-80 transition-opacity"
+        class="font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity"
         data-name="圖片生成紀錄"
         @click="showHistory"
       >

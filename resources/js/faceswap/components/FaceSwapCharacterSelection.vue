@@ -17,7 +17,7 @@
     <div v-if="!isKioskMode" class="w-full border-t border-gray-400 opacity-30"></div>
 
     <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-white whitespace-nowrap mx-auto mt-6">
+    <div v-if="!isKioskMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#A90205] whitespace-nowrap mx-auto mt-6">
       <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
       <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
       <img :src="imageUrls.step2_inactive" class="w-6 h-6 object-contain" alt="Step 2">
@@ -27,7 +27,7 @@
     
 
     <!-- 步驟文字 (僅手機版) -->
-    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-white mx-auto">
+    <div v-if="!isKioskMode" class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#A90205] mx-auto">
       <div>Step 1</div>
       <div>Step 2</div>
       <div>Step 3</div>
@@ -50,7 +50,7 @@
               <span class="text-4xl font-bold text-black">2</span>
             </div>
             
-            <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-white">
+            <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#A90205]">
               請選擇要換臉的人物
             </div>
           </div>
@@ -66,7 +66,7 @@
                 />
               </div>
               <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-gray-400">
-                <div class="text-center text-white">
+                <div class="text-center text-[#A90205]">
                   <div class="text-lg font-bold mb-2">請先選擇模板</div>
                   <div class="text-sm">請回到上一步選擇您想要的換臉模板</div>
                 </div>
@@ -75,7 +75,7 @@
 
             <!-- Character Selection -->
             <div v-if="selectedTemplate" :class="isKioskMode ? 'mb-16' : 'mb-8'">
-              <h3 v-if="!isKioskMode" class="text-base mb-4 font-bold text-center text-white">
+              <h3 v-if="!isKioskMode" class="text-base mb-4 font-bold text-center text-[#A90205]">
                 請選擇要換臉的人物
               </h3>
               <div :class="isKioskMode ? 'gap-10' : 'gap-4'" class="flex justify-center">
@@ -111,12 +111,12 @@
         </div>
 
         <!-- Action Buttons -->
-        <div :class="isKioskMode ? 'text-3xl mt-16' : 'text-base mt-8'" class="w-full font-bold text-white whitespace-nowrap rounded-md">
+        <div :class="isKioskMode ? 'text-3xl mt-16' : 'text-base mt-8'" class="w-full font-bold text-[#A90205] whitespace-nowrap rounded-md">
           <div :class="isKioskMode ? 'gap-8 mb-16' : 'gap-3 mb-8'" class="flex">
             <button
               :class="isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base'"
-              class="flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300 font-bold text-[#333]"
-              style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25); touch-action: manipulation;"
+              class="flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
+              style="background-color: #FF7824; touch-action: manipulation;"
               @click="goBack"
               @touchend.prevent="goBack"
             >
@@ -125,12 +125,10 @@
             <button
               :class="[
                 isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base',
-                selectedCharacter
-                  ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg text-gray-800'
-                  : 'bg-[#C7C7C7] text-white'
+                'flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2]',
+                selectedCharacter ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
               ]"
-              class="flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold"
-              style="touch-action: manipulation;"
+              :style="selectedCharacter ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
               @click="nextStep"
               @touchend.prevent="nextStep"
               :disabled="!selectedCharacter"
@@ -141,12 +139,12 @@
         </div>
       </div>
 
-      <div v-if="!selectedTemplate" class="text-center text-white py-8">
+      <div v-if="!selectedTemplate" class="text-center text-[#A90205] py-8">
         <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
         <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
         <button
-          class="px-6 py-3 text-[#333] rounded-md font-bold hover:shadow-lg transition-all duration-300"
-          style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
+          class="px-6 py-3 text-[#FBEFC2] rounded-md font-bold transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+          style="background-color: #FF7824; touch-action: manipulation;"
           @click="goBack"
         >
           返回選擇模板

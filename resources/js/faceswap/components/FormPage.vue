@@ -28,7 +28,7 @@
       <div class="w-full max-w-[335px] space-y-6 relative z-30" style="position: relative;">
         <!-- 真實姓名 -->
         <div class="relative z-40">
-          <label class="block text-sm mb-2 text-white font-bold">
+          <label class="block text-sm mb-2 text-[#A90205] font-bold">
             真實姓名<span class="text-red-500">*</span>
           </label>
           <input
@@ -43,7 +43,7 @@
 
         <!-- 聯絡電話 -->
         <div class="relative z-40">
-          <label class="block text-sm mb-2 text-white font-bold">
+          <label class="block text-sm mb-2 text-[#A90205] font-bold">
             聯絡電話<span class="text-red-500">*</span>
           </label>
           <input
@@ -58,7 +58,7 @@
 
         <!-- Email -->
         <div class="relative z-40">
-          <label class="block text-sm mb-2 text-white font-bold">
+          <label class="block text-sm mb-2 text-[#A90205] font-bold">
             Email
           </label>
           <input
@@ -79,10 +79,10 @@
           :class="[
             'py-3.5 w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50',
             isFormValid && !isSubmitting 
-              ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800 cursor-pointer' 
-              : 'bg-[#C7C7C7] text-white cursor-not-allowed'
+              ? 'text-[#FBEFC2] cursor-pointer hover:bg-[#FF7824] active:bg-[#FF7824]' 
+              : 'text-[#FBEFC2] cursor-not-allowed'
           ]"
-          style="touch-action: manipulation; position: relative;"
+          :style="isFormValid && !isSubmitting ? 'background-color: #FF7824; touch-action: manipulation; position: relative;' : 'background-color: #D84729; touch-action: manipulation; position: relative;'"
         >
           {{ isSubmitting ? '送出中...' : '送出' }}
         </button>
@@ -93,7 +93,7 @@
         </div>
 
         <!-- 成功訊息 -->
-        <div v-if="successMessage" class="text-sm text-white text-center font-bold">
+        <div v-if="successMessage" class="text-sm text-[#A90205] text-center font-bold">
           {{ successMessage }}
         </div>
       </div>

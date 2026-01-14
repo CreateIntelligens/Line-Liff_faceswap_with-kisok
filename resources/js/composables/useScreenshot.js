@@ -448,7 +448,7 @@ export function useScreenshot() {
   function showMessage(message, type = 'info') {
     // 創建提示元素
     const messageEl = document.createElement('div')
-    messageEl.className = `fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-md text-white text-sm font-medium transition-all duration-300`
+    messageEl.className = `fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-md text-[#A90205] text-sm font-medium transition-all duration-300`
     
     // 根據類型設置樣式
     switch (type) {
