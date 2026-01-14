@@ -15,6 +15,13 @@
             @enter-face-swap="enterFaceSwap"
           />
 
+          <!-- Face Swap Email Input (Mobile only) -->
+          <FaceSwapEmailInput
+            v-if="currentStep === 'email-input'"
+            @next="handleEmailSubmit"
+            @back="goBack"
+          />
+
           <!-- Face Swap Template Selection -->
           <FaceSwapTemplateSelection
             v-if="currentStep === 'template-selection'"
@@ -114,6 +121,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeMount, nextTick } from 'vue'
 import FaceSwapHomepage from './components/FaceSwapHomepage.vue'
+import FaceSwapEmailInput from './components/FaceSwapEmailInput.vue'
 import FaceSwapTemplateSelection from './components/FaceSwapTemplateSelection.vue'
 import FaceSwapCharacterSelection from './components/FaceSwapCharacterSelection.vue'
 import FaceSwapUpload from './components/FaceSwapUpload.vue'
@@ -222,7 +230,7 @@ async function initializeApp() {
     if (stepParam) {
       console.log('🔍 檢測到 URL 參數 step:', stepParam)
       
-      const validSteps = ['faceswap-home', 'template-selection', 'character-selection', 'upload', 'result']
+      const validSteps = ['faceswap-home', 'email-input', 'template-selection', 'character-selection', 'upload', 'result']
       if (validSteps.includes(stepParam)) {
         currentStep.value = stepParam
         
@@ -333,6 +341,24 @@ onMounted(async () => {
 
 // 進入臉部交換工具
 function enterFaceSwap() {
+  // 手機版：先進入 email 輸入頁面
+  // Kiosk 版：直接進入模板選擇
+  if (!isKioskMode.value) {
+    currentStep.value = 'email-input'
+  } else {
+    currentStep.value = 'template-selection'
+  }
+}
+
+// 處理 Email 提交
+function handleEmailSubmit(data) {
+  // 暫時將 email 儲存在 sessionStorage（等後端 API 確認後再實作提交邏輯）
+  if (data.email) {
+    sessionStorage.setItem('faceswap_email', data.email)
+    console.log('📧 Email 已儲存:', data.email)
+  }
+  
+  // 進入模板選擇頁面
   currentStep.value = 'template-selection'
 }
 
@@ -488,8 +514,17 @@ async function handleShowHistory() {
 
 // 返回上一步
 function goBack() {
-  if (currentStep.value === 'template-selection') {
+  if (currentStep.value === 'email-input') {
+    // 從 email 輸入頁面返回首頁
     currentStep.value = 'faceswap-home'
+  } else if (currentStep.value === 'template-selection') {
+    // 手機版：從模板選擇返回 email 輸入頁面
+    // Kiosk 版：從模板選擇返回首頁
+    if (!isKioskMode.value) {
+      currentStep.value = 'email-input'
+    } else {
+      currentStep.value = 'faceswap-home'
+    }
   } else if (currentStep.value === 'upload') {
     // Mobile 和 Kiosk 模式都回到模板選擇
     currentStep.value = 'template-selection'

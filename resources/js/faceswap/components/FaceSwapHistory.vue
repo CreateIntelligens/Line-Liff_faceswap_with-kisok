@@ -1,7 +1,7 @@
 <template>
   <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
-    <div style="display: flex; gap: 1.25rem; justify-content: center; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; background-color: #333333; border-bottom: 1px solid #555;">
+    <div style="display: flex; gap: 1.25rem; justify-content: center; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem;">
       <div style="align-self: stretch; margin: auto 0;">
         <img
           :src="imageUrls.header"
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Sub Header with Back Button and Title -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; background-color: #333333;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem;">
       <!-- Back arrow -->
       <button
         style="width: 17px; height: 19px; cursor: pointer;"
@@ -27,15 +27,17 @@
       </button>
 
       <!-- Title -->
-      <div style="font-family: 'Noto Sans TC', sans-serif; font-size: 1.25rem; font-weight: bold; color: #A90205;">
-        圖片生成紀錄
-      </div>
+      <img
+        :src="imageUrls.title3"
+        alt="圖片生成紀錄"
+        style="height: 1.5rem; object-fit: contain;"
+      />
 
       <!-- Spacer to center the title -->
       <div style="width: 17px;"></div>
     </div>
 
-    <div style="flex: 1; padding: 2rem 1.5rem; background-color: #333333;">
+    <div style="flex: 1; padding: 2rem 1.5rem;">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">

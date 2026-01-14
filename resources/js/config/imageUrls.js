@@ -26,6 +26,9 @@ import kiosk2_1Img from '../../images/kiosk2_1.png'
 import kioskTextImg from '../../images/kiosk_text.png'
 import homepageImg from '../../images/homepage.png'
 import kioskHomepageImg from '../../images/kioskhomepage.png'
+import placeemailImg from '../../images/placeemail.png'
+import couponImg from '../../images/coupon.png'
+import maintitleImg from '../../images/maintitle.png'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
@@ -65,6 +68,9 @@ export const imageUrls = {
   kioskText: kioskTextImg,      // Kiosk 模式：拍照說明文字
   homepage: homepageImg,        // 手機版首頁圖片
   kioskHomepage: kioskHomepageImg,  // Kiosk 版首頁圖片
+  placeemail: placeemailImg,    // Email 提示文字圖片
+  coupon: couponImg,            // Email 使用說明圖片（畫面下方）
+  maintitle: maintitleImg,      // 主標題圖片（大同寶寶賀新年）
 };
 
 // 步驟圖片集合 (兼容 images.js 的 API)
