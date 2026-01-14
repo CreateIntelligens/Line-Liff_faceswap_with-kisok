@@ -1,6 +1,6 @@
 <template>
   <!-- Kiosk Template Selection - 1080x1920 直立式全螢幕 -->
-  <div class="kiosk-template-selection w-[1080px] h-[1920px] bg-black flex flex-col relative overflow-hidden">
+  <div class="kiosk-template-selection w-[1080px] h-[1920px] flex flex-col relative overflow-hidden" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div class="flex gap-5 justify-center items-center pt-16 pb-12 w-full">
       <img

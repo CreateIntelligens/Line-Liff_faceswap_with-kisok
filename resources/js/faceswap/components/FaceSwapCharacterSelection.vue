@@ -1,6 +1,7 @@
 <template>
   <div
-    class="relative bg-black min-h-screen w-full flex flex-col"
+    class="relative min-h-screen w-full flex flex-col"
+    :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
   >
     <!-- Header -->
     <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">

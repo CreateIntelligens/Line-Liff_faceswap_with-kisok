@@ -1,9 +1,13 @@
 <template>
-  <div style="min-height: 100vh; width: 100%; display: flex; flex-direction: column; background-color: #333333;">
+  <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div style="display: flex; gap: 1.25rem; justify-content: center; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; background-color: #333333; border-bottom: 1px solid #555;">
       <div style="align-self: stretch; margin: auto 0;">
-        <h1 style="font-size: 1.5rem; font-weight: bold; color: #ffffff;">標題</h1>
+        <img
+          :src="imageUrls.header"
+          style="height: 1.5rem; object-fit: contain;"
+          alt="大同寶寶賀新年"
+        />
       </div>
       <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
     </div>
@@ -193,36 +197,55 @@ function getHistoryImage(item) {
   
   let imageUrl = item.image;
   
-  // 如果圖片URL是相對路徑，添加API基礎URL
-  if (imageUrl.startsWith('/')) {
+  // 如果已經是絕對路徑（http:// 或 https://），直接使用
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    console.log('✅ 使用絕對路徑（後端提供）:', imageUrl)
+    // 保持 imageUrl 為絕對路徑，繼續後續處理
+  } else if (imageUrl.startsWith('/')) {
+    // 如果圖片URL是相對路徑，添加API基礎URL
     const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
     imageUrl = `${baseURL.replace('/api', '')}${imageUrl}`;
+    console.log('🖼️ 相對路徑轉換為完整 URL:', imageUrl)
   }
   
-  // 使用新的圖片處理 API 來處理歷史圖片
-  try {
-    const config = window.endpoint || {};
-    const apiUrl = config.imageProcessApi || 'https://stg-api.fanpokka.ai/api/static-resource';
-    const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 };
-    
-    // 構建查詢參數
-    const queryParams = new URLSearchParams();
-    queryParams.append('url', imageUrl);
-    if (params.scale) queryParams.append('scale', params.scale);
-    if (params.format) queryParams.append('format', params.format);
-    if (params.quality) queryParams.append('quality', params.quality);
-    if (params.width) queryParams.append('width', params.width);
-    if (params.height) queryParams.append('height', params.height);
-    
-    const processedImageUrl = `${apiUrl}?${queryParams.toString()}`;
-    console.log('🔄 歷史圖片使用處理 API:', processedImageUrl);
-    
-    return processedImageUrl;
-  } catch (error) {
-    console.error('❌ 處理歷史圖片時發生錯誤:', error);
-    // 如果處理失敗，返回原始圖片
-    return imageUrl;
+  // 後端明確要求：直接使用絕對路徑，不需要添加任何前綴或代理
+  // 如果已經是絕對路徑，直接返回
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    console.log('✅ 直接使用後端提供的絕對路徑（歷史）:', imageUrl)
+    return imageUrl
   }
+  
+  // 僅對非絕對路徑使用圖片處理 API（如果啟用）
+  const config = window.endpoint || {};
+  const enableImageProcessing = config.enableImageProcessing || false;
+  
+  if (enableImageProcessing && config.imageProcessApi) {
+    try {
+      const apiUrl = config.imageProcessApi;
+      const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 };
+      
+      // 構建查詢參數
+      const queryParams = new URLSearchParams();
+      queryParams.append('url', imageUrl);
+      if (params.scale) queryParams.append('scale', params.scale);
+      if (params.format) queryParams.append('format', params.format);
+      if (params.quality) queryParams.append('quality', params.quality);
+      if (params.width) queryParams.append('width', params.width);
+      if (params.height) queryParams.append('height', params.height);
+      
+      const processedImageUrl = `${apiUrl}?${queryParams.toString()}`;
+      console.log('🔄 歷史圖片使用處理 API:', processedImageUrl);
+      
+      return processedImageUrl;
+    } catch (error) {
+      console.error('❌ 處理歷史圖片時發生錯誤:', error);
+      // 如果處理失敗，返回原始圖片
+      return imageUrl;
+    }
+  }
+  
+  // 直接返回原始圖片 URL
+  return imageUrl;
 }
 
 // 格式化日期

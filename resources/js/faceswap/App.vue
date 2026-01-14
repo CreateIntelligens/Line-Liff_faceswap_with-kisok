@@ -504,7 +504,7 @@ function goBack() {
 .app {
   font-family: 'Noto Sans TC', 'Inter', sans-serif;
   overflow-x: hidden;
-  background-color: #333333;
+  background-color: #ffffff;
 }
 
 /* Mobile 模式：響應式全螢幕 */
@@ -517,7 +517,7 @@ function goBack() {
 .mobile-wrapper {
   min-height: 100vh;
   width: 100%;
-  background-color: #333333;
+  background-color: #ffffff;
   display: flex;
   justify-content: center;
 }
@@ -527,7 +527,7 @@ function goBack() {
   width: 100%;
   max-width: 414px;
   min-height: 100vh;
-  background-color: #333333;
+  background-color: #ffffff;
   overflow-x: hidden; /* 防止內容溢出 */
 }
 

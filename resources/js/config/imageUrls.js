@@ -15,6 +15,7 @@ import backImg from '../../images/back.png'
 import logo1Img from '../../images/logo-2.png'
 import newLogoImg from '../../images/logo-32ec7d19.png'
 import uploadImg from '../../images/upload.png'
+import pageBgImg from '../../images/page_bg.png'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
@@ -43,6 +44,7 @@ export const imageUrls = {
   load: godofwealthImg,      // 載入圖使用財神爺
   result: godofwealthImg,    // 結果圖使用財神爺
   upload: uploadImg,
+  pageBg: pageBgImg,        // 頁面背景圖
 };
 
 // 步驟圖片集合 (兼容 images.js 的 API)

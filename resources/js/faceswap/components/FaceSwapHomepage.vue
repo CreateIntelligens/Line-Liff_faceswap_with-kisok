@@ -3,7 +3,11 @@
   <div class="relative w-full min-h-screen flex flex-col justify-between" style="background-color: #333333;">
     <!-- Header -->
     <div class="flex gap-5 justify-center items-center px-6 pt-6 pb-4 w-full font-bold">
-      <h1 class="text-2xl font-bold text-white">標題</h1>
+      <img
+        :src="imageUrls.header"
+        class="h-11 object-contain"
+        alt="大同寶寶賀新年"
+      />
     </div>
 
     <!-- Main Content -->

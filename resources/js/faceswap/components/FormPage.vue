@@ -1,5 +1,5 @@
 <template>
-  <div class="relative bg-black min-h-screen w-full flex flex-col">
+  <div class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div class="py-4 flex justify-center items-center w-full">
       <img

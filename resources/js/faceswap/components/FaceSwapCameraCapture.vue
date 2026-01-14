@@ -1,8 +1,13 @@
 <template>
-  <div class="relative min-h-screen w-full flex flex-col" style="background-color: #333333;">
+  <div class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
-      <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">標題</h1>
+      <img
+        :src="imageUrls.header"
+        :class="isKioskMode ? 'h-48' : 'h-11'"
+        class="object-contain"
+        alt="大同寶寶賀新年"
+      />
     </div>
 
     <div :class="isKioskMode ? 'mt-16 max-w-[878px]' : 'mt-14 max-w-[338px]'" class="w-full mx-auto">

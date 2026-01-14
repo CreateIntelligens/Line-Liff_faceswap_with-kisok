@@ -9,7 +9,7 @@
   />
 
   <!-- Main Result Page -->
-  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" style="background-color: #333333;">
+  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
       <!-- Header -->
     <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
       <h1 :class="isKioskMode ? 'text-5xl' : 'text-2xl'" class="font-bold text-white">生成詳情</h1>
@@ -70,7 +70,13 @@
             :src="generatedImageUrl || imageUrls.result"
             alt="生成的圖片"
             class="w-full object-contain rounded-lg"
+            @error="handleImageError"
+            @load="handleImageLoad"
           />
+          <div v-if="imageLoadError" class="text-center text-red-400 text-sm mt-2">
+            ⚠️ 圖片載入失敗，請檢查網路連線或聯繫客服
+            <div class="text-xs text-gray-500 mt-1">URL: {{ generatedImageUrl }}</div>
+          </div>
         </div>
         
         <!-- 按鈕區域 - 左右排列 -->
@@ -247,6 +253,8 @@ const showResultImage = ref(false)
 // QR Code 相關
 const qrcodeContainer = ref(null)
 const qrcodeUrl = ref('')
+// 圖片載入錯誤狀態
+const imageLoadError = ref(false)
 
 // 表單驗證
 const isFormValid = computed(() => {
@@ -286,14 +294,34 @@ function processImageUrl(imageUrl) {
   
   let fullUrl = imageUrl
   
-  // 如果圖片 URL 是相對路徑，添加 API 基礎 URL
-  if (imageUrl.startsWith('/')) {
+  // 如果已經是絕對路徑（http:// 或 https://），直接使用，不做任何處理
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    console.log('✅ 使用絕對路徑（後端提供）:', imageUrl)
+    fullUrl = imageUrl
+  } else if (imageUrl.startsWith('/')) {
+    // 如果圖片 URL 是相對路徑，添加 API 基礎 URL
     const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
     fullUrl = `${baseURL.replace('/api', '')}${imageUrl}`
-    console.log('🖼️ 完整圖片 URL:', fullUrl)
+    console.log('🖼️ 相對路徑轉換為完整 URL:', fullUrl)
+  } else if (imageUrl.includes('://')) {
+    // 處理其他協議（如 data:、blob: 等）
+    console.log('✅ 使用其他協議 URL:', imageUrl)
+    fullUrl = imageUrl
+  } else if (imageUrl.includes('.') && !imageUrl.startsWith('/')) {
+    // 處理沒有協議但包含域名的 URL（如：line.uat.tatung2025.aitago.tw/static/...）
+    // 這種情況需要加上 https://
+    fullUrl = `https://${imageUrl}`
+    console.log('🖼️ 檢測到無協議的域名 URL，添加 https://:', fullUrl)
   }
   
-  // 檢查是否啟用圖片處理 API
+  // 後端明確要求：直接使用絕對路徑，不需要添加任何前綴或代理
+  // 如果已經是絕對路徑（http:// 或 https://），直接返回，不做任何處理
+  if (fullUrl.startsWith('http://') || fullUrl.startsWith('https://')) {
+    console.log('✅ 直接使用後端提供的絕對路徑（不經過代理）:', fullUrl)
+    return fullUrl
+  }
+  
+  // 檢查是否啟用圖片處理 API（僅用於非絕對路徑的情況）
   const config = window.endpoint || {}
   const enableImageProcessing = config.enableImageProcessing || false
   
@@ -366,17 +394,30 @@ async function checkTaskStatus() {
     // 嘗試從不同層級提取任務數據
     let taskData = null
     if (result) {
+      console.log('📋 原始響應數據:', JSON.stringify(result, null, 2))
       taskData = result.data?.result || result.result || result.data || result
+      console.log('📋 提取的任務數據:', JSON.stringify(taskData, null, 2))
       
       // 處理任務狀態
       if (taskData.status === 'completed' && taskData.images && taskData.images.length > 0) {
         const rawImage = taskData.images[0]
+        console.log('🖼️ 從響應中提取的圖片 URL:', rawImage)
         
         // 1. 處理原始圖片 URL（確保是絕對路徑，用於發簡訊）
-        // 如果是相對路徑，補上基礎域名
-        if (rawImage.startsWith('/')) {
+        // 如果已經是絕對路徑，直接使用；如果是相對路徑，補上基礎域名
+        if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
+          // 後端提供的絕對路徑，直接使用
+          originalImageUrl.value = rawImage
+          console.log('✅ 使用後端提供的絕對路徑（原始）:', rawImage)
+        } else if (rawImage.startsWith('/')) {
+          // 相對路徑，補上基礎域名
           const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
           originalImageUrl.value = `${baseURL.replace('/api', '')}${rawImage}`
+          console.log('🖼️ 相對路徑轉換為完整 URL（原始）:', originalImageUrl.value)
+        } else if (rawImage.includes('.') && !rawImage.startsWith('/') && rawImage.includes('tatung')) {
+          // 處理沒有協議但包含域名的 URL（如：line.uat.tatung2025.aitago.tw/static/...）
+          originalImageUrl.value = `https://${rawImage}`
+          console.log('🖼️ 檢測到無協議的域名 URL（原始），添加 https://:', originalImageUrl.value)
         } else {
           originalImageUrl.value = rawImage
         }
@@ -384,6 +425,16 @@ async function checkTaskStatus() {
         // 2. 處理顯示圖片 URL（加上 imageProcessApi，用於畫面顯示）
         const processedUrl = processImageUrl(rawImage)
         generatedImageUrl.value = processedUrl || originalImageUrl.value // 如果處理失敗降級使用原始圖
+        
+        // 重置圖片載入錯誤狀態
+        imageLoadError.value = false
+        
+        // 詳細日誌
+        console.log('📸 圖片 URL 處理完成:')
+        console.log('  - 原始路徑:', rawImage)
+        console.log('  - 原始 URL (用於簡訊):', originalImageUrl.value)
+        console.log('  - 顯示 URL (用於畫面):', generatedImageUrl.value)
+        console.log('  - 是否為絕對路徑:', rawImage.startsWith('http://') || rawImage.startsWith('https://'))
         
         isLoading.value = false
         return
@@ -590,6 +641,67 @@ async function generateQRCode() {
   } catch (error) {
     console.error('❌ QR code 生成失敗:', error)
   }
+}
+
+// 處理圖片載入錯誤
+async function handleImageError(event) {
+  const imageUrl = event.target.src
+  imageLoadError.value = true
+  console.error('❌ 圖片載入失敗:', imageUrl)
+  console.error('❌ 原始圖片 URL:', originalImageUrl.value)
+  console.error('❌ 處理後圖片 URL:', generatedImageUrl.value)
+  
+  // 如果代理 API 失敗，嘗試降級使用原始 URL
+  if (imageUrl.includes('stg-api.fanpokka.ai') && originalImageUrl.value && originalImageUrl.value !== imageUrl) {
+    console.warn('⚠️ 代理 API 失敗，嘗試降級使用原始 GCS URL')
+    console.warn('⚠️ 注意：這可能會因為 CORS 問題而失敗，但至少可以測試原始 URL 是否可訪問')
+    
+    // 先測試原始 URL 是否可訪問
+    try {
+      const testResponse = await fetch(originalImageUrl.value, { method: 'HEAD', mode: 'no-cors' })
+      console.log('🔍 原始 URL 測試結果（no-cors）:', testResponse)
+    } catch (testError) {
+      console.warn('⚠️ 原始 URL 測試失敗（預期，因為 CORS）:', testError)
+    }
+    
+    // 延遲一下再嘗試，避免立即重試
+    setTimeout(() => {
+      if (imageLoadError.value) {
+        console.log('🔄 降級：嘗試使用原始 GCS URL:', originalImageUrl.value)
+        generatedImageUrl.value = originalImageUrl.value
+        imageLoadError.value = false // 重置錯誤狀態，讓圖片重新載入
+      }
+    }, 1000)
+    return
+  }
+  
+  // 診斷可能的問題
+  console.error('🔍 診斷資訊:')
+  console.error('  - 可能是 CORS 問題（Google Cloud Storage 需要設定 CORS）')
+  console.error('  - 可能是圖片檔案不存在')
+  console.error('  - 可能是權限問題')
+  console.error('  - 可能是代理 API 無法處理該 URL')
+  console.error('')
+  console.error('📋 請執行以下測試來診斷問題:')
+  console.error('  1. 在瀏覽器新分頁打開原始 URL:', originalImageUrl.value)
+  console.error('  2. 在瀏覽器新分頁打開代理 URL:', imageUrl)
+  console.error('  3. 檢查 Network 標籤中的錯誤詳情')
+  console.error('')
+  console.error('💡 問題判斷:')
+  if (imageUrl.includes('storage.googleapis.com')) {
+    console.error('  - 如果原始 URL 可以直接打開 → 後端需要設定 GCS CORS')
+    console.error('  - 如果原始 URL 無法打開 → 後端圖片路徑有問題')
+  }
+  if (imageUrl.includes('stg-api.fanpokka.ai')) {
+    console.error('  - 如果代理 URL 無法打開 → 後端代理 API 有問題')
+    console.error('  - 如果代理 URL 可以打開但圖片標籤失敗 → 可能是 CORS 或格式問題')
+  }
+}
+
+// 處理圖片載入成功
+function handleImageLoad(event) {
+  imageLoadError.value = false
+  console.log('✅ 圖片載入成功:', event.target.src)
 }
 
 // 監聽任務完成狀態，在 Kiosk 模式下生成 QR code

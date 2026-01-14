@@ -275,40 +275,57 @@ function getHistoryImage(item) {
   
   let fullUrl = imageUrl;
   
-  // 如果圖片URL是相對路徑，添加API基礎URL
-  if (imageUrl.startsWith('/')) {
+  // 如果已經是絕對路徑（http:// 或 https://），直接使用
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    console.log('✅ 使用絕對路徑（後端提供）:', imageUrl)
+    fullUrl = imageUrl
+  } else if (imageUrl.startsWith('/')) {
+    // 如果圖片URL是相對路徑，添加API基礎URL
     const baseURL = window.endpoint?.baseURL || 'https://line.uat.tatung2025.aitago.tw/api';
     fullUrl = `${baseURL.replace('/api', '')}${imageUrl}`
-    console.log('🖼️ 完整圖片URL:', fullUrl)
+    console.log('🖼️ 相對路徑轉換為完整 URL:', fullUrl)
   }
   
-  // 使用新的圖片處理 API 來優化歷史圖片
-  try {
-    console.log('🔄 使用新 API 處理歷史圖片:', fullUrl)
-    
-    // 從全局配置獲取圖片處理 API 設置
-    const config = window.endpoint || {};
-    const apiUrl = config.imageProcessApi || 'https://stg-api.fanpokka.ai/api/static-resource';
-    const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 };
-    
-    // 構建查詢參數
-    const queryParams = new URLSearchParams();
-    queryParams.append('url', fullUrl);
-    if (params.scale) queryParams.append('scale', params.scale);
-    if (params.format) queryParams.append('format', params.format);
-    if (params.quality) queryParams.append('quality', params.quality);
-    if (params.width) queryParams.append('width', params.width);
-    if (params.height) queryParams.append('height', params.height);
-    
-    const processedImageUrl = `${apiUrl}?${queryParams.toString()}`;
-    console.log('✅ 歷史圖片處理 API URL:', processedImageUrl);
-    
-    return processedImageUrl;
-  } catch (error) {
-    console.error('❌ 處理歷史圖片時發生錯誤:', error)
-    // 如果處理失敗，返回原始圖片
+  // 後端明確要求：直接使用絕對路徑，不需要添加任何前綴或代理
+  // 如果已經是絕對路徑，直接返回
+  if (fullUrl.startsWith('http://') || fullUrl.startsWith('https://')) {
+    console.log('✅ 直接使用後端提供的絕對路徑（歷史詳情）:', fullUrl)
     return fullUrl
   }
+  
+  // 僅對非絕對路徑使用圖片處理 API（如果啟用）
+  const config = window.endpoint || {};
+  const enableImageProcessing = config.enableImageProcessing || false;
+  
+  if (enableImageProcessing && config.imageProcessApi) {
+    try {
+      console.log('🔄 使用新 API 處理歷史圖片:', fullUrl)
+      
+      const apiUrl = config.imageProcessApi;
+      const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 };
+      
+      // 構建查詢參數
+      const queryParams = new URLSearchParams();
+      queryParams.append('url', fullUrl);
+      if (params.scale) queryParams.append('scale', params.scale);
+      if (params.format) queryParams.append('format', params.format);
+      if (params.quality) queryParams.append('quality', params.quality);
+      if (params.width) queryParams.append('width', params.width);
+      if (params.height) queryParams.append('height', params.height);
+      
+      const processedImageUrl = `${apiUrl}?${queryParams.toString()}`;
+      console.log('✅ 歷史圖片處理 API URL:', processedImageUrl);
+      
+      return processedImageUrl;
+    } catch (error) {
+      console.error('❌ 處理歷史圖片時發生錯誤:', error)
+      // 如果處理失敗，返回原始圖片
+      return fullUrl
+    }
+  }
+  
+  // 直接返回原始圖片 URL
+  return fullUrl
 }
 
 // 處理模板圖片載入錯誤
