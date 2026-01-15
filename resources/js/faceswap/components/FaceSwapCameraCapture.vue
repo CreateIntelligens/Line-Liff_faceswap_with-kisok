@@ -1,10 +1,10 @@
 <template>
   <div class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
-    <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
+    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
       <img
         :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
+        :class="isKioskMode ? 'h-40' : 'h-11'"
         class="object-contain"
         alt="大同寶寶賀新年"
       />
@@ -42,9 +42,9 @@
 
         <!-- Camera Area -->
         <div :class="isKioskMode ? 'mt-12' : 'mt-9'" class="w-full">
-          <div :class="isKioskMode ? 'h-[936px]' : 'h-[360px]'" class="bg-black rounded-lg overflow-hidden relative">
+          <div :class="isKioskMode ? 'h-[936px]' : 'h-[360px]'" class="bg-black rounded-lg overflow-hidden grid grid-cols-1 grid-rows-1">
         <!-- Camera Preview State (showing loading while camera initializes) -->
-        <div v-if="cameraState === 'idle'" class="flex flex-col items-center justify-center h-full">
+        <div v-if="cameraState === 'idle'" class="flex flex-col items-center justify-center h-full col-start-1 row-start-1">
           <!-- Kiosk: 顯示 load.png -->
           <img 
             v-if="isKioskMode"
@@ -59,14 +59,14 @@
         <video v-if="cameraState === 'preview' || cameraState === 'countdown'"
                ref="videoElement"
                :class="isKioskMode ? 'border-4' : 'border-2'"
-               class="w-full h-full object-cover border-gray-400 rounded-lg -scale-x-100"
+               class="w-full h-full object-cover border-gray-400 rounded-lg -scale-x-100 col-start-1 row-start-1"
                autoplay
                playsinline>
         </video>
 
         <!-- Countdown Overlay -->
         <div v-if="cameraState === 'countdown'"
-             class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+             class="flex items-center justify-center bg-black bg-opacity-50 col-start-1 row-start-1">
           <div :class="isKioskMode ? 'text-[20rem]' : 'text-9xl'" class="font-bold text-[#A90205] animate-pulse">
             {{ countdownNumber }}
           </div>

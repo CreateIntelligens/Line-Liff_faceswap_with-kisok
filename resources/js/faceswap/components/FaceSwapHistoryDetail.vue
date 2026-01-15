@@ -1,24 +1,28 @@
 <template>
   <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
-      <!-- Left side: Back button -->
-      <button
-        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;"
-        @click="goBack"
-      >
-        <img
-          :src="imageUrls.back"
-          alt="Back Arrow"
-          style="width: 17px; height: 19px; object-fit: contain;"
-        />
-      </button>
+    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex items-center px-5 w-full font-bold" :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'">
+      <!-- Left side: Empty space for balance -->
+      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
+        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" />
+        <div v-else style="width: 0;"></div>
+      </div>
       
-      <!-- Center: History title -->
-      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+      <!-- Center: Back button and History title together -->
+      <div class="flex-1 flex items-center justify-center gap-4">
+        <button
+          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
+          @click="goBack"
+        >
+          <img
+            :src="imageUrls.back"
+            alt="Back Arrow"
+            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
+          />
+        </button>
         <img
           :src="imageUrls.history"
-          style="height: 2.8rem; object-fit: contain;"
+          :style="isKioskMode ? 'height: 2rem; object-fit: contain;' : 'height: 2.8rem; object-fit: contain;'"
           alt="圖片生成紀錄"
         />
       </div>
@@ -26,7 +30,7 @@
       <!-- Right side: UsageCounter -->
       <div style="flex-shrink: 0;">
         <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
-        <div v-else style="width: 17px;"></div>
+        <div v-else style="width: 26px;"></div>
       </div>
     </div>
 
@@ -70,14 +74,11 @@
         <!-- Image Frame Container -->
         <div 
           ref="imageFrameContainer"
-          class="w-full mb-6"
-          style="background: linear-gradient(135deg, #DC143C 0%, #B22222 100%); border: 3px solid #DAA520; border-radius: 12px; padding: 1rem; position: relative;"
+          class="w-full mb-6 image-frame-container"
+          style="background: linear-gradient(135deg, #DC143C 0%, #B22222 100%); border: 3px solid #DAA520; border-radius: 12px; padding: 1rem;"
         >
-          <!-- Background Pattern (optional decorative elements) -->
-          <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); border-radius: 9px;"></div>
-          
           <!-- Image -->
-          <div class="relative z-10">
+          <div>
             <img
               v-if="getHistoryImage(historyDetail)"
               class="w-full object-contain rounded-lg"
@@ -140,7 +141,7 @@
           <div class="text-[#A90205] font-bold text-sm mb-1">
             使用辦法及注意事項：
           </div>
-          <div class="text-[#A90205] font-bold text-xs">
+          <div class="text-[13px] font-bold text-[#A90205]">
             <div>1. 單筆消費滿1,000元可享100元折價</div>
             <div>2. 優惠條碼使用期間為2026.1.23~2026.3.31</div>
             <div>3. 本活動優惠條碼可於全台大同3C直營門市使用</div>
@@ -174,6 +175,10 @@ const props = defineProps({
     default: ''
   },
   isPCMode: {
+    type: Boolean,
+    default: false
+  },
+  isKioskMode: {
     type: Boolean,
     default: false
   }

@@ -4,32 +4,37 @@
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
   >
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
-      <!-- Left side: Back button -->
-      <button
-        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;"
-        @click="goBack"
-      >
-        <img
-          :src="imageUrls.back"
-          alt="Back Arrow"
-          style="width: 17px; height: 19px; object-fit: contain;"
-        />
-      </button>
+    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex items-center px-5 w-full font-bold" :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'">
+      <!-- Left side: Empty space for balance -->
+      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
+        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
+        <div v-else style="width: 0;"></div>
+      </div>
       
-      <!-- Center: Header image (absolute positioned) -->
-      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+      <!-- Center: Back button and Header image together -->
+      <div class="flex-1 flex items-center justify-center gap-4">
+        <button
+          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
+          @click="goBack"
+        >
+          <img
+            :src="imageUrls.back"
+            alt="Back Arrow"
+            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
+          />
+        </button>
         <img
           :src="imageUrls.header"
-          class="h-11 object-contain"
+          :class="isKioskMode ? 'h-40' : 'h-11'"
+          class="object-contain"
           alt="大同寶寶賀新年"
         />
       </div>
       
       <!-- Right side: UsageCounter -->
       <div style="flex-shrink: 0;">
-        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
-        <div v-else style="width: 17px;"></div>
+        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
+        <div v-else style="width: 26px;"></div>
       </div>
     </div>
 
@@ -82,7 +87,7 @@
           <!-- Upload Area -->
           <div class="mb-6">
             <div
-              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#A90205] bg-white cursor-pointer hover:bg-gray-200 transition-colors rounded-md"
+              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#A90205] bg-white cursor-pointer transition-colors rounded-md"
               @click="triggerFileUpload"
               @dragover.prevent
               @drop.prevent="handleDrop"
@@ -116,8 +121,8 @@
 
           <!-- Upload Instructions -->
           <div class="mb-8">
-            <h4 class="text-sm font-bold text-[#A90205] mb-3">上傳注意事項：</h4>
-            <div class="text-[13px] font-normal text-[#A90205] space-y-2">
+            <h4 class="text-[#A90205] font-bold text-sm mb-1">上傳注意事項：</h4>
+            <div class="text-[13px] font-bold text-[#A90205]">
               <div>1.請上傳單人清晰正面照，避免多人合照，以利準確辨識</div>
               <div>2.僅支援人像照片，請勿上傳風景、動物或其他非人物圖片</div>
               <div>請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>

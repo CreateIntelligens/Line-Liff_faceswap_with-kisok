@@ -62,25 +62,25 @@
           v-for="template in templates"
           :key="template.id"
           @click="selectTemplate(template.id)"
-          class="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+          class="rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] grid grid-cols-1 grid-rows-1"
           :class="selectedTemplate === template.id ? 'ring-4 ring-gray-400 shadow-2xl' : 'opacity-80 hover:opacity-100'"
         >
           <img
             :src="template.image"
             :alt="template.name"
-            class="w-full h-[400px] object-cover"
+            class="w-full h-[400px] object-cover col-start-1 row-start-1"
           />
           <!-- 選中標記 -->
           <div
             v-if="selectedTemplate === template.id"
-            class="absolute top-4 right-4 w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center"
+            class="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center col-start-1 row-start-1 justify-self-end self-start mt-4 mr-4"
           >
             <svg class="w-8 h-8 text-[#333]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <!-- 模板名稱 -->
-          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
+          <div class="bg-gradient-to-t from-black/90 to-transparent p-6 col-start-1 row-start-1 self-end">
             <div class="text-3xl font-bold text-[#A90205]">{{ template.name }}</div>
           </div>
         </div>

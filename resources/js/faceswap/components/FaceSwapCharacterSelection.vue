@@ -4,10 +4,10 @@
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
   >
     <!-- Header -->
-    <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
+    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
       <img
         :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
+        :class="isKioskMode ? 'h-40' : 'h-11'"
         class="object-contain"
         alt="2025三立集團內容創新發布會"
       />

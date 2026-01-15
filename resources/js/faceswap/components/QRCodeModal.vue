@@ -1,33 +1,35 @@
 <template>
-  <div v-if="isVisible" class="fixed inset-0 z-[9999] flex items-center justify-center">
+  <div v-if="isVisible" class="fixed inset-0 z-[9999] flex items-center justify-center grid grid-cols-1 grid-rows-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black bg-opacity-50" @click="close"></div>
+    <div class="bg-black bg-opacity-50 col-start-1 row-start-1" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative bg-white bg-opacity-90 rounded-lg p-8 max-w-sm mx-4 z-[10000]">
+    <div class="bg-white bg-opacity-90 rounded-lg p-8 max-w-sm mx-4 z-[10000] col-start-1 row-start-1 grid grid-cols-1 grid-rows-1">
       <!-- Close button -->
       <button @click="close"
-              class="absolute top-4 right-4 text-[#333] hover:text-[#666] transition-colors">
+              class="text-[#333] hover:text-[#666] transition-colors col-start-1 row-start-1 justify-self-end self-start z-10">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
 
-      <!-- Title -->
-      <div class="text-center mb-6">
-        <h3 class="text-xl font-bold text-[#333]">掃描獲取照片</h3>
-      </div>
+      <!-- Content -->
+      <div class="col-start-1 row-start-1">
+        <!-- Title -->
+        <div class="text-center mb-6">
+          <h3 class="text-xl font-bold text-[#333]">掃描獲取照片</h3>
+        </div>
 
-      <!-- QR Code Container -->
-      <div class="flex justify-center mb-6">
-        <div ref="qrcodeContainer"></div>
-      </div>
+        <!-- QR Code Container -->
+        <div class="flex justify-center mb-6">
+          <div ref="qrcodeContainer"></div>
+        </div>
 
-
-      <!-- URL Display (for debugging/fallback) -->
-      <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666]">
-        {{ imageUrl }}
+        <!-- URL Display (for debugging/fallback) -->
+        <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666]">
+          {{ imageUrl }}
+        </div>
       </div>
     </div>
   </div>

@@ -5,40 +5,54 @@
     :userId="props.userId"
     :userUsage="userUsage"
     :isPCMode="isPCMode"
+    :isKioskMode="isKioskMode"
     @back="showHistoryPage = false"
   />
 
   <!-- Main Result Page -->
   <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
       <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
-      <!-- Left side: Back button -->
-      <button
-        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;"
-        @click="goBack"
-      >
-        <img
-          :src="imageUrls.back"
-          alt="Back Arrow"
-          style="width: 17px; height: 19px; object-fit: contain;"
-        />
-      </button>
+    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex items-center px-5 w-full font-bold" :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'">
+      <!-- Left side: Empty space for balance -->
+      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
+        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
+        <div v-else style="width: 0;"></div>
+      </div>
       
-      <!-- Center: Title3 image (absolute positioned) -->
-      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+      <!-- Center: Back button and Header image together -->
+      <div class="flex-1 flex items-center justify-center gap-4">
+        <button
+          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
+          @click="goBack"
+        >
+          <img
+            :src="imageUrls.back"
+            alt="Back Arrow"
+            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
+          />
+        </button>
         <img
-          :src="imageUrls.title3"
-          :class="isKioskMode ? 'h-16' : 'h-8'"
+          :src="imageUrls.header"
+          :class="isKioskMode ? 'h-40' : 'h-11'"
           class="object-contain"
-          alt="生成結果"
+          alt="大同寶寶賀新年"
         />
       </div>
       
       <!-- Right side: UsageCounter -->
       <div style="flex-shrink: 0;">
         <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
-        <div v-else style="width: 17px;"></div>
+        <div v-else style="width: 26px;"></div>
       </div>
+    </div>
+
+    <!-- Subtitle: Title3 image (only for kiosk mode) -->
+    <div v-if="isKioskMode" class="flex justify-center items-center mt-8 mb-6">
+      <img
+        :src="imageUrls.kiosk3"
+        class="h-auto object-contain"
+        alt="生成結果"
+      />
     </div>
 
     <!-- Main Content -->

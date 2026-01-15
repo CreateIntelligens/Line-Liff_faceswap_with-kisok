@@ -23,6 +23,7 @@ import title3Img from '../../images/title3.png'
 import kiosk1Img from '../../images/kiosk1.png'
 import kiosk2Img from '../../images/kiosk2.png'
 import kiosk2_1Img from '../../images/kiosk2_1.png'
+import kiosk3Img from '../../images/kiosk3.png'
 import kioskTextImg from '../../images/kiosk_text.png'
 import homepageImg from '../../images/homepage.png'
 import kioskHomepageImg from '../../images/kioskhomepage.png'
@@ -66,6 +67,7 @@ export const imageUrls = {
   kiosk1: kiosk1Img,            // Kiosk 模式：需使用單人清晰正面照
   kiosk2: kiosk2Img,            // Kiosk 模式：拍照倒數中，請勿移動
   kiosk2_1: kiosk2_1Img,        // Kiosk 模式：請確認照片
+  kiosk3: kiosk3Img,            // Kiosk 模式：生成結果副標題
   kioskText: kioskTextImg,      // Kiosk 模式：拍照說明文字
   homepage: homepageImg,        // 手機版首頁圖片
   kioskHomepage: kioskHomepageImg,  // Kiosk 版首頁圖片

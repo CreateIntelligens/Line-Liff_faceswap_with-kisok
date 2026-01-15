@@ -6,6 +6,7 @@
     :userUsage="props.userUsage"
     :userId="props.userId"
     :isPCMode="isPCMode"
+    :isKioskMode="isKioskMode"
     @back="closeDetailPage"
     @regenerate="handleRegenerate"
     @download="handleDownload"
@@ -14,31 +15,37 @@
   <!-- History List Page -->
   <div v-else :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
-      <!-- Left side: Back button -->
-      <button
-        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0;"
-        @click="goBack"
-      >
-        <img
-          :src="imageUrls.back"
-          alt="Back Arrow"
-          style="width: 17px; height: 19px; object-fit: contain;"
-        />
-      </button>
+    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex items-center px-5 w-full font-bold" :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'">
+      <!-- Left side: Empty space for balance -->
+      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
+        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" />
+        <div v-else style="width: 0;"></div>
+      </div>
       
-      <!-- Center: History title -->
-      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+      <!-- Center: Back button and History title together -->
+      <div class="flex-1 flex items-center justify-center gap-4">
+        <button
+          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
+          @click="goBack"
+        >
+          <img
+            :src="imageUrls.back"
+            alt="Back Arrow"
+            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
+          />
+        </button>
         <img
           :src="imageUrls.history"
-          style="height: 2.8rem; object-fit: contain;"
+          :style="isKioskMode ? 'height: 2rem; object-fit: contain;' : 'height: 2.8rem; object-fit: contain;'"
           alt="圖片生成紀錄"
         />
       </div>
       
       <!-- Right side: UsageCounter -->
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
-      <div v-else style="width: 17px;"></div>
+      <div style="flex-shrink: 0;">
+        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
+        <div v-else style="width: 26px;"></div>
+      </div>
     </div>
 
     <!-- Sub Header with Title -->
@@ -129,6 +136,10 @@ const props = defineProps({
     default: 0
   },
   isPCMode: {
+    type: Boolean,
+    default: false
+  },
+  isKioskMode: {
     type: Boolean,
     default: false
   }

@@ -581,17 +581,27 @@ function goBack() {
   margin: 0 auto;
   overflow-y: auto;
   overflow-x: hidden;
-  position: relative;
 }
 
 /* 當螢幕不是精確 1080x1920 時，Kiosk 模式置中顯示 */
 @media not all and (width: 1080px) and (height: 1920px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  #vue-root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
   .app-kiosk {
     /* 在非標準尺寸螢幕上置中 */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    margin: 0;
   }
 }
 </style>

@@ -14,13 +14,13 @@
       <div class="flex justify-between items-center px-5 py-5 border-b border-gray-400">
         <!-- Back arrow -->
         <button 
-          class="w-[17px] h-[19px] cursor-pointer hover:opacity-80 transition-opacity"
+          class="w-[26px] h-[26px] cursor-pointer hover:opacity-80 transition-opacity"
           @click="closeModal"
         >
           <img 
             :src="imageUrls.back"
             alt="Back Arrow"
-            class="w-[17px] h-[19px] object-contain"
+            class="w-[26px] h-[26px] object-contain"
           />
         </button>
         
@@ -30,7 +30,7 @@
         </div>
         
         <!-- Spacer for alignment -->
-        <div class="w-[17px]"></div>
+        <div class="w-[26px]"></div>
       </div>
 
       <!-- Modal Body -->
