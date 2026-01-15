@@ -12,6 +12,7 @@ import baseballImg from '../../images/2baseball.png'
 import ricecookerImg from '../../images/3ricecooker.png'
 import moonblocksImg from '../../images/4moonblocks.png'
 import backImg from '../../images/back.png'
+import homeIconImg from '../../images/home_icon.png'
 import logo1Img from '../../images/logo-2.png'
 import newLogoImg from '../../images/logo-32ec7d19.png'
 import uploadImg from '../../images/upload.png'
@@ -51,6 +52,7 @@ export const imageUrls = {
 
   // 其他圖片
   back: backImg,
+  homeIcon: homeIconImg,
   header: logo1Img,
   header1: logo1Img,  // 新增別名
   logo: newLogoImg,

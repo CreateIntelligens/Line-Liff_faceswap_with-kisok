@@ -125,7 +125,7 @@
             <button
               :class="[
                 isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base',
-                'flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2]',
+                'flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] relative',
                 selectedCharacter ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
               ]"
               :style="selectedCharacter ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
@@ -133,6 +133,12 @@
               @touchend.prevent="nextStep"
               :disabled="!selectedCharacter"
             >
+              <img 
+                src="/resources/images/coin_icon.png" 
+                alt=""
+                class="absolute pointer-events-none"
+                :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
+              />
               下一步
             </button>
           </div>
@@ -143,10 +149,16 @@
         <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
         <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
         <button
-          class="px-6 py-3 text-[#FBEFC2] rounded-md font-bold transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+          class="px-6 py-3 text-[#FBEFC2] rounded-md font-bold transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
           style="background-color: #FF7824; touch-action: manipulation;"
           @click="goBack"
         >
+          <img 
+            src="/resources/images/coin_icon.png" 
+            alt=""
+            class="absolute pointer-events-none"
+            style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
+          />
           返回選擇模板
         </button>
       </div>

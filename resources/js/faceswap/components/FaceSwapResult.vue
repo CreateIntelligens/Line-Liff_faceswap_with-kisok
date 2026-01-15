@@ -12,38 +12,33 @@
   <!-- Main Result Page -->
   <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
       <!-- Header -->
-    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex items-center px-5 w-full font-bold" :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'">
-      <!-- Left side: Empty space for balance -->
-      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
-        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
-        <div v-else style="width: 0;"></div>
-      </div>
-      
-      <!-- Center: Back button and Header image together -->
-      <div class="flex-1 flex items-center justify-center gap-4">
-        <button
-          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
-          @click="goBack"
-        >
-          <img
-            :src="imageUrls.back"
-            alt="Back Arrow"
-            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
-          />
-        </button>
+    <div
+      :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
+      class="flex items-center justify-center gap-4 px-5 w-full font-bold"
+      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'"
+    >
+      <!-- Home icon (非歷史頁使用 home_icon) -->
+      <button
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
+        @click="goBack"
+      >
         <img
-          :src="imageUrls.header"
-          :class="isKioskMode ? 'h-40' : 'h-11'"
-          class="object-contain"
-          alt="大同寶寶賀新年"
+          :src="imageUrls.homeIcon"
+          alt="Home"
+          :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
         />
-      </div>
-      
-      <!-- Right side: UsageCounter -->
-      <div style="flex-shrink: 0;">
-        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
-        <div v-else style="width: 26px;"></div>
-      </div>
+      </button>
+
+      <!-- Title -->
+      <img
+        :src="imageUrls.header"
+        :class="isKioskMode ? 'h-40' : 'h-11'"
+        class="object-contain"
+        alt="大同寶寶賀新年"
+      />
+
+      <!-- Usage counter -->
+      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
     <!-- Subtitle: Title3 image (only for kiosk mode) -->
@@ -112,9 +107,15 @@
             @mousedown.stop
             @touchstart.stop
             :disabled="isSavingImage"
-            class="flex-1 py-6 text-4xl font-bold rounded-md transition-all duration-300 hover:opacity-90 active:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            class="flex-1 py-6 text-4xl font-bold rounded-md transition-all duration-300 hover:opacity-90 active:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative"
             style="background-color: #FF7824; color: #FBEFC2; touch-action: manipulation; pointer-events: auto; position: relative; z-index: 30;"
           >
+            <img 
+              src="/resources/images/coin_icon.png" 
+              alt=""
+              class="absolute pointer-events-none"
+              :style="`top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;`"
+            />
             {{ isSavingImage ? '處理中...' : '收藏圖片' }}
           </button>
         </div>
@@ -151,9 +152,15 @@
           <!-- 下載圖片按鈕 -->
           <button
             @click="handleDownload"
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
             style="background-color: #FF7824; touch-action: manipulation;"
           >
+            <img 
+              src="/resources/images/coin_icon.png" 
+              alt=""
+              class="absolute pointer-events-none"
+              style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
+            />
             下載圖片
           </button>
         </div>

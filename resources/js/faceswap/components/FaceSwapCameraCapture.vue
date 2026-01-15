@@ -108,10 +108,17 @@
             <!-- Back Button (重選IP) - Only show when not captured -->
             <button v-if="cameraState !== 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-                    style="background-color: #FF7824; touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
+                    :style="cameraState !== 'preview' ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #FF7824; touch-action: manipulation;'"
                     @click="goBack"
                     @touchend.prevent="goBack">
+              <img 
+                v-if="cameraState !== 'preview'"
+                src="/resources/images/coin_icon.png" 
+                alt=""
+                class="absolute pointer-events-none"
+                :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
+              />
               <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 重選IP
               </div>
@@ -120,10 +127,16 @@
             <!-- Take Photo Button (開始拍照) when preview is ready -->
             <button v-if="cameraState === 'preview'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
                     style="background-color: #FF7824; touch-action: manipulation;"
                     @click="startCountdown"
                     @touchend.prevent="startCountdown">
+              <img 
+                src="/resources/images/coin_icon.png" 
+                alt=""
+                class="absolute pointer-events-none"
+                :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
+              />
               <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 開始拍照
               </div>
@@ -144,10 +157,16 @@
             <!-- Next Step Button -->
             <button v-if="cameraState === 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
                     style="background-color: #FF7824; touch-action: manipulation;"
                     @click="nextStep"
                     @touchend.prevent="nextStep">
+              <img 
+                src="/resources/images/coin_icon.png" 
+                alt=""
+                class="absolute pointer-events-none"
+                :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
+              />
               <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#FBEFC2]">
                 下一步
               </div>

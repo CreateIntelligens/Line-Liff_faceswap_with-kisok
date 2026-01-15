@@ -16,43 +16,34 @@
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
     data-name="換臉_橫式範本"
   >
-    <div 
+    <div
       :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
-      class="flex items-center px-5 w-full font-bold overflow-visible"
+      class="flex items-center justify-center gap-4 px-5 w-full font-bold overflow-visible"
       :style="isKioskMode ? 'min-height: 18rem;' : 'min-height: 5rem;'"
     >
-      <!-- Left side: Empty space for balance -->
-      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
-        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
-        <div v-else style="width: 0;"></div>
-      </div>
-      
-      <!-- Center: Back button and Header image together -->
-      <div class="flex-1 flex items-center justify-center gap-4">
-        <button
-          :class="isKioskMode ? 'mt-4' : ''"
-          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
-          @click="goBack"
-        >
-          <img
-            :src="imageUrls.back"
-            alt="Back Arrow"
-            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
-          />
-        </button>
+      <!-- Home icon -->
+      <button
+        :class="isKioskMode ? 'mt-4' : ''"
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
+        @click="goBack"
+      >
         <img
-          :src="imageUrls.header"
-          :class="isKioskMode ? 'h-40' : 'h-11'"
-          class="object-contain"
-          alt="大同寶寶賀新年"
+          :src="imageUrls.homeIcon"
+          alt="Home"
+          :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
         />
-      </div>
-      
-      <!-- Right side: UsageCounter -->
-      <div :class="isKioskMode ? 'mt-4' : ''" style="flex-shrink: 0;">
-        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
-        <div v-else style="width: 26px;"></div>
-      </div>
+      </button>
+
+      <!-- Title -->
+      <img
+        :src="imageUrls.header"
+        :class="isKioskMode ? 'h-40' : 'h-11'"
+        class="object-contain"
+        alt="大同寶寶賀新年"
+      />
+
+      <!-- Usage counter -->
+      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
     <!-- 步驟進度條 (手機版) -->
@@ -185,13 +176,19 @@
           <div
             :class="[
               isKioskMode ? 'h-[114px] rounded-xl text-3xl' : 'h-11 rounded-md text-base',
-              'flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2]',
+              'flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] relative',
               selectedTemplate ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
             ]"
             :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
             @click="nextStep"
             @touchend.prevent="nextStep"
           >
+            <img 
+              src="/resources/images/coin_icon.png" 
+              alt=""
+              class="absolute pointer-events-none"
+              :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
+            />
             <div class="self-stretch my-auto" data-name="下一步">下一步</div>
           </div>
         </div>

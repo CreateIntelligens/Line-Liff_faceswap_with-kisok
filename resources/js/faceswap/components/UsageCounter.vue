@@ -1,6 +1,9 @@
 <template>
-  <div class="flex justify-end items-center">
-    <div class="font-noto-sans-tc text-xs font-bold text-[#A90205]">
+  <div class="flex items-center justify-center">
+    <div
+      class="font-noto-sans-tc text-xs font-bold px-3 py-1.5 rounded-full border-2 whitespace-nowrap"
+      style="background-color: #A90205; border-color: #A90205; color: #FFE276;"
+    >
       已生成：{{ currentCount }}/{{ maxLimit }}
     </div>
   </div>

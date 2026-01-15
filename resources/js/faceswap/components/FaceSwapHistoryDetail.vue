@@ -1,37 +1,32 @@
 <template>
   <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
-    <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex items-center px-5 w-full font-bold" :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'">
-      <!-- Left side: Empty space for balance -->
-      <div :style="isKioskMode ? 'flex-shrink: 0; width: 87px;' : 'flex-shrink: 0; width: 26px;'">
-        <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" />
-        <div v-else style="width: 0;"></div>
-      </div>
-      
-      <!-- Center: Back button and History title together -->
-      <div class="flex-1 flex items-center justify-center gap-4">
-        <button
-          :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;'"
-          @click="goBack"
-        >
-          <img
-            :src="imageUrls.back"
-            alt="Back Arrow"
-            :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
-          />
-        </button>
+    <div
+      :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
+      class="flex items-center justify-center gap-4 px-5 w-full font-bold"
+      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'"
+    >
+      <!-- Back icon (歷史相關頁使用 back.png) -->
+      <button
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
+        @click="goBack"
+      >
         <img
-          :src="imageUrls.history"
-          :style="isKioskMode ? 'height: 2rem; object-fit: contain;' : 'height: 2.8rem; object-fit: contain;'"
-          alt="圖片生成紀錄"
+          :src="imageUrls.back"
+          alt="Back"
+          :style="isKioskMode ? 'width: 87px; height: 87px; object-fit: contain;' : 'width: 26px; height: 26px; object-fit: contain;'"
         />
-      </div>
-      
-      <!-- Right side: UsageCounter -->
-      <div style="flex-shrink: 0;">
-        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
-        <div v-else style="width: 26px;"></div>
-      </div>
+      </button>
+
+      <!-- Title -->
+      <img
+        :src="imageUrls.history"
+        :style="isKioskMode ? 'height: 2rem; object-fit: contain;' : 'height: 2.8rem; object-fit: contain;'"
+        alt="圖片生成紀錄"
+      />
+
+      <!-- Usage counter -->
+      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
     </div>
 
     <!-- Sub Header with Title -->
@@ -126,12 +121,18 @@
           
           <!-- Download Button -->
           <button 
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
             :class="historyDetail && historyDetail.status === 'completed' && !isDownloading ? '' : 'cursor-not-allowed'"
             :style="historyDetail && historyDetail.status === 'completed' && !isDownloading ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
             @click="handleDownload"
             :disabled="!historyDetail || historyDetail.status !== 'completed' || isDownloading"
           >
+            <img 
+              src="/resources/images/coin_icon.png" 
+              alt=""
+              class="absolute pointer-events-none"
+              :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
+            />
             {{ isDownloading ? '處理中...' : '下載圖片' }}
           </button>
         </div>

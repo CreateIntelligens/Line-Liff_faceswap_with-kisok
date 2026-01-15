@@ -103,12 +103,18 @@
         <button
           @click="nextStep"
           :disabled="!selectedTemplate"
-          class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer transition-all duration-300"
+          class="flex-1 h-20 flex justify-center items-center rounded-xl cursor-pointer transition-all duration-300 relative"
           :class="selectedTemplate 
             ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' 
             : 'cursor-not-allowed'"
           :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
         >
+          <img 
+            src="/resources/images/coin_icon.png" 
+            alt=""
+            class="absolute pointer-events-none"
+            style="top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
+          />
           <span class="text-3xl font-bold text-[#FBEFC2]">下一步</span>
         </button>
       </div>

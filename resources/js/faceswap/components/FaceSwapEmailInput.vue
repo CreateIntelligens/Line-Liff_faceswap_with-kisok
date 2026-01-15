@@ -50,9 +50,15 @@
             ? 'text-[#FBEFC2] cursor-pointer hover:bg-[#FF7824] active:bg-[#FF7824]'
             : 'text-[#FBEFC2] cursor-not-allowed'
         ]"
-        class="w-full max-w-[320px] h-11 mt-4 rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center"
+        class="w-full max-w-[320px] h-11 mt-4 rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative"
         :style="(isEmailValid && !isSubmitting) ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
       >
+        <img 
+          src="/resources/images/coin_icon.png" 
+          alt=""
+          class="absolute pointer-events-none"
+          style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
+        />
         {{ isSubmitting ? '處理中...' : '下一步' }}
       </button>
 
