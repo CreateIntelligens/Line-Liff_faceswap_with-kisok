@@ -27,18 +27,27 @@
     </div>
 
     <!-- 條碼區域 -->
-    <div class="relative z-10 mt-4 flex flex-col items-center">
-      <div class="text-center mb-8 text-[36px]" style="color: #FBEFC2;">
+    <div class="relative z-10 flex flex-col items-center" :class="isKioskMode ? 'mt-4' : 'mt-3'">
+      <div 
+        class="text-center" 
+        :class="isKioskMode ? 'mb-8 text-[36px]' : 'mb-4 text-sm'"
+        style="color: #FBEFC2;"
+      >
         《送您大同3C $100購物金》
       </div>
       <div 
         ref="barcodeContainer"
-        class="bg-white p-4 rounded"
+        class=""
+        :class="isKioskMode ? 'p-4' : 'p-2'"
         :style="barcodeContainerStyle"
       >
         <div class="text-gray-500 text-sm">條碼區域</div>
       </div>
-      <div class="text-white text-[36px] mt-8 text-center" style="color: #FBEFC2;">
+      <div 
+        class="text-center" 
+        :class="isKioskMode ? 'text-[36px] mt-8' : 'text-sm mt-4'"
+        style="color: #FBEFC2;"
+      >
         請於結帳時出示此優惠條碼
       </div>
     </div>
@@ -46,7 +55,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import JsBarcode from 'jsbarcode'
 
 const props = defineProps({
   imageUrl: {
@@ -60,6 +70,10 @@ const props = defineProps({
   isKioskMode: {
     type: Boolean,
     default: false
+  },
+  couponCode: {
+    type: String,
+    default: ''
   }
 })
 
@@ -82,7 +96,7 @@ const containerStyle = computed(() => {
 // 條碼容器樣式
 const barcodeContainerStyle = computed(() => {
   return {
-    minHeight: props.isKioskMode ? '100px' : '80px',
+    minHeight: props.isKioskMode ? '100px' : '60px',
     width: '100%',
     display: 'flex',
     alignItems: 'center',
@@ -101,6 +115,70 @@ function handleImageError(event) {
   imageLoadError.value = true
   emit('image-error', event)
 }
+
+// 生成條碼
+function generateBarcode() {
+  if (!props.couponCode || !barcodeContainer.value) {
+    if (!props.couponCode) {
+      console.log('⚠️ 無法生成條碼：缺少 couponCode')
+    }
+    return
+  }
+  
+  // 清空容器
+  barcodeContainer.value.innerHTML = ''
+  
+  // 創建 canvas 元素
+  const canvas = document.createElement('canvas')
+  
+  // 根據模式調整尺寸
+  const barcodeHeight = props.isKioskMode ? 120 : 60
+  const barcodeWidth = props.isKioskMode ? 3 : 2
+  const fontSize = props.isKioskMode ? 24 : 14
+  
+  // 使用 JsBarcode 生成條碼
+  try {
+    JsBarcode(canvas, props.couponCode, {
+      format: "CODE128",
+      width: barcodeWidth,
+      height: barcodeHeight,
+      displayValue: true,
+      fontSize: fontSize,
+      margin: 10,
+      background: "#ffffff",
+      lineColor: "#000000"
+    })
+    
+    // 添加到容器
+    barcodeContainer.value.appendChild(canvas)
+    console.log('✅ 條碼生成成功:', props.couponCode)
+  } catch (error) {
+    console.error('❌ 條碼生成失敗:', error)
+    barcodeContainer.value.innerHTML = '<div class="text-gray-500 text-sm">條碼生成失敗</div>'
+  }
+}
+
+// 監聽 couponCode 變化
+watch(() => props.couponCode, (newCode) => {
+  if (newCode) {
+    nextTick(() => {
+      generateBarcode()
+    })
+  } else {
+    // 如果 couponCode 為空，清空條碼容器
+    if (barcodeContainer.value) {
+      barcodeContainer.value.innerHTML = '<div class="text-gray-500 text-sm">條碼區域</div>'
+    }
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (props.couponCode) {
+    nextTick(() => {
+      generateBarcode()
+    })
+  }
+})
 
 // 暴露 ref 供父組件使用
 defineExpose({

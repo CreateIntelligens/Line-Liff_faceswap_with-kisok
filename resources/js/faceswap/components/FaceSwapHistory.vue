@@ -189,7 +189,9 @@ async function loadUserHistory() {
         image: avatar.image_url || avatar.result_image || avatar.image || avatar.generated_image,
         created_at: avatar.created_at || avatar.created_date || avatar.timestamp,
         template_id: avatar.metadata?.template_id || avatar.template_id,
-        status: avatar.status
+        status: avatar.status,
+        coupon_code: avatar.metadata?.coupon_code || avatar.coupon_code || '',
+        metadata: avatar.metadata || {}
       }));
     } else {
       historyData.value = [];

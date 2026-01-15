@@ -86,6 +86,7 @@
           <FaceSwapImageFrame 
             ref="imageFrameRef"
             :imageUrl="generatedImageUrl || originalImageUrl"
+            :couponCode="couponCode"
             :isKioskMode="true"
             containerClass="mb-0"
           />
@@ -123,19 +124,17 @@
           
       <!-- LIFF 模式：生成結果顯示 -->
       <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col">
-        <!-- 生成的圖片 -->
-        <div class="mb-6">
-          <img
-            :src="generatedImageUrl || imageUrls.result"
-            alt="生成的圖片"
-            class="w-full object-contain rounded-lg"
-            @error="handleImageError"
-            @load="handleImageLoad"
+        <!-- 圖片框架（包含邊框和條碼） -->
+        <div class="w-full mb-6">
+          <FaceSwapImageFrame 
+            ref="imageFrameRefMobile"
+            :imageUrl="generatedImageUrl || originalImageUrl"
+            :couponCode="couponCode"
+            :isKioskMode="false"
+            containerClass="mb-0"
+            @image-load="handleImageLoad"
+            @image-error="handleImageError"
           />
-          <div v-if="imageLoadError" class="text-center text-red-400 text-sm mt-2">
-            ⚠️ 圖片載入失敗，請檢查網路連線或聯繫客服
-            <div class="text-xs text-gray-500 mt-1">URL: {{ generatedImageUrl }}</div>
-          </div>
         </div>
         
         <!-- 按鈕區域 - 左右排列 -->
@@ -334,12 +333,16 @@ const qrcodeUrl = ref('')
 const imageLoadError = ref(false)
 
 // 圖片框架 ref
-const imageFrameRef = ref(null)
+const imageFrameRef = ref(null) // Kiosk 模式使用
+const imageFrameRefMobile = ref(null) // 手機版使用
 
 // 收藏圖片相關
 const isSavingImage = ref(false)
 const showQRCodeModal = ref(false)
 const fullImageUrl = ref('')
+
+// Coupon Code 相關
+const couponCode = ref('')
 
 // 使用截圖 composable
 const { captureScreenshot, compressImage, smartUploadImage, showMessage } = useScreenshot()
@@ -516,6 +519,15 @@ async function checkTaskStatus() {
         
         // 重置圖片載入錯誤狀態
         imageLoadError.value = false
+        
+        // 提取 coupon_code
+        if (taskData.coupon_code) {
+          couponCode.value = taskData.coupon_code
+          console.log('🎫 提取到 coupon_code:', couponCode.value)
+        } else {
+          console.warn('⚠️ 未找到 coupon_code')
+          couponCode.value = ''
+        }
         
         // 詳細日誌
         console.log('📸 圖片 URL 處理完成:')

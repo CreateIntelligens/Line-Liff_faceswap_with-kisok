@@ -66,46 +66,17 @@
 
       <!-- Detail Content -->
       <div v-else-if="historyDetail" class="flex flex-col items-center max-w-md mx-auto">
-        <!-- Image Frame Container -->
-        <div 
-          ref="imageFrameContainer"
-          class="w-full mb-6 image-frame-container"
-          style="background: linear-gradient(135deg, #DC143C 0%, #B22222 100%); border: 3px solid #DAA520; border-radius: 12px; padding: 1rem;"
-        >
-          <!-- Image -->
-          <div>
-            <img
-              v-if="getHistoryImage(historyDetail)"
-              class="w-full object-contain rounded-lg"
-              :src="getHistoryImage(historyDetail)"
-              alt="生成結果"
-              @error="handleImageError"
-              @load="handleImageLoad"
-            />
-            <div v-else class="w-full h-60 bg-gray-700 rounded-lg flex items-center justify-center">
-              <div class="text-white text-center">
-                <div class="text-lg font-bold mb-2">生成中...</div>
-                <div class="text-sm">請稍候，正在處理您的圖片</div>
-              </div>
-            </div>
-            <div v-if="imageLoadError" class="text-center text-red-400 text-sm mt-2">
-              ⚠️ 圖片載入失敗，請檢查網路連線
-            </div>
-          </div>
-
-          <!-- Barcode Area (Placeholder for now) -->
-          <div class="relative z-10 mt-4 flex flex-col items-center">
-            <div 
-              ref="barcodeContainer"
-              class="bg-white p-4 rounded"
-              style="min-height: 80px; width: 100%; display: flex; align-items: center; justify-content: center;"
-            >
-              <div class="text-gray-500 text-sm">條碼區域（待實作）</div>
-            </div>
-            <div class="text-white text-xs mt-2 text-center">
-              請於結帳時出示此優惠條碼
-            </div>
-          </div>
+        <!-- Image Frame Container (使用 FaceSwapImageFrame 組件) -->
+        <div class="w-full mb-6">
+          <FaceSwapImageFrame
+            ref="imageFrameContainer"
+            :imageUrl="getHistoryImage(historyDetail)"
+            :couponCode="historyDetail.couponCode || ''"
+            :isKioskMode="false"
+            containerClass="mb-0"
+            @image-load="handleImageLoad"
+            @image-error="handleImageError"
+          />
         </div>
 
         <!-- Action Buttons -->
@@ -157,9 +128,10 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import UsageCounter from './UsageCounter.vue'
+import FaceSwapImageFrame from './FaceSwapImageFrame.vue'
 import { imageUrls } from '@/config/imageUrls'
 
 const props = defineProps({
@@ -195,13 +167,12 @@ const isDownloading = ref(false)
 
 // Refs for download functionality
 const imageFrameContainer = ref(null)
-const barcodeContainer = ref(null)
 
 // 監聽 historyItem 變化
-watch(() => props.historyItem, (newItem) => {
+watch(() => props.historyItem, async (newItem) => {
   if (newItem) {
     console.log('🔄 FaceSwapHistoryDetail - 接收到歷史項目:', newItem)
-    loadHistoryDetail()
+    await loadHistoryDetail()
   }
 }, { immediate: true })
 
@@ -222,10 +193,13 @@ async function loadHistoryDetail() {
     historyDetail.value = {
       ...props.historyItem,
       // 確保圖片URL正確
-      image: getHistoryImage(props.historyItem)
+      image: getHistoryImage(props.historyItem),
+      // 提取 coupon_code（從 metadata.coupon_code 或 coupon_code）
+      couponCode: props.historyItem.metadata?.coupon_code || props.historyItem.coupon_code || ''
     }
     
     console.log('✅ 歷史詳情載入完成:', historyDetail.value)
+    console.log('🎫 提取到 coupon_code:', historyDetail.value.couponCode)
     
   } catch (err) {
     console.error('❌ 載入歷史詳情失敗:', err)
@@ -321,6 +295,7 @@ function handleImageError(event) {
   imageLoadError.value = true
   console.warn('❌ 圖片載入失敗:', imageUrl)
 }
+
 
 // 返回
 function goBack() {
