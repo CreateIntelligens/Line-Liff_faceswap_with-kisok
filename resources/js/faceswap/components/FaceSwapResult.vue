@@ -85,20 +85,38 @@
       <!-- <div v-else-if="!isLoading && !isFailed && !isKioskMode">...</div> -->
 
       <!-- Kiosk 模式：生成成功顯示 -->
-      <div v-else-if="!isLoading && !isFailed && isKioskMode" class="flex flex-col items-center w-full">
-        <!-- 成功文字 -->
-        <div class="text-5xl font-bold text-[#A90205] mb-16 text-center">
-          圖片生成成功！
+      <div v-else-if="!isLoading && !isFailed && isKioskMode" class="flex flex-col items-center w-full" style="position: relative; z-index: 10; pointer-events: auto;">
+        <!-- 圖片框架（包含邊框和條碼） -->
+        <div class="w-full max-w-4xl mb-12" style="pointer-events: auto;">
+          <FaceSwapImageFrame 
+            ref="imageFrameRef"
+            :imageUrl="generatedImageUrl || originalImageUrl"
+            :isKioskMode="true"
+            containerClass="mb-0"
+          />
         </div>
         
-        <!-- QR Code -->
-        <div class="mb-8">
-          <div ref="qrcodeContainer" class="bg-white p-8 rounded-2xl shadow-2xl"></div>
-        </div>
-        
-        <!-- QR Code 說明文字 -->
-        <div class="text-3xl text-[#A90205] text-center mt-8">
-          掃描獲得生成結果
+        <!-- 按鈕區域 -->
+        <div class="flex gap-6 w-full max-w-4xl" style="position: relative; z-index: 20; pointer-events: auto;">
+          <button 
+            @click.stop="handleRestart"
+            @mousedown.stop
+            @touchstart.stop
+            class="flex-1 py-6 text-4xl font-bold rounded-md transition-all duration-300 hover:opacity-90 active:opacity-80 cursor-pointer"
+            style="background-color: #A90205; color: #FBEFC2; touch-action: manipulation; pointer-events: auto; position: relative; z-index: 30;"
+          >
+            再玩一次
+          </button>
+          <button 
+            @click.stop="handleSaveImage"
+            @mousedown.stop
+            @touchstart.stop
+            :disabled="isSavingImage"
+            class="flex-1 py-6 text-4xl font-bold rounded-md transition-all duration-300 hover:opacity-90 active:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            style="background-color: #FF7824; color: #FBEFC2; touch-action: manipulation; pointer-events: auto; position: relative; z-index: 30;"
+          >
+            {{ isSavingImage ? '處理中...' : '收藏圖片' }}
+          </button>
         </div>
       </div>
           
@@ -224,6 +242,14 @@
       
       <!-- 底部說明文字 - 已移除 -->
     </div>
+
+    <!-- QR Code 彈窗（Kiosk 模式使用） -->
+    <QRCodeModal 
+      v-if="isKioskMode"
+      :isVisible="showQRCodeModal"
+      :imageUrl="fullImageUrl"
+      @close="showQRCodeModal = false"
+    />
   </div>
 </template>
 
@@ -235,6 +261,9 @@ import { roadshowService } from '../../services/roadshowService.js'
 import QRCode from 'qrcode'
 import FaceSwapHistory from './FaceSwapHistory.vue'
 import UsageCounter from './UsageCounter.vue'
+import FaceSwapImageFrame from './FaceSwapImageFrame.vue'
+import QRCodeModal from './QRCodeModal.vue'
+import { useScreenshot } from '@/composables/useScreenshot.js'
 
 const props = defineProps({
   taskId: {
@@ -296,6 +325,17 @@ const qrcodeContainer = ref(null)
 const qrcodeUrl = ref('')
 // 圖片載入錯誤狀態
 const imageLoadError = ref(false)
+
+// 圖片框架 ref
+const imageFrameRef = ref(null)
+
+// 收藏圖片相關
+const isSavingImage = ref(false)
+const showQRCodeModal = ref(false)
+const fullImageUrl = ref('')
+
+// 使用截圖 composable
+const { captureScreenshot, compressImage, smartUploadImage, showMessage } = useScreenshot()
 
 // 表單驗證
 const isFormValid = computed(() => {
@@ -589,6 +629,53 @@ function handleCloseAndRestart() {
   emit('restart')
 }
 
+// 處理重新開始（Kiosk 模式）
+function handleRestart() {
+  emit('restart')
+}
+
+// 處理收藏圖片（Kiosk 模式）
+async function handleSaveImage() {
+  if (isSavingImage.value || !imageFrameRef.value) {
+    return
+  }
+
+  try {
+    isSavingImage.value = true
+    console.log('📸 開始截圖並上傳完整圖片...')
+
+    // 獲取圖片框架容器
+    const container = imageFrameRef.value.imageFrameContainer
+    if (!container) {
+      throw new Error('找不到截圖區域')
+    }
+
+    // 1. 截圖整個區域（包含邊框和條碼）
+    const canvas = await captureScreenshot(container)
+    console.log('✅ 截圖完成')
+
+    // 2. 轉換為 Blob
+    const blob = await compressImage(canvas)
+    console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
+
+    // 3. 上傳到伺服器
+    const uploadedUrl = await smartUploadImage(blob, props.userId, `faceswap-kiosk-${props.taskId}`)
+    console.log('✅ 圖片上傳完成:', uploadedUrl)
+
+    // 4. 設置完整圖片 URL 並顯示 QR Code 彈窗
+    fullImageUrl.value = uploadedUrl
+    showQRCodeModal.value = true
+
+    showMessage('圖片已準備完成，請掃描 QR Code 獲取', 'success')
+
+  } catch (error) {
+    console.error('❌ 收藏圖片流程失敗:', error)
+    showMessage(`處理失敗: ${error.message}`, 'error')
+  } finally {
+    isSavingImage.value = false
+  }
+}
+
 // 處理重新生成
 function handleRegenerate() {
   emit('regenerate')
@@ -758,12 +845,12 @@ function handleImageLoad(event) {
   console.log('✅ 圖片載入成功:', event.target.src)
 }
 
-// 監聽任務完成狀態，在 Kiosk 模式下生成 QR code
-watch(() => [isLoading.value, isFailed.value, props.isKioskMode, props.taskId], async () => {
-  if (!isLoading.value && !isFailed.value && props.isKioskMode && props.taskId) {
-    await nextTick()
-    generateQRCode()
-  }
-}, { immediate: false })
+// 監聽任務完成狀態（移除舊的 QR Code 生成邏輯，現在在彈窗中顯示）
+// watch(() => [isLoading.value, isFailed.value, props.isKioskMode, props.taskId], async () => {
+//   if (!isLoading.value && !isFailed.value && props.isKioskMode && props.taskId) {
+//     await nextTick()
+//     generateQRCode()
+//   }
+// }, { immediate: false })
 
 </script>

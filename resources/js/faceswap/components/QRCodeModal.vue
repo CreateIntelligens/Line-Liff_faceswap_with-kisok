@@ -1,33 +1,34 @@
 <template>
-  <div v-if="isVisible" class="fixed inset-0 z-[9999] flex items-center justify-center grid grid-cols-1 grid-rows-1">
-    <!-- Backdrop -->
-    <div class="bg-black bg-opacity-50 col-start-1 row-start-1" @click="close"></div>
+  <div v-if="isVisible" class="fixed inset-0 z-[9999] flex items-start justify-center" style="pointer-events: auto; padding-top: 70%;">
+    <!-- Backdrop with gradient effect -->
+    <div class="absolute inset-0 bg-black bg-opacity-30" @click="close" style="pointer-events: auto; cursor: pointer;"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(circle at center, rgba(255, 248, 220, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%); pointer-events: auto; cursor: pointer;" @click="close"></div>
 
-    <!-- Modal Content -->
-    <div class="bg-white bg-opacity-90 rounded-lg p-8 max-w-sm mx-4 z-[10000] col-start-1 row-start-1 grid grid-cols-1 grid-rows-1">
+    <!-- Modal Content - 淺米色背景卡片（正方形，帶透明度） -->
+    <div class="relative z-[10000] bg-white/80 rounded-3xl p-10 mx-6 shadow-4xl backdrop-blur-sm" style="width: 750px; height: 750px; pointer-events: auto; display: flex; flex-direction: column; justify-content: center; align-items: center;">
       <!-- Close button -->
       <button @click="close"
-              class="text-[#333] hover:text-[#666] transition-colors col-start-1 row-start-1 justify-self-end self-start z-10">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"/>
+              class="absolute top-4 right-4 text-[#333] hover:text-[#666] transition-colors z-20 w-8 h-8 flex items-center justify-center cursor-pointer"
+              style="pointer-events: auto;">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
-
       <!-- Content -->
-      <div class="col-start-1 row-start-1">
-        <!-- Title -->
-        <div class="text-center mb-6">
-          <h3 class="text-xl font-bold text-[#333]">掃描獲取照片</h3>
+      <div class="flex flex-col items-center justify-center flex-1 w-full" style="pointer-events: auto;">
+        <!-- 掃描提示文字 -->
+        <div class="text-[65px] text-[#111111] text-center mb-8">
+          掃描獲得生成結果
+        </div>
+        <!-- QR Code Container -->
+        <div class="flex justify-center items-center flex-1">
+          <div ref="qrcodeContainer" class="flex justify-center"></div>
         </div>
 
-        <!-- QR Code Container -->
-        <div class="flex justify-center mb-6">
-          <div ref="qrcodeContainer"></div>
-        </div>
+
 
         <!-- URL Display (for debugging/fallback) -->
-        <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666]">
+        <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666] max-w-full">
           {{ imageUrl }}
         </div>
       </div>
@@ -107,26 +108,27 @@ watch(() => props.isVisible, async (newVal) => {
       qrcodeContainer.value.innerHTML = ''
 
       try {
-        // Generate QR code with solid colors first - scale for PC
-        const qrSize = window.innerWidth >= 1024 ? 400 : 200  // PC版放大2倍
+        // Generate QR code - Kiosk 模式使用較大尺寸
+        const qrSize = 400  // Kiosk 模式使用 400px
         const canvas = await QRCode.toCanvas(props.imageUrl, {
           width: qrSize,
-          margin: 1,
+          margin: 2,
           color: {
             dark: '#000000',  // 純黑色，確保結構正確
             light: '#FFFFFF'  // 純白色背景
           }
         })
 
-        // Apply gradient effect to QR code
-        applyGradientToCanvas(canvas)
+        // 不應用漸變效果，保持純黑色 QR Code（根據 Figma 設計）
+        // applyGradientToCanvas(canvas)
 
-        // Add rounded corners to QR code - scale for PC
-        canvas.style.borderRadius = window.innerWidth >= 1024 ? '16px' : '8px'
+        // Add rounded corners
+        canvas.style.borderRadius = '12px'
 
         qrcodeContainer.value.appendChild(canvas)
+        console.log('✅ QR Code 生成成功')
       } catch (error) {
-        console.error('Failed to generate QR code:', error)
+        console.error('❌ QR Code 生成失敗:', error)
       }
     }
   }
