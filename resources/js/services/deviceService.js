@@ -58,9 +58,20 @@ class DeviceService {
    * @returns {string} 用戶 ID
    */
   generateUserId(deviceMode) {
+    // 檢查是否啟用開發模式（添加 dev_user_ 前綴以繞過生成限制）
+    const devMode = window.endpoint?.devMode || false
+    const devPrefix = devMode ? 'dev_user_' : ''
+    
     if (deviceMode === 'kiosk') {
       // Kiosk 模式：使用固定 ID 或配置中的 kioskId
-      const kioskId = window.endpoint?.kioskId || 'kiosk_001'
+      let kioskId = window.endpoint?.kioskId || 'kiosk_001'
+      
+      // Kiosk 模式自動加上 dev_user_ 前綴以繞過生成限制（Kiosk 模式沒有生成限制）
+      if (!kioskId.startsWith('dev_user_')) {
+        kioskId = `dev_user_${kioskId}`
+        console.log('🔧 Kiosk 模式自動添加 dev_user_ 前綴以繞過生成限制')
+      }
+      
       console.log('👤 使用 Kiosk 用戶 ID:', kioskId)
       return kioskId
     }
@@ -73,9 +84,22 @@ class DeviceService {
       const timestamp = Date.now()
       const random = Math.random().toString(36).substring(2, 8)
       userId = `mobile_${timestamp}_${random}`
+      
+      // 如果啟用開發模式，加上 dev_user_ 前綴
+      if (devMode) {
+        userId = `${devPrefix}${userId}`
+        console.log('🔧 開發模式已啟用，已添加 dev_user_ 前綴以繞過生成限制')
+      }
+      
       sessionStorage.setItem('faceswap_userId', userId)
       console.log('👤 生成新的 Mobile 用戶 ID:', userId)
     } else {
+      // 如果啟用開發模式但現有的 userId 還沒有 dev_user_ 前綴，則加上
+      if (devMode && !userId.startsWith('dev_user_')) {
+        userId = `${devPrefix}${userId}`
+        sessionStorage.setItem('faceswap_userId', userId)
+        console.log('🔧 開發模式已啟用，已為現有 ID 添加 dev_user_ 前綴')
+      }
       console.log('👤 使用已存在的 Mobile 用戶 ID:', userId)
     }
 

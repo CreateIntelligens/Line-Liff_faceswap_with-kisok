@@ -11,13 +11,34 @@
   <!-- Main Result Page -->
   <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
       <!-- Header -->
-    <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
-      <img
-        :src="imageUrls.title3"
-        :class="isKioskMode ? 'h-auto' : 'h-auto'"
-        class="object-contain"
-        alt="生成結果"
-      />
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
+      <!-- Left side: Back button -->
+      <button
+        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;"
+        @click="goBack"
+      >
+        <img
+          :src="imageUrls.back"
+          alt="Back Arrow"
+          style="width: 17px; height: 19px; object-fit: contain;"
+        />
+      </button>
+      
+      <!-- Center: Title3 image (absolute positioned) -->
+      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+        <img
+          :src="imageUrls.title3"
+          :class="isKioskMode ? 'h-16' : 'h-8'"
+          class="object-contain"
+          alt="生成結果"
+        />
+      </div>
+      
+      <!-- Right side: UsageCounter -->
+      <div style="flex-shrink: 0;">
+        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
+        <div v-else style="width: 17px;"></div>
+      </div>
     </div>
 
     <!-- Main Content -->
@@ -33,7 +54,7 @@
           class="w-[700px] h-[933px] object-contain mb-8"
         />
         <!-- 載入中文字 -->
-        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-gray-300">圖片生成中，請稍候...</p>
+        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#A90205]">圖片生成中，請稍候...</p>
     </div>
 
       <!-- 任務失敗錯誤訊息 -->
@@ -199,6 +220,7 @@ import { appConfig, getLiffUrl } from '@/config/appConfig'
 import { roadshowService } from '../../services/roadshowService.js'
 import QRCode from 'qrcode'
 import FaceSwapHistory from './FaceSwapHistory.vue'
+import UsageCounter from './UsageCounter.vue'
 
 const props = defineProps({
   taskId: {
@@ -543,6 +565,11 @@ async function handleSubmit() {
   }
 }
 
+// 處理返回
+function goBack() {
+  emit('back')
+}
+
 // 處理關閉並回到首頁
 function handleCloseAndRestart() {
   emit('restart')
@@ -570,6 +597,14 @@ function handleDownload() {
 // 處理分享到 LINE (需要 LIFF SDK)
 async function handleShareToLine() {
   try {
+    // 檢查 LIFF 開關是否啟用
+    const enableLiff = window.endpoint?.enableLiff ?? false
+    if (!enableLiff) {
+      console.warn('⚠️ LIFF 功能已關閉')
+      alert('此功能需要在 LINE 中開啟')
+      return
+    }
+    
     // 檢查 LIFF 是否可用
     if (typeof liff === 'undefined') {
       console.warn('⚠️ LIFF SDK 未載入，無法分享')

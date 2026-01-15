@@ -417,8 +417,8 @@ export const roadshowService = {
     async uploadToGCS(params = {}) {
         try {
             const config = getApiConfig();
-            // TODO: 等後端提供 API 端點後更新這個 URL
-            const url = `${config.baseURL}/roadshow/upload-to-gcs`;
+            // 使用正確的 API 端點：POST /api/face-swap/files
+            const url = `${config.baseURL}/face-swap/files`;
             
             console.log('☁️ 上傳圖片到 GCS...');
             console.log('📋 上傳參數:', {
@@ -434,19 +434,23 @@ export const roadshowService = {
             // 構建 FormData
             const formData = new FormData();
             
-            // 添加圖片（檔案或 URL）
+            // 添加圖片檔案（API 文檔要求參數名為 'file'）
             if (params.image) {
-                formData.append('image', params.image);
+                formData.append('file', params.image);
             } else if (params.imageUrl) {
-                formData.append('imageUrl', params.imageUrl);
+                // 如果提供的是 URL，需要先下載圖片
+                console.warn('⚠️ 目前不支援從 URL 上傳，請提供圖片檔案');
+                throw new Error('請提供圖片檔案，不支援從 URL 上傳');
+            } else {
+                throw new Error('請提供圖片檔案或 URL');
             }
             
-            // 添加用戶資訊
+            // 可選：添加用戶資訊（如果 API 支援）
+            if (params.userId) formData.append('userId', params.userId);
             if (params.name) formData.append('name', params.name);
             if (params.email) formData.append('email', params.email);
             if (params.phone) formData.append('phone', params.phone);
             if (params.deviceMode) formData.append('deviceMode', params.deviceMode);
-            if (params.userId) formData.append('userId', params.userId);
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -473,9 +477,11 @@ export const roadshowService = {
             const data = await response.json();
             console.log('✅ GCS 上傳成功:', data);
             
+            // API 返回格式：{ "path": "string" }
             return {
                 success: true,
-                gcsUrl: data.url || data.gcsUrl || data.imageUrl,
+                gcsUrl: data.path || data.url || data.gcsUrl || data.imageUrl,
+                path: data.path, // 保存原始 path
                 shortUrl: data.shortUrl,
                 data: data
             };

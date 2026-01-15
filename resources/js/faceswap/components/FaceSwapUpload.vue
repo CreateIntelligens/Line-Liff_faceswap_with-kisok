@@ -4,12 +4,33 @@
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
   >
     <!-- Header -->
-    <div class="flex gap-5 justify-center items-center px-12 py-4 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        class="h-11 object-contain"
-        alt="大同寶寶賀新年"
-      />
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
+      <!-- Left side: Back button -->
+      <button
+        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;"
+        @click="goBack"
+      >
+        <img
+          :src="imageUrls.back"
+          alt="Back Arrow"
+          style="width: 17px; height: 19px; object-fit: contain;"
+        />
+      </button>
+      
+      <!-- Center: Header image (absolute positioned) -->
+      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+        <img
+          :src="imageUrls.header"
+          class="h-11 object-contain"
+          alt="大同寶寶賀新年"
+        />
+      </div>
+      
+      <!-- Right side: UsageCounter -->
+      <div style="flex-shrink: 0;">
+        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
+        <div v-else style="width: 17px;"></div>
+      </div>
     </div>
 
     <!-- 步驟進度條 (手機版) -->
@@ -44,11 +65,6 @@
             <div class="text-lg font-bold mb-2">請先選擇模板</div>
             <div class="text-sm text-gray-300">請回到上一步選擇您想要的換臉模板</div>
           </div>
-        </div>
-
-        <!-- Usage Counter -->
-        <div class="mt-4 text-right">
-          <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
         </div>
       </div>
 
@@ -405,6 +421,14 @@ async function generateFaceSwap() {
       // 準備FormData - 純粹的API調用，不改變UI
       const formData = new FormData();
       formData.append('userId', props.userId || 'abc'); // 使用傳入的用戶ID或後備值
+      
+      // 從 sessionStorage 讀取 email（手機版流程中輸入的 email）
+      const email = sessionStorage.getItem('faceswap_email') || '';
+      if (email) {
+        formData.append('email', email);
+        console.log('📧 已添加 Email 到 FormData:', email);
+      }
+      
       formData.append('file', processedFile);
       
       // 將字符串模板ID轉換為新 API 格式 (4,5,6,7)
@@ -425,6 +449,7 @@ async function generateFaceSwap() {
       
       console.log('📤 準備發送 FormData:', {
         userId: props.userId || 'abc',
+        email: email || '(無)',
         template_id: numericTemplateId,
         target_face_index: targetFaceIndex,
         file_name: processedFile.name,
@@ -467,7 +492,7 @@ async function generateFaceSwap() {
           // 檢查是否是達到生成限制的錯誤
           const errorMessage = result.error.message || '';
           if (errorMessage.includes('生成限制') || errorMessage.includes('限制')) {
-            throw new Error('您已達到每人10張圖片的生成限制，無法繼續生成新圖片');
+            throw new Error('您已達到每人4張圖片的生成限制，無法繼續生成新圖片');
           } else {
             throw new Error('權限不足，無法生成頭像');
           }

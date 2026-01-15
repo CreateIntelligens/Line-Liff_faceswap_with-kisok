@@ -5,7 +5,7 @@ export const appConfig = {
   // 例如：'https://liff.line.me/YOUR_LIFF_ID'
   
   // 使用量限制
-  maxUsageLimit: 10,
+  maxUsageLimit: 4,
   
   // API 配置
   apiBaseUrl: 'https://line.uat.tatung2025.aitago.tw/api',

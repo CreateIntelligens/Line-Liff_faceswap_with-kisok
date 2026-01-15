@@ -44,14 +44,16 @@
       // ===== 裝置模式配置 =====
       // 裝置模式：'auto' 自動偵測 | 'kiosk' 強制 Kiosk 模式 | 'mobile' 強制手機模式
       deviceMode: 'auto',
-      // Kiosk 裝置 ID（用於識別不同的 Kiosk 設備）
+      // Kiosk 裝置 ID（用於識別不同的 Kiosk 設備，僅 Kiosk 模式使用，手機版不需要）
+      // 注意：Kiosk 模式會自動加上 'dev_user_' 前綴以繞過生成限制
       kioskId: 'kiosk_test_004',
+      // 開發模式 - 設為 true 時，會在 userId 前加上 'dev_user_' 前綴以繞過生成限制（測試用）
+      devMode: true,
       
       // ===== GCS 上傳配置 =====
-      // 是否啟用 GCS 上傳功能（等後端 API 準備好後設為 true）
+      // 注意：此功能目前未使用，與圖片顯示無關
+      // 如需使用，請調用 roadshowService.uploadToGCS() 方法
       enableGCSUpload: false,
-      // GCS 上傳 API 端點（如果與 baseURL 不同）
-      // gcsUploadApi: 'https://your-api.com/api/upload-to-gcs'
 
       // ===== LIFF 配置 =====
       // 是否啟用 LINE LIFF 功能（設為 false 可關閉 LIFF，但保留代碼）
@@ -79,6 +81,7 @@
       console.log('📱 裝置模式配置:');
       console.log('  - 模式:', window.endpoint.deviceMode);
       console.log('  - Kiosk ID:', window.endpoint.kioskId);
+      console.log('  - 開發模式:', window.endpoint.devMode ? '✅ 已啟用（將繞過生成限制）' : '❌ 未啟用');
     }
   </script>
   

@@ -391,6 +391,14 @@ async function handleCameraGenerate(imageFile) {
     // Create FormData
     const formData = new FormData()
     formData.append('userId', userId.value || 'abc') // 修正參數名為 userId
+    
+    // 從 sessionStorage 讀取 email（手機版流程中輸入的 email，Kiosk 模式可能為空）
+    const email = sessionStorage.getItem('faceswap_email') || '';
+    if (email) {
+      formData.append('email', email);
+      console.log('📧 已添加 Email 到 FormData (Kiosk):', email);
+    }
+    
     formData.append('file', imageFile)
 
     // 將字符串模板ID轉換為新 API 格式 (4,5,6,7)

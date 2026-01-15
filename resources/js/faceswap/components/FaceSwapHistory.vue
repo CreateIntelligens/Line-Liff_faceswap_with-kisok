@@ -1,22 +1,23 @@
 <template>
-  <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
-    <!-- Header -->
-    <div style="display: flex; gap: 1.25rem; justify-content: center; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem;">
-      <div style="align-self: stretch; margin: auto 0;">
-        <img
-          :src="imageUrls.header"
-          style="height: 1.5rem; object-fit: contain;"
-          alt="大同寶寶賀新年"
-        />
-      </div>
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
-    </div>
+  <!-- History Detail Page -->
+  <FaceSwapHistoryDetail
+    v-if="showDetailPage"
+    :historyItem="selectedHistoryItem"
+    :userUsage="props.userUsage"
+    :userId="props.userId"
+    :isPCMode="isPCMode"
+    @back="closeDetailPage"
+    @regenerate="handleRegenerate"
+    @download="handleDownload"
+  />
 
-    <!-- Sub Header with Back Button and Title -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem;">
-      <!-- Back arrow -->
+  <!-- History List Page -->
+  <div v-else :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
+      <!-- Left side: Back button -->
       <button
-        style="width: 17px; height: 19px; cursor: pointer;"
+        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0;"
         @click="goBack"
       >
         <img
@@ -25,16 +26,29 @@
           style="width: 17px; height: 19px; object-fit: contain;"
         />
       </button>
+      
+      <!-- Center: History title -->
+      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+        <img
+          :src="imageUrls.history"
+          style="height: 2.8rem; object-fit: contain;"
+          alt="圖片生成紀錄"
+        />
+      </div>
+      
+      <!-- Right side: UsageCounter -->
+      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
+      <div v-else style="width: 17px;"></div>
+    </div>
 
+    <!-- Sub Header with Title -->
+    <div style="display: flex; justify-content: flex-start; align-items: center; padding: 1.5rem 1.25rem;">
       <!-- Title -->
       <img
         :src="imageUrls.title3"
-        alt="圖片生成紀錄"
-        style="height: 1.5rem; object-fit: contain;"
+        alt="生成結果"
+        style="height: 1.6rem; object-fit: contain;"
       />
-
-      <!-- Spacer to center the title -->
-      <div style="width: 17px;"></div>
     </div>
 
     <div style="flex: 1; padding: 2rem 1.5rem;">
@@ -95,24 +109,13 @@
         </div>
       </div>
     </div>
-
-    <!-- History Detail Modal -->
-    <HistoryDetailModal
-      :isVisible="showDetailModal"
-      :historyItem="selectedHistoryItem"
-      :userUsage="props.userUsage"
-      :userId="props.userId"
-      :isPCMode="isPCMode"
-      @close="closeDetailModal"
-      @regenerate="handleRegenerate"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
-import HistoryDetailModal from './HistoryDetailModal.vue'
+import FaceSwapHistoryDetail from './FaceSwapHistoryDetail.vue'
 import UsageCounter from './UsageCounter.vue'
 import { imageUrls } from '@/config/imageUrls'
 
@@ -137,8 +140,8 @@ const historyData = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
-// 彈窗相關狀態
-const showDetailModal = ref(false)
+// 詳情頁面相關狀態
+const showDetailPage = ref(false)
 const selectedHistoryItem = ref(null)
 
 // 獲取用戶歷史圖片
@@ -299,12 +302,12 @@ function handleImageError(event) {
 function viewHistoryItem(item) {
   console.log('查看歷史項目:', item)
   selectedHistoryItem.value = item
-  showDetailModal.value = true
+  showDetailPage.value = true
 }
 
-// 關閉詳情彈窗
-function closeDetailModal() {
-  showDetailModal.value = false
+// 關閉詳情頁面
+function closeDetailPage() {
+  showDetailPage.value = false
   selectedHistoryItem.value = null
 }
 
@@ -315,10 +318,16 @@ function goBack() {
 // 處理重新生成
 function handleRegenerate(historyItem) {
   console.log('🔄 從歷史詳情重新生成:', historyItem)
-  // 關閉詳情彈窗
-  closeDetailModal()
+  // 關閉詳情頁面
+  closeDetailPage()
   // 發送重新生成事件到父組件
   emit('regenerate')
+}
+
+// 處理下載
+function handleDownload() {
+  // 下載事件由 FaceSwapHistoryDetail 組件處理
+  console.log('📥 下載事件已由詳情頁面處理')
 }
 
 // 監視 userId 變化

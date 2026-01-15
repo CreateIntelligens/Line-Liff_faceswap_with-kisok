@@ -15,13 +15,34 @@
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
     data-name="換臉_橫式範本"
   >
-    <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
-        class="object-contain"
-        alt="大同寶寶賀新年"
-      />
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.25rem; width: 100%; font-weight: bold; min-height: 5rem; position: relative;">
+      <!-- Left side: Back button -->
+      <button
+        style="width: 17px; height: 19px; cursor: pointer; border: none; background: none; padding: 0; flex-shrink: 0;"
+        @click="goBack"
+      >
+        <img
+          :src="imageUrls.back"
+          alt="Back Arrow"
+          style="width: 17px; height: 19px; object-fit: contain;"
+        />
+      </button>
+      
+      <!-- Center: Header image (absolute positioned) -->
+      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+        <img
+          :src="imageUrls.header"
+          :class="isKioskMode ? 'h-48' : 'h-11'"
+          class="object-contain"
+          alt="大同寶寶賀新年"
+        />
+      </div>
+      
+      <!-- Right side: UsageCounter -->
+      <div style="flex-shrink: 0;">
+        <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
+        <div v-else style="width: 17px;"></div>
+      </div>
     </div>
 
     <!-- 步驟進度條 (手機版) -->
@@ -59,18 +80,19 @@
             <div :class="isKioskMode ? 'gap-8' : 'gap-3'" class="grid grid-cols-2">
               <!-- 模板 10 (綜藝玩很大) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation;"
+                class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
+                style="touch-action: manipulation; padding: 0;"
                 :class="{
-                  'border-4 border-gray-400 scale-105': selectedTemplate === 'play'
+                  'border-8 scale-105': selectedTemplate === 'play'
                 }"
+                :style="selectedTemplate === 'play' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
                 @click="selectTemplate('play')"
                 @touchend.prevent="selectTemplate('play')"
               >
                 <img
                   :src="getTemplateImage('play')"
                   alt="財運亨通馬上發"
-                  class="w-full object-contain rounded-md bg-white"
+                  class="w-full h-full object-cover block"
                   :class="{
                     'opacity-100': selectedTemplate === 'play',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'play'
@@ -80,18 +102,19 @@
 
               <!-- 模板 2 (強棒出擊馬力夯) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation;"
+                class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
+                style="touch-action: manipulation; padding: 0;"
                 :class="{
-                  'border-4 border-gray-400 scale-105': selectedTemplate === 'wife'
+                  'border-8 scale-105': selectedTemplate === 'wife'
                 }"
+                :style="selectedTemplate === 'wife' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
                 @click="selectTemplate('wife')"
                 @touchend.prevent="selectTemplate('wife')"
               >
                 <img
                   :src="getTemplateImage('wife')"
                   alt="強棒出擊馬力夯"
-                  class="w-full object-contain rounded-md bg-white"
+                  class="w-full h-full object-cover block"
                   :class="{
                     'opacity-100': selectedTemplate === 'wife',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'wife'
@@ -101,18 +124,19 @@
 
               <!-- 模板 3 (山珍海味馬不停) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation;"
+                class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
+                style="touch-action: manipulation; padding: 0;"
                 :class="{
-                  'border-4 border-gray-400 scale-105': selectedTemplate === 'love'
+                  'border-8 scale-105': selectedTemplate === 'love'
                 }"
+                :style="selectedTemplate === 'love' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
                 @click="selectTemplate('love')"
                 @touchend.prevent="selectTemplate('love')"
               >
                 <img
                   :src="getTemplateImage('love')"
                   alt="山珍海味馬不停"
-                  class="w-full object-contain rounded-md bg-white"
+                  class="w-full h-full object-cover block"
                   :class="{
                     'opacity-100': selectedTemplate === 'love',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'love'
@@ -122,18 +146,19 @@
 
               <!-- 模板 4 (心想事成馬上有) -->
               <div
-                class="cursor-pointer rounded-md transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation;"
+                class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
+                style="touch-action: manipulation; padding: 0;"
                 :class="{
-                  'border-4 border-gray-400 scale-105': selectedTemplate === 'super'
+                  'border-8 scale-105': selectedTemplate === 'super'
                 }"
+                :style="selectedTemplate === 'super' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
                 @click="selectTemplate('super')"
                 @touchend.prevent="selectTemplate('super')"
               >
                 <img
                   :src="getTemplateImage('super')"
                   alt="心想事成馬上有"
-                  class="w-full object-contain rounded-md bg-white"
+                  class="w-full h-full object-cover block"
                   :class="{
                     'opacity-100': selectedTemplate === 'super',
                     'opacity-80': selectedTemplate && selectedTemplate !== 'super'
@@ -141,11 +166,6 @@
                 />
               </div>
             </div>
-          </div>
-
-          <!-- Usage Counter -->
-          <div class="mt-4 mb-4 text-right">
-            <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
           </div>
         </div>
         <div
@@ -240,6 +260,10 @@ function nextStep() {
 
 function showHistory() {
   showHistoryPage.value = true;
+}
+
+function goBack() {
+  emit("back");
 }
 
 function getTemplateImage(templateKey) {
