@@ -66,12 +66,15 @@
 
       <!-- 載入中狀態 -->
       <div v-if="isLoading && !isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <!-- Kiosk: 顯示 load.png 圖片 -->
-        <img 
+        <!-- Kiosk: 顯示 loader.mp4 影片 -->
+        <video 
           v-if="isKioskMode"
-          :src="imageUrls.load"
-          alt="載入中"
+          :src="imageUrls.loaderVideo"
           class="w-[700px] h-[933px] object-contain mb-8"
+          autoplay
+          loop
+          muted
+          playsinline
         />
         <!-- 載入中文字 -->
         <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#A90205]">圖片生成中，請稍候...</p>
