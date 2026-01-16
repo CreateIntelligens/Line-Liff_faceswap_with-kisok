@@ -52,9 +52,16 @@
       <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
-    <!-- Subtitle: Title3 image (only for kiosk mode) -->
-    <div v-if="isKioskMode" class="flex justify-center items-center mt-8 mb-6">
+    <!-- Subtitle: kiosk4 (loading) or kiosk3 (result) - only for kiosk mode -->
+    <div v-if="isKioskMode && (isLoading || (!isLoading && !isFailed))" class="flex justify-center items-center mt-8 mb-6">
       <img
+        v-if="isLoading && !isFailed"
+        :src="imageUrls.kiosk4"
+        class="h-auto object-contain"
+        alt="圖片生成中"
+      />
+      <img
+        v-else-if="!isLoading && !isFailed"
         :src="imageUrls.kiosk3"
         class="h-auto object-contain"
         alt="生成結果"

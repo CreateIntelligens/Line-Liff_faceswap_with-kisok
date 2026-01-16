@@ -99,7 +99,7 @@
       <div v-else-if="!historyData || historyData.length === 0" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">尚無生成紀錄</div>
-          <div class="text-sm text-gray-300">您還沒有生成過任何圖片</div>
+          <div class="text-sm text-[#A90205]">您還沒有生成過任何圖片</div>
         </div>
       </div>
 
@@ -109,7 +109,9 @@
           v-for="(item, index) in historyData" 
           :key="item.id || index"
           class="flex w-full p-3 items-center gap-2 bg-white border border-[#CCCCCC] rounded-md cursor-pointer hover:shadow-lg transition-all duration-200"
-          @click="viewHistoryItem(item)"
+          style="pointer-events: auto; position: relative; z-index: 10;"
+          @click.stop="viewHistoryItem(item)"
+          @touchstart.stop="viewHistoryItem(item)"
         >
           <div class="flex w-full flex-col items-start gap-2">
             <img 
@@ -326,9 +328,18 @@ function handleImageError(event) {
 
 // 查看歷史項目詳情
 function viewHistoryItem(item) {
-  console.log('查看歷史項目:', item)
-  selectedHistoryItem.value = item
-  showDetailPage.value = true
+  console.log('🖱️ 點擊歷史項目:', item)
+  if (!item) {
+    console.warn('⚠️ 歷史項目為空')
+    return
+  }
+  try {
+    selectedHistoryItem.value = item
+    showDetailPage.value = true
+    console.log('✅ 已切換到詳情頁面')
+  } catch (error) {
+    console.error('❌ 切換到詳情頁面失敗:', error)
+  }
 }
 
 // 關閉詳情頁面

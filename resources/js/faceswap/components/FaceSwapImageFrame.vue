@@ -57,6 +57,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import JsBarcode from 'jsbarcode'
+import { imageUrls } from '@/config/imageUrls'
 
 const props = defineProps({
   imageUrl: {
@@ -86,10 +87,10 @@ const barcodeContainer = ref(null)
 // 容器樣式
 const containerStyle = computed(() => {
   return {
-    backgroundImage: 'url(/resources/images/result_bg.png)',
-    backgroundRepeat: 'repeat',
+    backgroundImage: `url(${imageUrls.resultBg})`,
+    backgroundRepeat: 'no-repeat', // 不重複，避免出現格線
     backgroundPosition: 'center',
-    backgroundSize: 'auto', // 保持背景圖片原始尺寸，防止被放大
+    backgroundSize: '100% 100%', // 填滿整個容器，保持比例
     padding: props.isKioskMode ? '1.5rem' : '1rem'
   }
 })

@@ -95,9 +95,10 @@
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 :class="{
-                  'border-8 scale-105': selectedTemplate === 'play'
+                  'border-8 scale-105': selectedTemplate === 'play' && !isKioskMode,
+                  'border-[16px] scale-105': selectedTemplate === 'play' && isKioskMode
                 }"
-                :style="selectedTemplate === 'play' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'play' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('play')"
                 @mousedown.stop
                 @touchstart.stop
@@ -118,9 +119,10 @@
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 :class="{
-                  'border-8 scale-105': selectedTemplate === 'wife'
+                  'border-8 scale-105': selectedTemplate === 'wife' && !isKioskMode,
+                  'border-[16px] scale-105': selectedTemplate === 'wife' && isKioskMode
                 }"
-                :style="selectedTemplate === 'wife' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'wife' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('wife')"
                 @mousedown.stop
                 @touchstart.stop
@@ -141,9 +143,10 @@
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 :class="{
-                  'border-8 scale-105': selectedTemplate === 'love'
+                  'border-8 scale-105': selectedTemplate === 'love' && !isKioskMode,
+                  'border-[16px] scale-105': selectedTemplate === 'love' && isKioskMode
                 }"
-                :style="selectedTemplate === 'love' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'love' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('love')"
                 @mousedown.stop
                 @touchstart.stop
@@ -164,9 +167,10 @@
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
                 :class="{
-                  'border-8 scale-105': selectedTemplate === 'super'
+                  'border-8 scale-105': selectedTemplate === 'super' && !isKioskMode,
+                  'border-[16px] scale-105': selectedTemplate === 'super' && isKioskMode
                 }"
-                :style="selectedTemplate === 'super' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'super' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('super')"
                 @mousedown.stop
                 @touchstart.stop

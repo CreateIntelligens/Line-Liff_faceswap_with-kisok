@@ -145,6 +145,7 @@ import { roadshowService } from '../../services/roadshowService.js'
 import UsageCounter from './UsageCounter.vue'
 import FaceSwapImageFrame from './FaceSwapImageFrame.vue'
 import { imageUrls } from '@/config/imageUrls'
+import { useScreenshot } from '@/composables/useScreenshot.js'
 
 const props = defineProps({
   historyItem: {
@@ -179,6 +180,9 @@ const isDownloading = ref(false)
 
 // Refs for download functionality
 const imageFrameContainer = ref(null)
+
+// 使用截圖 composable
+const { captureScreenshot, compressImage, downloadToLocal, showMessage } = useScreenshot()
 
 // 監聽 historyItem 變化
 watch(() => props.historyItem, async (newItem) => {
@@ -320,36 +324,79 @@ function handleRegenerate() {
   emit('regenerate', historyDetail.value)
 }
 
-// 處理下載（暫時只下載圖片，條碼功能後續添加）
+// 處理下載（使用截圖功能下載包含邊框和條碼的完整圖片，避免 CORS 問題）
 async function handleDownload() {
   if (!historyDetail.value || historyDetail.value.status !== 'completed') {
     console.warn('⚠️ 歷史項目尚未完成，無法下載')
     return
   }
 
-  if (isDownloading.value) {
-    console.log('⏳ 正在處理中，請稍候...')
+  if (isDownloading.value || !imageFrameContainer.value) {
+    if (isDownloading.value) {
+      console.log('⏳ 正在處理中，請稍候...')
+    }
     return
   }
 
   try {
     isDownloading.value = true
-    console.log('📥 開始下載歷史項目圖片')
+    console.log('📥 開始截圖並下載完整圖片（包含邊框和條碼）...')
     
-    // 暫時只下載圖片本身，後續會改為下載包含條碼的完整畫面
-    const imageUrl = getHistoryImage(historyDetail.value)
-    if (imageUrl) {
-      const link = document.createElement('a')
-      link.href = imageUrl
-      link.download = `faceswap_${historyDetail.value.id || 'detail'}.jpg`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      console.log('✅ 下載完成')
+    // 獲取圖片框架容器
+    const container = imageFrameContainer.value.imageFrameContainer
+    if (!container) {
+      throw new Error('找不到截圖區域')
     }
     
+    // 檢查容器內的圖片元素
+    const imgElement = container.querySelector('img')
+    if (imgElement) {
+      console.log('🖼️ 容器內圖片元素:', {
+        src: imgElement.src,
+        complete: imgElement.complete,
+        naturalWidth: imgElement.naturalWidth,
+        naturalHeight: imgElement.naturalHeight
+      })
+      
+      // 如果圖片還沒載入完成，等待載入
+      if (!imgElement.complete || imgElement.naturalWidth === 0) {
+        console.log('⏳ 等待圖片載入完成...')
+        await new Promise((resolve) => {
+          const timeout = setTimeout(() => {
+            console.warn('⏰ 圖片載入超時，繼續截圖')
+            resolve()
+          }, 10000)
+          
+          imgElement.onload = () => {
+            clearTimeout(timeout)
+            console.log('✅ 圖片載入完成')
+            resolve()
+          }
+          imgElement.onerror = () => {
+            clearTimeout(timeout)
+            console.error('❌ 圖片載入失敗')
+            resolve()
+          }
+        })
+      }
+    }
+
+    // 1. 截圖整個區域（包含邊框和條碼）
+    const canvas = await captureScreenshot(container)
+    console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
+
+    // 2. 轉換為 Blob
+    const blob = await compressImage(canvas)
+    console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
+
+    // 3. 直接下載到本機
+    downloadToLocal(blob, `faceswap-history-${historyDetail.value.id || 'detail'}`)
+    showMessage('圖片已成功下載！', 'success')
+    console.log('✅ 下載完成')
+
   } catch (error) {
-    console.error('❌ 下載流程失敗:', error)
+    console.error('❌ 下載圖片流程失敗:', error)
+    showMessage(`下載失敗: ${error.message}`, 'error')
   } finally {
     isDownloading.value = false
   }
