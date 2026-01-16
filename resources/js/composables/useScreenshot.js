@@ -768,7 +768,7 @@ export function useScreenshot() {
   }
 
   // 本地測試：下載截圖到本機（支援手機瀏覽器，使用安全的 Data URL 方案）
-  function downloadToLocal(blob, filename = 'screenshot') {
+  function downloadToLocal(blob, filename = 'screenshot', previewWindow = null) {
     const browser = detectBrowser()
     const timestamp = Date.now()
     const fileExtension = 'png'
@@ -820,12 +820,14 @@ export function useScreenshot() {
         // 嘗試使用新視窗顯示圖片
         console.log('📱 嘗試使用新視窗方案顯示圖片')
         
-        // 創建新視窗（在異步回調中可能被阻止）
-        let newWindow = null
-        try {
-          newWindow = window.open('', '_blank', 'noopener,noreferrer')
-        } catch (e) {
-          console.warn('⚠️ window.open 調用失敗:', e)
+        // 使用預先打開的視窗（如果有的話），否則嘗試創建新視窗
+        let newWindow = previewWindow
+        if (!newWindow || newWindow.closed) {
+          try {
+            newWindow = window.open('', '_blank', 'noopener,noreferrer')
+          } catch (e) {
+            console.warn('⚠️ window.open 調用失敗:', e)
+          }
         }
         
         if (newWindow && !newWindow.closed) {
@@ -879,9 +881,23 @@ export function useScreenshot() {
           return
         }
         
-        // 如果彈窗被阻止，使用備用方案：在當前頁面顯示全屏圖片查看器
-        console.warn('⚠️ 彈窗被阻止，使用備用方案：在當前頁面顯示圖片')
-        showImageModal(dataUrl, fullFilename, browser)
+        // 如果彈窗被阻止，嘗試使用 <a> 標籤直接下載
+        console.warn('⚠️ 彈窗被阻止，嘗試使用 <a> 標籤下載')
+        try {
+          const a = document.createElement('a')
+          a.href = dataUrl
+          a.download = fullFilename
+          a.style.display = 'none'
+          document.body.appendChild(a)
+          a.click()
+          setTimeout(() => {
+            document.body.removeChild(a)
+          }, 100)
+          console.log('✅ 使用 <a> 標籤下載')
+        } catch (e) {
+          console.error('❌ 下載失敗:', e)
+          alert('無法下載圖片，請檢查瀏覽器設置')
+        }
         
       } catch (error) {
         console.error('❌ 處理 Data URL 失敗:', error)
@@ -896,103 +912,6 @@ export function useScreenshot() {
     
     // 開始讀取 Blob 為 Data URL
     reader.readAsDataURL(blob)
-  }
-  
-  // 在當前頁面顯示全屏圖片查看器（當彈窗被阻止時使用）
-  function showImageModal(dataUrl, filename, browser) {
-    // 創建 modal 容器
-    const modal = document.createElement('div')
-    modal.id = 'image-download-modal'
-    modal.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      box-sizing: border-box;
-    `
-    
-    // 創建關閉按鈕
-    const closeBtn = document.createElement('button')
-    closeBtn.textContent = '關閉'
-    closeBtn.style.cssText = `
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      background: #FF7824;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      z-index: 100000;
-    `
-    closeBtn.onclick = () => {
-      document.body.removeChild(modal)
-    }
-    
-    // 創建圖片容器
-    const imgContainer = document.createElement('div')
-    imgContainer.style.cssText = `
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 100%;
-    `
-    
-    // 創建圖片
-    const img = document.createElement('img')
-    img.src = dataUrl
-    img.style.cssText = `
-      max-width: 100%;
-      max-height: 70vh;
-      height: auto;
-      border-radius: 8px;
-      display: block;
-    `
-    
-    // 創建提示文字
-    const hint = document.createElement('div')
-    const hintText = browser.isIOS 
-      ? '長按圖片，選擇「加入照片」即可保存到相簿' 
-      : browser.isLine
-      ? '長按圖片，選擇「儲存圖片」或「下載」'
-      : '長按圖片，選擇「儲存圖片」或「下載」'
-    
-    hint.innerHTML = `
-      <div style="color: #fff; text-align: center; margin-top: 20px; padding: 15px 20px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 14px; line-height: 1.6; max-width: 90%;">
-        <strong style="display: block; margin-bottom: 8px; font-size: 16px; color: #FFD700;">💡 如何保存圖片：</strong>
-        ${hintText}
-      </div>
-    `
-    
-    // 組裝 modal
-    imgContainer.appendChild(img)
-    imgContainer.appendChild(hint)
-    modal.appendChild(closeBtn)
-    modal.appendChild(imgContainer)
-    
-    // 添加到頁面
-    document.body.appendChild(modal)
-    
-    // 點擊背景關閉
-    modal.onclick = (e) => {
-      if (e.target === modal) {
-        document.body.removeChild(modal)
-      }
-    }
   }
 
   // PC 版上傳圖片到伺服器（使用 imageUploadApi）

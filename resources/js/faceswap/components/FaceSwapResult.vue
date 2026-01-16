@@ -803,6 +803,26 @@ async function handleDownload() {
     return
   }
 
+  // 在用戶點擊時立即打開視窗（避免被阻止）
+  const ua = navigator.userAgent || ''
+  const isIOS = /iPhone|iPad|iPod/i.test(ua)
+  const isLine = /Line/i.test(ua) || /LINE/i.test(ua)
+  const isMobile = /iPhone|iPad|iPod|Android|Mobile/i.test(ua)
+  
+  let previewWindow = null
+  if (isMobile && (isIOS || isLine)) {
+    // 對於手機瀏覽器，立即打開空白視窗
+    try {
+      previewWindow = window.open('', '_blank', 'noopener,noreferrer')
+      if (previewWindow) {
+        previewWindow.document.write('<html><head><title>載入中...</title></head><body><p>圖片處理中，請稍候...</p></body></html>')
+        previewWindow.document.close()
+      }
+    } catch (e) {
+      console.warn('⚠️ 無法打開預覽視窗:', e)
+    }
+  }
+
   try {
     isDownloading.value = true
     console.log('📸 開始截圖並下載完整圖片...')
@@ -863,12 +883,7 @@ async function handleDownload() {
     console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
 
     // 3. 直接下載到本機（會根據瀏覽器自動選擇最佳方案）
-    downloadToLocal(blob, `faceswap-mobile-${props.taskId}`)
-    
-    // 檢測瀏覽器類型以顯示適當的提示
-    const ua = navigator.userAgent || ''
-    const isIOS = /iPhone|iPad|iPod/i.test(ua)
-    const isLine = /Line/i.test(ua) || /LINE/i.test(ua)
+    downloadToLocal(blob, `faceswap-mobile-${props.taskId}`, previewWindow)
     
     if (isIOS || isLine) {
       showMessage('圖片已準備完成！請在新視窗中長按圖片保存', 'success')
