@@ -610,10 +610,12 @@ export function useScreenshot() {
     // 等待所有圖片載入完成
     await waitForAllImagesLoaded(container)
     
+    // 獲取所有圖片元素（統一使用一個變數）
+    const containerImages = container.querySelectorAll('img')
+    
     // 檢查是否有圖片是佔位符
-    const images = container.querySelectorAll('img')
     let hasPlaceholder = false
-    images.forEach((img, index) => {
+    containerImages.forEach((img, index) => {
       if (img.src.startsWith('data:image') && img.src.includes('AI 生成圖片')) {
         console.error(`❌ [圖片 ${index + 1}] 檢測到佔位符圖片，截圖可能不完整！`)
         hasPlaceholder = true
@@ -639,9 +641,8 @@ export function useScreenshot() {
     // 嘗試使用 html2canvas，即使有跨域圖片也嘗試截圖
     // 注意：如果圖片無法載入，html2canvas 可能會顯示空白或錯誤
     // 嘗試先設置圖片的 crossOrigin 屬性（如果可能）
-    const images = container.querySelectorAll('img')
     const originalCrossOrigin = new Map()
-    images.forEach((img) => {
+    containerImages.forEach((img) => {
       if (img.src && !img.src.startsWith('data:') && !img.crossOrigin) {
         originalCrossOrigin.set(img, img.crossOrigin)
         // 嘗試設置 crossOrigin，即使可能失敗
@@ -828,71 +829,51 @@ export function useScreenshot() {
         const newWindow = window.open('', '_blank', 'noopener,noreferrer')
         
         if (newWindow) {
+          // 轉義 HTML 特殊字符
+          const escapeHtml = (text) => {
+            if (!text) return ''
+            return String(text)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#039;')
+          }
+          
+          const safeFilename = escapeHtml(fullFilename)
+          const hintText = browser.isIOS 
+            ? '長按圖片，選擇「加入照片」即可保存到相簿' 
+            : browser.isLine
+            ? '長按圖片，選擇「儲存圖片」或「下載」'
+            : '長按圖片，選擇「儲存圖片」或「下載」'
+          
           // 使用安全的 HTML 寫入方式
           newWindow.document.open()
-          newWindow.document.write(`
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; img-src 'self' data: blob:;">
-  <title>${fullFilename}</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      display: block;
-    }
-    .hint {
-      color: #fff;
-      text-align: center;
-      margin-top: 20px;
-      padding: 15px 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.6;
-      max-width: 90%;
-    }
-    .hint strong {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 16px;
-      color: #FFD700;
-    }
-  </style>
-</head>
-<body>
-  <img src="${dataUrl}" alt="${fullFilename}" crossorigin="anonymous" />
-  <div class="hint">
-    <strong>💡 如何保存圖片：</strong>
-    ${browser.isIOS 
-      ? '長按圖片，選擇「加入照片」即可保存到相簿' 
-      : browser.isLine
-      ? '長按圖片，選擇「儲存圖片」或「下載」'
-      : '長按圖片，選擇「儲存圖片」或「下載」'}
-  </div>
-</body>
-</html>
-          `)
+          newWindow.document.write(
+            '<!DOCTYPE html>\n' +
+            '<html lang="zh-Hant">\n' +
+            '<head>\n' +
+            '  <meta charset="UTF-8">\n' +
+            '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+            '  <meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob:; img-src \'self\' data: blob:;">\n' +
+            '  <title>' + safeFilename + '</title>\n' +
+            '  <style>\n' +
+            '    * { margin: 0; padding: 0; box-sizing: border-box; }\n' +
+            '    body { margin: 0; padding: 20px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, sans-serif; }\n' +
+            '    img { max-width: 100%; height: auto; border-radius: 8px; display: block; }\n' +
+            '    .hint { color: #fff; text-align: center; margin-top: 20px; padding: 15px 20px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 14px; line-height: 1.6; max-width: 90%; }\n' +
+            '    .hint strong { display: block; margin-bottom: 8px; font-size: 16px; color: #FFD700; }\n' +
+            '  </style>\n' +
+            '</head>\n' +
+            '<body>\n' +
+            '  <img src="' + dataUrl + '" alt="' + safeFilename + '" crossorigin="anonymous" />\n' +
+            '  <div class="hint">\n' +
+            '    <strong>💡 如何保存圖片：</strong>\n' +
+            '    ' + hintText + '\n' +
+            '  </div>\n' +
+            '</body>\n' +
+            '</html>'
+          )
           newWindow.document.close()
           console.log('✅ 新視窗已打開')
         } else {
