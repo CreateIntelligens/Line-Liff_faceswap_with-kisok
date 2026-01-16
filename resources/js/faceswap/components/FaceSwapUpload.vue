@@ -200,7 +200,7 @@
     <input
       ref="fileInput"
       type="file"
-      accept="image/jpeg,image/jpg,image/png"
+      accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif"
       class="hidden"
       @change="handleFileSelect"
     />
@@ -277,6 +277,44 @@ const canGenerate = computed(() => {
   return props.selectedTemplate && uploadedImage.value;
 });
 
+// 統一的檔案驗證函數
+function validateFile(file) {
+  // 檢查檔案是否存在
+  if (!file) {
+    return { valid: false, message: '未選擇檔案' };
+  }
+
+  // 檢查檔案大小（7MB限制）
+  const maxSize = 7 * 1024 * 1024; // 7MB
+  if (file.size > maxSize) {
+    return { 
+      valid: false, 
+      message: '請上傳小於7MB檔案大小的圖',
+      sizeMB: (file.size / 1024 / 1024).toFixed(2)
+    };
+  }
+
+  // 檢查檔案格式（根據 Nano Banana Pro API 支持的格式）
+  const allowedTypes = [
+    'image/jpeg', 
+    'image/jpg', 
+    'image/png', 
+    'image/webp',
+    'image/heic',
+    'image/heif'
+  ];
+  
+  // 檢查 MIME 類型
+  if (!allowedTypes.includes(file.type)) {
+    return { 
+      valid: false, 
+      message: '不支援的檔案格式，請上傳 JPG、PNG、WebP、HEIC 或 HEIF 格式的圖片'
+    };
+  }
+
+  return { valid: true };
+}
+
 function getTemplateImage(templateKey) {
   const imageMap = {
     'play': imageUrls.play,   // 財運亨通馬上發
@@ -307,6 +345,24 @@ function triggerFileUpload() {
 function handleFileSelect(event) {
   const file = event.target.files[0];
   if (file) {
+    // 使用統一的驗證函數檢查檔案
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      alert(validation.message);
+      // 重置檔案輸入，確保檔案不會被設置
+      if (fileInput.value) {
+        fileInput.value.value = '';
+      }
+      // 清除已選擇的檔案
+      uploadedImage.value = null;
+      if (uploadedImagePreview.value) {
+        URL.revokeObjectURL(uploadedImagePreview.value);
+        uploadedImagePreview.value = null;
+      }
+      return;
+    }
+    
+    // 驗證通過，設置檔案
     uploadedImage.value = file;
     // 創建預覽URL
     uploadedImagePreview.value = URL.createObjectURL(file);
@@ -314,14 +370,27 @@ function handleFileSelect(event) {
 }
 
 function handleDrop(event) {
+  event.preventDefault(); // 防止瀏覽器默認行為
   const files = event.dataTransfer.files;
   if (files.length > 0) {
     const file = files[0];
-    if (file.type.startsWith("image/")) {
-      uploadedImage.value = file;
-      // 創建預覽URL
-      uploadedImagePreview.value = URL.createObjectURL(file);
+    // 使用統一的驗證函數檢查檔案
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      alert(validation.message);
+      // 清除已選擇的檔案
+      uploadedImage.value = null;
+      if (uploadedImagePreview.value) {
+        URL.revokeObjectURL(uploadedImagePreview.value);
+        uploadedImagePreview.value = null;
+      }
+      return;
     }
+    
+    // 驗證通過，設置檔案
+    uploadedImage.value = file;
+    // 創建預覽URL
+    uploadedImagePreview.value = URL.createObjectURL(file);
   }
 }
 
@@ -352,10 +421,13 @@ async function generateFaceSwap() {
         throw new Error('未選擇圖片檔案');
       }
       
-      // 檢查檔案類型和大小1;
+      // 使用統一的驗證函數檢查檔案（雙重檢查確保安全）
       const file = uploadedImage.value;
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      const validation = validateFile(file);
+      
+      if (!validation.valid) {
+        throw new Error(validation.message);
+      }
       
       console.log('📁 檔案資訊:', {
         name: file.name,
@@ -368,14 +440,6 @@ async function generateFaceSwap() {
       console.log('📁 檔案名稱:', file.name);
       console.log('📁 檔案類型:', file.type);
       console.log('📁 檔案大小:', file.size, 'bytes', '(', (file.size / 1024 / 1024).toFixed(2), 'MB)');
-      
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('不支援的檔案格式，請上傳 JPG 或 PNG 格式的圖片');
-      }
-      
-      if (file.size > maxSize) {
-        throw new Error('檔案大小超過 10MB，請選擇較小的圖片');
-      }
       
       // 統一使用 target_face_index = 0 (不再有人物選擇)
       const targetFaceIndex = 0
