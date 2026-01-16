@@ -32,3 +32,4 @@ dump.rdb
 
 # API 遷移文檔（開發用）
 API_MIGRATION_SUMMARY.md
+.vercel

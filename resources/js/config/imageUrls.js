@@ -27,6 +27,7 @@ import kiosk2_1Img from '../../images/kiosk2_1.png'
 import kiosk3Img from '../../images/kiosk3.png'
 import kioskTextImg from '../../images/kiosk_text.png'
 import homepageImg from '../../images/homepage.png'
+import homepageBgImg from '../../images/homepage_bg.png'
 import kioskHomepageImg from '../../images/kioskhomepage.png'
 import placeemailImg from '../../images/placeemail.png'
 import couponImg from '../../images/coupon.png'
@@ -72,7 +73,8 @@ export const imageUrls = {
   kiosk2_1: kiosk2_1Img,        // Kiosk 模式：請確認照片
   kiosk3: kiosk3Img,            // Kiosk 模式：生成結果副標題
   kioskText: kioskTextImg,      // Kiosk 模式：拍照說明文字
-  homepage: homepageImg,        // 手機版首頁圖片
+  homepage: homepageImg,        // 手機版首頁內容圖片
+  homepageBg: homepageBgImg,   // 手機版首頁背景圖片
   kioskHomepage: kioskHomepageImg,  // Kiosk 版首頁圖片
   placeemail: placeemailImg,    // Email 提示文字圖片
   coupon: couponImg,            // Email 使用說明圖片（畫面下方）

@@ -74,7 +74,7 @@
       <div>Step 3</div>
     </div>
 
-    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto" style="pointer-events: auto; position: relative; z-index: 10;">
+    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto pb-6" style="pointer-events: auto; position: relative; z-index: 10;">
       <div class="flex flex-col w-full">
         <div class="flex flex-col w-full">
           <div
@@ -213,7 +213,7 @@
       </div>
       <div
         v-if="!isPCMode"
-        :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-2 text-base'"
+        :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-4 mb-6 text-base'"
         class="font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity"
         data-name="圖片生成紀錄"
         style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important;"
