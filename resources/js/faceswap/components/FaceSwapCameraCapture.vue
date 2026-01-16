@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
+  <div class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
       <img

@@ -299,8 +299,8 @@ export const roadshowService = {
      */
     async getImageResource(imageUrl, options = {}) {
         try {
-            // 使用正確的 API 端點
-            const url = 'https://stg-api.fanpokka.ai/api/static-resource';
+            // 使用配置中的 API 端點
+            const url = window.endpoint?.imageProcessApi || 'https://api.uat.tatung2025.aitago.tw/api/static-resource';
             
             // 構建查詢參數
             const queryParams = new URLSearchParams();

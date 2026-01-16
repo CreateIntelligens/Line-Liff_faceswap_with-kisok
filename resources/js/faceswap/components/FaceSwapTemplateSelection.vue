@@ -13,7 +13,7 @@
   <div
     v-if="!showHistoryPage"
     class="relative min-h-screen w-full flex flex-col overflow-visible"
-    :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
+    :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
     data-name="換臉_橫式範本"
     style="pointer-events: auto; position: relative; z-index: 1;"
   >
@@ -213,7 +213,7 @@
       </div>
       <div
         v-if="!isPCMode"
-        :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-9 text-base'"
+        :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-2 text-base'"
         class="font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity"
         data-name="圖片生成紀錄"
         style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important;"

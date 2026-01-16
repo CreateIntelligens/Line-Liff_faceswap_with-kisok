@@ -89,6 +89,7 @@ const containerStyle = computed(() => {
     backgroundImage: 'url(/resources/images/result_bg.png)',
     backgroundRepeat: 'repeat',
     backgroundPosition: 'center',
+    backgroundSize: 'auto', // 保持背景圖片原始尺寸，防止被放大
     padding: props.isKioskMode ? '1.5rem' : '1rem'
   }
 })
@@ -102,7 +103,7 @@ const barcodeContainerStyle = computed(() => {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: props.isKioskMode ? '#ffffff' : 'transparent',
-    borderRadius: props.isKioskMode ? '12px' : '0'
+    borderRadius: '0'
   }
 })
 

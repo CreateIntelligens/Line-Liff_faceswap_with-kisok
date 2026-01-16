@@ -21,7 +21,7 @@
       
       // ===== 圖片處理 API 配置 =====
       // 圖片處理 API 端點 - 修改這裡來改變圖片處理服務器
-      imageProcessApi: 'https://stg-api.fanpokka.ai/api/static-resource',
+      imageProcessApi: 'https://api.uat.tatung2025.aitago.tw/api/static-resource',
       // 圖片處理參數 - 修改這裡來調整圖片處理效果
       imageProcessParams: {
         scale: 2,        // 圖片縮放比例：0.5, 1, 1.5, 2
@@ -30,8 +30,8 @@
         width: 800,      // 圖片寬度（像素）
         height: 600      // 圖片高度（像素）
       },
-      // 是否啟用圖片處理功能（暫時關閉，直接使用原始圖片）
-      enableImageProcessing: false,
+      // 是否啟用圖片處理功能（用於解決 CORS 問題）
+      enableImageProcessing: true,
 
       // ===== 圖片上傳 API 配置 =====
       // 圖片上傳 API 端點

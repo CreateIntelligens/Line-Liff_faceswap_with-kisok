@@ -1,7 +1,7 @@
 <template>
   <div
     class="relative min-h-screen w-full px-5"
-    :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat' }"
+    :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat' }"
     style="pointer-events: auto; position: relative; z-index: 1;"
   >
     <!-- 上方主標題 -->

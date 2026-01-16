@@ -10,7 +10,7 @@
   />
 
   <!-- Main Result Page -->
-  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }" style="pointer-events: auto; position: relative; z-index: 1;">
+  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }" style="pointer-events: auto; position: relative; z-index: 1;">
       <!-- Header -->
     <div
       :class="[
@@ -149,7 +149,7 @@
         </div>
         
         <!-- 按鈕區域 - 左右排列 -->
-        <div class="flex gap-3 mb-8" style="pointer-events: auto; position: relative; z-index: 10;">
+        <div class="flex gap-3 mb-2" style="pointer-events: auto; position: relative; z-index: 10;">
           <!-- 重新生成按鈕 -->
           <button
             @click.stop="handleRegenerate"
@@ -166,7 +166,8 @@
             @click.stop="handleDownload"
             @mousedown.stop
             @touchstart.stop
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
+            :disabled="isDownloading"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative disabled:opacity-50 disabled:cursor-not-allowed"
             style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
           >
             <img 
@@ -175,8 +176,21 @@
               class="absolute pointer-events-none"
               style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
             />
-            下載圖片
+            {{ isDownloading ? '處理中...' : '下載圖片' }}
           </button>
+        </div>
+
+        <!-- 圖片生成紀錄按鈕 -->
+        <div
+          v-if="!isPCMode && !isKioskMode"
+          class="text-base font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity mb-8"
+          data-name="圖片生成紀錄"
+          style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important;"
+          @click.stop="handleShowHistory"
+          @mousedown.stop
+          @touchstart.stop
+        >
+          圖片生成紀錄
         </div>
 
         <!-- 使用辦法及注意事項 -->
@@ -370,11 +384,14 @@ const isSavingImage = ref(false)
 const showQRCodeModal = ref(false)
 const fullImageUrl = ref('')
 
+// 下載圖片相關
+const isDownloading = ref(false)
+
 // Coupon Code 相關
 const couponCode = ref('')
 
 // 使用截圖 composable
-const { captureScreenshot, compressImage, smartUploadImage, showMessage } = useScreenshot()
+const { captureScreenshot, compressImage, smartUploadImage, downloadToLocal, showMessage } = useScreenshot()
 
 // 表單驗證
 const isFormValid = computed(() => {
@@ -691,16 +708,57 @@ async function handleSaveImage() {
   try {
     isSavingImage.value = true
     console.log('📸 開始截圖並上傳完整圖片...')
+    
+    // 檢查圖片 URL 是否存在
+    const currentImageUrl = generatedImageUrl.value || originalImageUrl.value
+    if (!currentImageUrl) {
+      throw new Error('沒有可用的圖片 URL')
+    }
+    console.log('🖼️ 當前圖片 URL:', currentImageUrl)
 
     // 獲取圖片框架容器
     const container = imageFrameRef.value.imageFrameContainer
     if (!container) {
       throw new Error('找不到截圖區域')
     }
+    
+    // 檢查容器內的圖片元素
+    const imgElement = container.querySelector('img')
+    if (imgElement) {
+      console.log('🖼️ 容器內圖片元素:', {
+        src: imgElement.src,
+        complete: imgElement.complete,
+        naturalWidth: imgElement.naturalWidth,
+        naturalHeight: imgElement.naturalHeight,
+        isPlaceholder: imgElement.src.includes('AI 生成圖片')
+      })
+      
+      // 如果圖片還沒載入完成，等待載入
+      if (!imgElement.complete || imgElement.naturalWidth === 0) {
+        console.log('⏳ 等待圖片載入完成...')
+        await new Promise((resolve) => {
+          const timeout = setTimeout(() => {
+            console.warn('⏰ 圖片載入超時，繼續截圖')
+            resolve()
+          }, 10000)
+          
+          imgElement.onload = () => {
+            clearTimeout(timeout)
+            console.log('✅ 圖片載入完成')
+            resolve()
+          }
+          imgElement.onerror = () => {
+            clearTimeout(timeout)
+            console.error('❌ 圖片載入失敗')
+            resolve()
+          }
+        })
+      }
+    }
 
     // 1. 截圖整個區域（包含邊框和條碼）
     const canvas = await captureScreenshot(container)
-    console.log('✅ 截圖完成')
+    console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
 
     // 2. 轉換為 Blob
     const blob = await compressImage(canvas)
@@ -729,17 +787,81 @@ function handleRegenerate() {
   emit('regenerate')
 }
 
-// 處理下載
-function handleDownload() {
-  if (generatedImageUrl.value || originalImageUrl.value) {
-    // 創建一個臨時 a 標籤來觸發下載
-    const link = document.createElement('a')
-    link.href = generatedImageUrl.value || originalImageUrl.value
-    link.download = `faceswap_${props.taskId}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    console.log('✅ 下載圖片:', link.href)
+// 處理下載（手機版：下載包含背景邊框和條碼的完整圖片）
+async function handleDownload() {
+  if (isDownloading.value || !imageFrameRefMobile.value) {
+    return
+  }
+
+  try {
+    isDownloading.value = true
+    console.log('📸 開始截圖並下載完整圖片...')
+    
+    // 檢查圖片 URL 是否存在
+    const currentImageUrl = generatedImageUrl.value || originalImageUrl.value
+    if (!currentImageUrl) {
+      throw new Error('沒有可用的圖片 URL')
+    }
+    console.log('🖼️ 當前圖片 URL:', currentImageUrl)
+
+    // 獲取圖片框架容器
+    const container = imageFrameRefMobile.value.imageFrameContainer
+    if (!container) {
+      throw new Error('找不到截圖區域')
+    }
+    
+    // 檢查容器內的圖片元素
+    const imgElement = container.querySelector('img')
+    if (imgElement) {
+      console.log('🖼️ 容器內圖片元素:', {
+        src: imgElement.src,
+        complete: imgElement.complete,
+        naturalWidth: imgElement.naturalWidth,
+        naturalHeight: imgElement.naturalHeight,
+        isPlaceholder: imgElement.src.includes('AI 生成圖片')
+      })
+      
+      // 如果圖片還沒載入完成，等待載入
+      if (!imgElement.complete || imgElement.naturalWidth === 0) {
+        console.log('⏳ 等待圖片載入完成...')
+        await new Promise((resolve) => {
+          const timeout = setTimeout(() => {
+            console.warn('⏰ 圖片載入超時，繼續截圖')
+            resolve()
+          }, 10000)
+          
+          imgElement.onload = () => {
+            clearTimeout(timeout)
+            console.log('✅ 圖片載入完成')
+            resolve()
+          }
+          imgElement.onerror = () => {
+            clearTimeout(timeout)
+            console.error('❌ 圖片載入失敗')
+            resolve()
+          }
+        })
+      }
+    }
+
+    // 1. 截圖整個區域（包含邊框和條碼）
+    const canvas = await captureScreenshot(container)
+    console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
+
+    // 2. 轉換為 Blob
+    const blob = await compressImage(canvas)
+    console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
+
+    // 3. 直接下載到本機
+    downloadToLocal(blob, `faceswap-mobile-${props.taskId}`)
+    showMessage('圖片已成功下載！', 'success')
+    console.log('✅ 下載完成')
+
+  } catch (error) {
+    console.error('❌ 下載圖片流程失敗:', error)
+    showMessage(`下載失敗: ${error.message}`, 'error')
+  } finally {
+    isDownloading.value = false
   }
 }
 

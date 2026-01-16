@@ -565,10 +565,10 @@ function goBack() {
   justify-content: center;
 }
 
-/* Mobile 內層容器：固定最大寬度 414px（iPhone 尺寸） */
+/* Mobile 內層容器：固定最大寬度 500px（支援更大尺寸手機） */
 .mobile-content {
   width: 100%;
-  max-width: 414px;
+  max-width: 500px;
   min-height: 100vh;
   background-color: #ffffff;
   overflow-x: hidden; /* 防止內容溢出 */

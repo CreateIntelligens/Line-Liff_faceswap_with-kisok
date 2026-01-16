@@ -13,7 +13,7 @@
   />
 
   <!-- History List Page -->
-  <div v-else :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
+  <div v-else :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div
       :class="[
@@ -104,7 +104,7 @@
       </div>
 
       <!-- History grid -->
-      <div v-else class="grid grid-cols-2 gap-3 max-w-md mx-auto">
+      <div v-else class="grid grid-cols-2 gap-3" style="max-width: 414px; margin: 0 auto;">
         <div 
           v-for="(item, index) in historyData" 
           :key="item.id || index"
