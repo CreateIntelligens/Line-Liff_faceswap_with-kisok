@@ -211,15 +211,11 @@ function getTemplateImage(templateId) {
     'wife': imageUrls.wife,
     'love': imageUrls.love,
     'super': imageUrls.super,
-    // 數字形式（新 API 格式）
-    '7': imageUrls.play,  // 財神大同寶寶 → 財運亨通馬上發
-    '4': imageUrls.wife,  // 打棒球的大同寶寶 → 強棒出擊馬力夯
-    '6': imageUrls.love,  // 拿電鍋的大同寶寶 → 山珍海味馬不停
-    '5': imageUrls.super, // 擲筊大同寶寶 → 心想事成馬上有
-    // 其他模板使用默認圖片
-    '1': imageUrls.play,  // Q版大同寶寶
-    '2': imageUrls.play,  // 真人大同寶寶
-    '3': imageUrls.play   // 模型樣板
+    // 數字形式（新 API 格式：左上1、左下2、右下3、右上4）
+    '1': imageUrls.play,  // 左上 → 財運亨通馬上發
+    '2': imageUrls.love,  // 左下 → 山珍海味馬不停
+    '3': imageUrls.super, // 右下 → 心想事成馬上有
+    '4': imageUrls.wife   // 右上 → 強棒出擊馬力夯
   }
   
   const imageUrl = imageMap[templateId] || imageUrls.play
@@ -236,15 +232,11 @@ function getTemplateName(templateId) {
     'wife': '強棒出擊馬力夯',
     'love': '山珍海味馬不停',
     'super': '心想事成馬上有',
-    // 數字形式（新 API 格式）
-    '7': '財神大同寶寶',
-    '4': '打棒球的大同寶寶',
-    '6': '拿電鍋的大同寶寶',
-    '5': '擲筊大同寶寶',
-    // 其他模板
-    '1': 'Q版大同寶寶',
-    '2': '真人大同寶寶',
-    '3': '模型樣板'
+    // 數字形式（新 API 格式：左上1、左下2、右下3、右上4）
+    '1': '財運亨通馬上發',  // 左上
+    '2': '山珍海味馬不停',  // 左下
+    '3': '心想事成馬上有',  // 右下
+    '4': '強棒出擊馬力夯'   // 右上
   }
   
   return nameMap[templateId] || '預設模板'

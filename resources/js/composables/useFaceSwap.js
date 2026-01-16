@@ -7,10 +7,10 @@ import { roadshowService } from '../services/roadshowService.js'
 
 // 模板 ID 映射（新 API 使用數字 ID）
 const TEMPLATE_ID_MAP = {
-  'play': '7',     // 財運亨通馬上發 → 財神大同寶寶 (id: 7)
-  'wife': '4',     // 強棒出擊馬力夯 → 打棒球的大同寶寶 (id: 4)
-  'love': '6',     // 山珍海味馬不停 → 拿電鍋的大同寶寶 (id: 6)
-  'super': '5'     // 心想事成馬上有 → 擲筊大同寶寶 (id: 5)
+  'play': '1',     // 財運亨通馬上發 → 左上 (id: 1)
+  'love': '2',     // 山珍海味馬不停 → 左下 (id: 2)
+  'super': '3',    // 心想事成馬上有 → 右下 (id: 3)
+  'wife': '4'      // 強棒出擊馬力夯 → 右上 (id: 4)
 }
 
 // 角色對應的 face index
@@ -93,8 +93,8 @@ export function useFaceSwap() {
       formData.append('userId', userId)
       formData.append('file', file)
       
-      // 轉換模板 ID 為新 API 格式 (4, 5, 6, 7)
-      const numericTemplateId = TEMPLATE_ID_MAP[templateId] || '7'
+      // 轉換模板 ID 為新 API 格式 (1, 2, 3, 4)
+      const numericTemplateId = TEMPLATE_ID_MAP[templateId] || '1'
       formData.append('template_id', numericTemplateId)
       
       // 添加必填的 userName 參數

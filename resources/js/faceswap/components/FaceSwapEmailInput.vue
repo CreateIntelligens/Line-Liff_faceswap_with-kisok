@@ -2,6 +2,7 @@
   <div
     class="relative min-h-screen w-full px-5"
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat' }"
+    style="pointer-events: auto; position: relative; z-index: 1;"
   >
     <!-- 上方主標題 -->
     <div class="w-full flex justify-center pt-8 pb-4">
@@ -13,7 +14,7 @@
     </div>
 
     <!-- 中間主要內容：提示圖 + 輸入框 + 按鈕 -->
-    <div class="flex flex-col items-center pt-8 pb-16">
+    <div class="flex flex-col items-center pt-8 pb-16" style="pointer-events: auto; position: relative; z-index: 10;">
       <!-- 上方提示圖：請輸入您的 Email -->
       <div class="w-full flex justify-center mb-6">
         <img
@@ -24,13 +25,16 @@
       </div>
 
       <!-- Email 輸入框 -->
-      <div class="w-full max-w-[320px] mb-8">
+      <div class="w-full max-w-[320px] mb-8" style="pointer-events: auto; position: relative; z-index: 10;">
         <input
           v-model="email"
           type="email"
           placeholder="請輸入 Email"
           class="w-full px-4 py-3 rounded-md bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A90205] border-2 border-gray-300"
-          style="touch-action: manipulation;"
+          style="touch-action: manipulation; cursor: text; pointer-events: auto !important; position: relative; z-index: 20;"
+          @click.stop
+          @mousedown.stop
+          @touchstart.stop
           @keyup.enter="handleNext"
         />
         <!-- 錯誤訊息 -->
@@ -40,27 +44,31 @@
       </div>
 
       <!-- 下一步按鈕 -->
-      <button
-        type="button"
-        @click="handleNext"
-        @touchend.prevent="handleNext"
-        :disabled="!isEmailValid || isSubmitting"
-        :class="[
-          isEmailValid && !isSubmitting
-            ? 'text-[#FBEFC2] cursor-pointer hover:bg-[#FF7824] active:bg-[#FF7824]'
-            : 'text-[#FBEFC2] cursor-not-allowed'
-        ]"
-        class="w-full max-w-[320px] h-11 mt-4 rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative"
-        :style="(isEmailValid && !isSubmitting) ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
-      >
-        <img 
-          src="/resources/images/coin_icon.png" 
-          alt=""
-          class="absolute pointer-events-none"
-          style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
-        />
-        {{ isSubmitting ? '處理中...' : '下一步' }}
-      </button>
+      <div class="w-full max-w-[320px] mt-4" style="pointer-events: auto; position: relative; z-index: 10;">
+        <button
+          type="button"
+          @click.stop="handleNext"
+          @mousedown.stop
+          @touchstart.stop
+          @touchend.prevent.stop="handleNext"
+          :disabled="!isEmailValid || isSubmitting"
+          :class="[
+            isEmailValid && !isSubmitting
+              ? 'text-[#FBEFC2] cursor-pointer hover:bg-[#FF7824] active:bg-[#FF7824]'
+              : 'text-[#FBEFC2] cursor-not-allowed'
+          ]"
+          class="w-full h-11 rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative"
+          :style="(isEmailValid && !isSubmitting) ? 'background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'background-color: #D84729; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+        >
+          <img 
+            src="/resources/images/coin_icon.png" 
+            alt=""
+            class="absolute pointer-events-none"
+            style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
+          />
+          {{ isSubmitting ? '處理中...' : '下一步' }}
+        </button>
+      </div>
 
       <!-- Email 使用說明圖：放在按鈕下方 -->
       <div class="w-full flex justify-center mt-20">

@@ -2,17 +2,22 @@
   <div
     class="relative min-h-screen w-full flex flex-col"
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
+    style="pointer-events: auto; position: relative; z-index: 1;"
   >
     <!-- Header -->
     <div
-      :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
-      class="flex items-center justify-center gap-4 px-5 w-full font-bold"
-      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'"
+      :class="[
+        isKioskMode ? 'pt-20 pb-12 px-16 flex items-center justify-center' : 'py-4 px-5 grid grid-cols-[auto_1fr_auto] items-center',
+        'gap-2 w-full font-bold'
+      ]"
+      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem; overflow: visible;'"
     >
       <!-- Home icon -->
       <button
-        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
-        @click="goBack"
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;' : 'width: 26px; height: 26px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;'"
+        @click.stop="goBack"
+        @mousedown.stop
+        @touchstart.stop
       >
         <img
           :src="imageUrls.homeIcon"
@@ -21,16 +26,23 @@
         />
       </button>
 
-      <!-- Title -->
+      <!-- Title (手機版置中，Kiosk 模式保持原樣) -->
       <img
+        v-if="!isKioskMode"
         :src="imageUrls.header"
-        :class="isKioskMode ? 'h-40' : 'h-11'"
-        class="object-contain"
+        class="h-11 object-contain justify-self-center"
+        alt="大同寶寶賀新年"
+        style="min-width: 0; max-width: 100%;"
+      />
+      <img
+        v-else
+        :src="imageUrls.header"
+        class="h-40 object-contain"
         alt="大同寶寶賀新年"
       />
 
-      <!-- Usage counter -->
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
+      <!-- Usage counter (手機版靠右，Kiosk 模式不顯示) -->
+      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
     <!-- 步驟進度條 (手機版) -->
@@ -50,7 +62,7 @@
     </div>
 
     <!-- Main Content Container -->
-    <div class="flex-1 flex flex-col max-w-md mx-auto w-full px-5">
+    <div class="flex-1 flex flex-col max-w-md mx-auto w-full px-5" style="pointer-events: auto; position: relative; z-index: 10;">
       <!-- Selected Template Image -->
       <div class="mb-8">
         <div v-if="props.selectedTemplate" class="w-full">
@@ -80,10 +92,13 @@
           </div>
 
           <!-- Upload Area -->
-          <div class="mb-6">
+          <div class="mb-6" style="pointer-events: auto; position: relative; z-index: 10;">
             <div
               class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#A90205] bg-white cursor-pointer transition-colors rounded-md"
-              @click="triggerFileUpload"
+              style="pointer-events: auto !important; cursor: pointer !important; position: relative; z-index: 20; touch-action: manipulation;"
+              @click.stop="triggerFileUpload"
+              @mousedown.stop
+              @touchstart.stop
               @dragover.prevent
               @drop.prevent="handleDrop"
             >
@@ -129,8 +144,10 @@
           <div class="flex gap-3 mb-8">
             <button
               class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
-              style="background-color: #FF7824; touch-action: manipulation;"
-              @click="goBack"
+              style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
+              @click.stop="goBack"
+              @mousedown.stop
+              @touchstart.stop
             >
               重選範本
             </button>
@@ -141,8 +158,10 @@
                   ? 'hover:bg-[#FF7824] active:bg-[#FF7824]'
                   : 'cursor-not-allowed'
               "
-              :style="canGenerate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
-              @click="generateFaceSwap"
+              :style="canGenerate ? 'background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'background-color: #D84729; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+              @click.stop="generateFaceSwap"
+              @mousedown.stop
+              @touchstart.stop
               :disabled="!canGenerate"
             >
               <img 
@@ -160,8 +179,10 @@
           <div class="text-sm text-gray-300 mb-6">您需要先選擇一個模板才能繼續</div>
           <button
             class="px-6 py-3 text-[#FBEFC2] rounded-md font-bold transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
-            style="background-color: #D84729; touch-action: manipulation;"
-            @click="goBack"
+            style="background-color: #D84729; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
+            @click.stop="goBack"
+            @mousedown.stop
+            @touchstart.stop
           >
             <img 
               src="/resources/images/coin_icon.png" 
@@ -443,14 +464,14 @@ async function generateFaceSwap() {
       
       formData.append('file', processedFile);
       
-      // 將字符串模板ID轉換為新 API 格式 (4,5,6,7)
+      // 將字符串模板ID轉換為新 API 格式 (1,2,3,4)
       const templateIdMap = {
-        'play': '7',     // 財運亨通馬上發 → 財神大同寶寶 (id: 7)
-        'wife': '4',     // 強棒出擊馬力夯 → 打棒球的大同寶寶 (id: 4)
-        'love': '6',     // 山珍海味馬不停 → 拿電鍋的大同寶寶 (id: 6)
-        'super': '5'     // 心想事成馬上有 → 擲筊大同寶寶 (id: 5)
+        'play': '1',     // 財運亨通馬上發 → 左上 (id: 1)
+        'love': '2',     // 山珍海味馬不停 → 左下 (id: 2)
+        'super': '3',    // 心想事成馬上有 → 右下 (id: 3)
+        'wife': '4'      // 強棒出擊馬力夯 → 右上 (id: 4)
       };
-      const numericTemplateId = templateIdMap[props.selectedTemplate] || '7';
+      const numericTemplateId = templateIdMap[props.selectedTemplate] || '1';
       formData.append('template_id', numericTemplateId);
       
       // 添加必填的 userName 參數（新 API 要求）

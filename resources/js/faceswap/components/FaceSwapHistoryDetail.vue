@@ -2,14 +2,18 @@
   <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div
-      :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
-      class="flex items-center justify-center gap-4 px-5 w-full font-bold"
-      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'"
+      :class="[
+        isKioskMode ? 'pt-20 pb-12 px-16 flex items-center justify-center' : 'py-4 px-5 grid grid-cols-[auto_1fr_auto] items-center',
+        'gap-2 w-full font-bold'
+      ]"
+      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem; overflow: visible;'"
     >
       <!-- Back icon (歷史相關頁使用 back.png) -->
       <button
-        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
-        @click="goBack"
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;' : 'width: 26px; height: 26px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;'"
+        @click.stop="goBack"
+        @mousedown.stop
+        @touchstart.stop
       >
         <img
           :src="imageUrls.back"
@@ -18,15 +22,23 @@
         />
       </button>
 
-      <!-- Title -->
+      <!-- Title (手機版置中，Kiosk 模式保持原樣) -->
       <img
+        v-if="!isKioskMode"
         :src="imageUrls.history"
-        :style="isKioskMode ? 'height: 2rem; object-fit: contain;' : 'height: 2.8rem; object-fit: contain;'"
+        class="object-contain justify-self-center"
+        :style="{ height: '2.8rem', maxWidth: '100%', minWidth: 0 }"
+        alt="圖片生成紀錄"
+      />
+      <img
+        v-else
+        :src="imageUrls.history"
+        :style="{ height: '2rem', objectFit: 'contain', maxWidth: '100%' }"
         alt="圖片生成紀錄"
       />
 
-      <!-- Usage counter -->
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" />
+      <!-- Usage counter (手機版靠右，Kiosk 模式不顯示) -->
+      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" />
     </div>
 
     <!-- Sub Header with Title -->

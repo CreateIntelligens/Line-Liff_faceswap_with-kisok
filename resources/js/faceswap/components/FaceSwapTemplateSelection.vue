@@ -15,17 +15,22 @@
     class="relative min-h-screen w-full flex flex-col overflow-visible"
     :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
     data-name="換臉_橫式範本"
+    style="pointer-events: auto; position: relative; z-index: 1;"
   >
     <div
-      :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
-      class="flex items-center justify-center gap-4 px-5 w-full font-bold overflow-visible"
-      :style="isKioskMode ? 'min-height: 18rem;' : 'min-height: 5rem;'"
+      :class="[
+        isKioskMode ? 'pt-20 pb-12 px-16 flex items-center justify-center' : 'py-4 px-5 grid grid-cols-[auto_1fr_auto] items-center',
+        'gap-2 w-full font-bold overflow-visible'
+      ]"
+      :style="isKioskMode ? 'min-height: 18rem;' : 'min-height: 5rem; overflow: visible;'"
     >
       <!-- Home icon -->
       <button
         :class="isKioskMode ? 'mt-4' : ''"
-        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
-        @click="goBack"
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;' : 'width: 26px; height: 26px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;'"
+        @click.stop="goBack"
+        @mousedown.stop
+        @touchstart.stop
       >
         <img
           :src="imageUrls.homeIcon"
@@ -34,16 +39,23 @@
         />
       </button>
 
-      <!-- Title -->
+      <!-- Title (手機版置中，Kiosk 模式保持原樣) -->
       <img
+        v-if="!isKioskMode"
         :src="imageUrls.header"
-        :class="isKioskMode ? 'h-40' : 'h-11'"
-        class="object-contain"
+        class="h-11 object-contain justify-self-center"
+        alt="大同寶寶賀新年"
+        style="min-width: 0; max-width: 100%;"
+      />
+      <img
+        v-else
+        :src="imageUrls.header"
+        class="h-40 object-contain"
         alt="大同寶寶賀新年"
       />
 
-      <!-- Usage counter -->
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
+      <!-- Usage counter (手機版靠右，Kiosk 模式不顯示) -->
+      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
     <!-- 步驟進度條 (手機版) -->
@@ -62,7 +74,7 @@
       <div>Step 3</div>
     </div>
 
-    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto">
+    <div :class="isKioskMode ? 'max-w-[900px] mt-16' : 'max-w-[338px] mt-6'" class="w-full mx-auto" style="pointer-events: auto; position: relative; z-index: 10;">
       <div class="flex flex-col w-full">
         <div class="flex flex-col w-full">
           <div
@@ -82,13 +94,14 @@
               <!-- 模板 10 (綜藝玩很大) -->
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation; padding: 0;"
                 :class="{
                   'border-8 scale-105': selectedTemplate === 'play'
                 }"
-                :style="selectedTemplate === 'play' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
-                @click="selectTemplate('play')"
-                @touchend.prevent="selectTemplate('play')"
+                :style="selectedTemplate === 'play' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                @click.stop="selectTemplate('play')"
+                @mousedown.stop
+                @touchstart.stop
+                @touchend.prevent.stop="selectTemplate('play')"
               >
                 <img
                   :src="getTemplateImage('play')"
@@ -104,13 +117,14 @@
               <!-- 模板 2 (強棒出擊馬力夯) -->
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation; padding: 0;"
                 :class="{
                   'border-8 scale-105': selectedTemplate === 'wife'
                 }"
-                :style="selectedTemplate === 'wife' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
-                @click="selectTemplate('wife')"
-                @touchend.prevent="selectTemplate('wife')"
+                :style="selectedTemplate === 'wife' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                @click.stop="selectTemplate('wife')"
+                @mousedown.stop
+                @touchstart.stop
+                @touchend.prevent.stop="selectTemplate('wife')"
               >
                 <img
                   :src="getTemplateImage('wife')"
@@ -126,13 +140,14 @@
               <!-- 模板 3 (山珍海味馬不停) -->
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation; padding: 0;"
                 :class="{
                   'border-8 scale-105': selectedTemplate === 'love'
                 }"
-                :style="selectedTemplate === 'love' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
-                @click="selectTemplate('love')"
-                @touchend.prevent="selectTemplate('love')"
+                :style="selectedTemplate === 'love' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                @click.stop="selectTemplate('love')"
+                @mousedown.stop
+                @touchstart.stop
+                @touchend.prevent.stop="selectTemplate('love')"
               >
                 <img
                   :src="getTemplateImage('love')"
@@ -148,13 +163,14 @@
               <!-- 模板 4 (心想事成馬上有) -->
               <div
                 class="cursor-pointer transition-all duration-200 hover:scale-105 relative overflow-hidden"
-                style="touch-action: manipulation; padding: 0;"
                 :class="{
                   'border-8 scale-105': selectedTemplate === 'super'
                 }"
-                :style="selectedTemplate === 'super' ? 'border-color: #789511; touch-action: manipulation; padding: 0;' : 'touch-action: manipulation; padding: 0;'"
-                @click="selectTemplate('super')"
-                @touchend.prevent="selectTemplate('super')"
+                :style="selectedTemplate === 'super' ? 'border-color: #789511; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                @click.stop="selectTemplate('super')"
+                @mousedown.stop
+                @touchstart.stop
+                @touchend.prevent.stop="selectTemplate('super')"
               >
                 <img
                   :src="getTemplateImage('super')"
@@ -179,9 +195,11 @@
               'flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] relative',
               selectedTemplate ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
             ]"
-            :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
-            @click="nextStep"
-            @touchend.prevent="nextStep"
+            :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'background-color: #D84729; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+            @click.stop="nextStep"
+            @mousedown.stop
+            @touchstart.stop
+            @touchend.prevent.stop="nextStep"
           >
             <img 
               src="/resources/images/coin_icon.png" 
@@ -198,7 +216,10 @@
         :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-9 text-base'"
         class="font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity"
         data-name="圖片生成紀錄"
-        @click="showHistory"
+        style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important;"
+        @click.stop="showHistory"
+        @mousedown.stop
+        @touchstart.stop
       >
         圖片生成紀錄
       </div>

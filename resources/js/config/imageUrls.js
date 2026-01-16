@@ -117,10 +117,10 @@ export const allImages = {
 // 根據模板 ID 獲取圖片
 export const getTemplateImage = (templateId) => {
   const imageMap = {
-    '1': imageUrls.play,   // 財運亨通馬上發
-    '2': imageUrls.wife,   // 強棒出擊馬力夯
-    '3': imageUrls.love,   // 山珍海味馬不停
-    '4': imageUrls.super,  // 心想事成馬上有
+    '1': imageUrls.play,   // 左上 → 財運亨通馬上發
+    '2': imageUrls.love,   // 左下 → 山珍海味馬不停
+    '3': imageUrls.super, // 右下 → 心想事成馬上有
+    '4': imageUrls.wife,   // 右上 → 強棒出擊馬力夯
     'play': imageUrls.play,
     'wife': imageUrls.wife,
     'love': imageUrls.love,

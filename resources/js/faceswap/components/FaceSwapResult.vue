@@ -10,17 +10,21 @@
   />
 
   <!-- Main Result Page -->
-  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
+  <div v-if="!showHistoryPage" class="relative min-h-screen w-full flex flex-col" :style="{ backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }" style="pointer-events: auto; position: relative; z-index: 1;">
       <!-- Header -->
     <div
-      :class="isKioskMode ? 'pt-20 pb-12' : 'py-4'"
-      class="flex items-center justify-center gap-4 px-5 w-full font-bold"
-      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem;'"
+      :class="[
+        isKioskMode ? 'pt-20 pb-12 px-16 flex items-center justify-center' : 'py-4 px-5 grid grid-cols-[auto_1fr_auto] items-center',
+        'gap-2 w-full font-bold'
+      ]"
+      :style="isKioskMode ? 'min-height: 8rem;' : 'min-height: 5rem; overflow: visible;'"
     >
       <!-- Home icon (非歷史頁使用 home_icon) -->
       <button
-        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer; border: none; background: none; padding: 0;' : 'width: 26px; height: 26px; cursor: pointer; border: none; background: none; padding: 0;'"
-        @click="goBack"
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;' : 'width: 26px; height: 26px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;'"
+        @click.stop="goBack"
+        @mousedown.stop
+        @touchstart.stop
       >
         <img
           :src="imageUrls.homeIcon"
@@ -29,16 +33,23 @@
         />
       </button>
 
-      <!-- Title -->
+      <!-- Title (手機版置中，Kiosk 模式保持原樣) -->
       <img
+        v-if="!isKioskMode"
         :src="imageUrls.header"
-        :class="isKioskMode ? 'h-40' : 'h-11'"
-        class="object-contain"
+        class="h-11 object-contain justify-self-center"
+        alt="大同寶寶賀新年"
+        style="min-width: 0; max-width: 100%;"
+      />
+      <img
+        v-else
+        :src="imageUrls.header"
+        class="h-40 object-contain"
         alt="大同寶寶賀新年"
       />
 
-      <!-- Usage counter -->
-      <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="4" />
+      <!-- Usage counter (手機版靠右，Kiosk 模式不顯示) -->
+      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
     <!-- Subtitle: Title3 image (only for kiosk mode) -->
@@ -138,21 +149,25 @@
         </div>
         
         <!-- 按鈕區域 - 左右排列 -->
-        <div class="flex gap-3">
+        <div class="flex gap-3 mb-8" style="pointer-events: auto; position: relative; z-index: 10;">
           <!-- 重新生成按鈕 -->
           <button
-            @click="handleRegenerate"
+            @click.stop="handleRegenerate"
+            @mousedown.stop
+            @touchstart.stop
             class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-            style="background-color: #FF7824; touch-action: manipulation;"
+            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
           >
             重新生成
           </button>
           
           <!-- 下載圖片按鈕 -->
           <button
-            @click="handleDownload"
+            @click.stop="handleDownload"
+            @mousedown.stop
+            @touchstart.stop
             class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
-            style="background-color: #FF7824; touch-action: manipulation;"
+            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
           >
             <img 
               src="/resources/images/coin_icon.png" 
@@ -162,6 +177,20 @@
             />
             下載圖片
           </button>
+        </div>
+
+        <!-- 使用辦法及注意事項 -->
+        <div class="w-full rounded-md mb-4" style="pointer-events: auto;">
+          <div class="text-[#A90205] font-bold text-sm mb-1">
+            使用辦法及注意事項：
+          </div>
+          <div class="text-[13px] font-bold text-[#A90205]">
+            <div>1. 單筆消費滿1,000元可折抵100元，下述商品不列入折抵使用：福利品、出清品、特價品、資訊周邊商品及非大同品牌之液晶/空調/冰箱/洗衣機。</div>
+            <div>2. 優惠條碼使用期間為2026.1.23~2026.3.31</div>
+            <div>3. 本活動優惠條碼可於全台大同3C直營門市使用</div>
+            <div>4. 每個優惠條碼僅能使用一次，請妥善保存</div>
+            <div>5. 大同3C保有本活動之解釋、修改、調整、終止等相關權利</div>
+          </div>
         </div>
       </div>
           
