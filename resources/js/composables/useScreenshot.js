@@ -715,7 +715,7 @@ export function useScreenshot() {
     })
   }
 
-  // 本地測試：下載截圖到本機（支援手機瀏覽器）
+  // 本地測試：下載截圖到本機（支援手機瀏覽器，使用安全的 Data URL 方案）
   function downloadToLocal(blob, filename = 'screenshot') {
     const browser = detectBrowser()
     const timestamp = Date.now()
@@ -724,169 +724,144 @@ export function useScreenshot() {
     
     console.log('📥 開始下載，瀏覽器資訊:', browser)
     
-    // 對於 iOS Safari 和 LINE 瀏覽器，使用新視窗方案
-    if (browser.isIOS || browser.isLine || !browser.supportsDownload) {
-      console.log('📱 使用新視窗方案（iOS/LINE 或不支援 download 屬性）')
-      
-      // 將 Blob 轉換為 Data URL
-      const reader = new FileReader()
-      reader.onload = function(e) {
+    // 統一使用 Data URL 方案，避免 Blob URL 的安全問題
+    // 將 Blob 轉換為 Data URL（更安全，不會有 insecure 錯誤）
+    const reader = new FileReader()
+    
+    reader.onload = function(e) {
+      try {
         const dataUrl = e.target.result
         
-        // 在新視窗中打開圖片
-        const newWindow = window.open('', '_blank')
+        // 檢查是否為 HTTPS 頁面
+        const isSecure = window.location.protocol === 'https:'
+        
+        if (!isSecure && dataUrl.startsWith('data:')) {
+          console.warn('⚠️ 非 HTTPS 頁面，但使用 Data URL 應該安全')
+        }
+        
+        // 對於 Android Chrome 且支援 download 的瀏覽器，先嘗試直接下載
+        if (browser.supportsDownload && browser.isAndroid && !browser.isLine) {
+          try {
+            // 創建臨時連結嘗試下載
+            const a = document.createElement('a')
+            a.href = dataUrl
+            a.download = fullFilename
+            a.style.display = 'none'
+            document.body.appendChild(a)
+            
+            // 嘗試觸發下載
+            a.click()
+            
+            // 延遲清理
+            setTimeout(() => {
+              document.body.removeChild(a)
+            }, 100)
+            
+            console.log('✅ 嘗試直接下載（Android Chrome）')
+            // 不立即返回，讓新視窗方案作為備用
+            setTimeout(() => {
+              // 如果直接下載成功，用戶應該已經看到下載提示
+              // 這裡不顯示新視窗，避免重複
+            }, 500)
+            return
+          } catch (downloadError) {
+            console.warn('⚠️ 直接下載失敗，使用新視窗方案:', downloadError)
+            // 繼續執行新視窗方案
+          }
+        }
+        
+        // 使用新視窗顯示圖片（最安全可靠的方法）
+        console.log('📱 使用新視窗方案顯示圖片')
+        
+        // 創建新視窗
+        const newWindow = window.open('', '_blank', 'noopener,noreferrer')
+        
         if (newWindow) {
+          // 使用安全的 HTML 寫入方式
+          newWindow.document.open()
           newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>${fullFilename}</title>
-              <style>
-                body {
-                  margin: 0;
-                  padding: 20px;
-                  background: #000;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  min-height: 100vh;
-                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }
-                img {
-                  max-width: 100%;
-                  height: auto;
-                  border-radius: 8px;
-                }
-                .hint {
-                  color: #fff;
-                  text-align: center;
-                  margin-top: 20px;
-                  padding: 15px;
-                  background: rgba(255, 255, 255, 0.1);
-                  border-radius: 8px;
-                  font-size: 14px;
-                  line-height: 1.6;
-                }
-                .hint strong {
-                  display: block;
-                  margin-bottom: 8px;
-                  font-size: 16px;
-                }
-              </style>
-            </head>
-            <body>
-              <img src="${dataUrl}" alt="${fullFilename}" />
-              <div class="hint">
-                <strong>💡 如何保存圖片：</strong>
-                ${browser.isIOS 
-                  ? '長按圖片，選擇「加入照片」即可保存到相簿' 
-                  : browser.isLine
-                  ? '長按圖片，選擇「儲存圖片」或「下載」'
-                  : '長按圖片，選擇「儲存圖片」或「下載」'}
-              </div>
-            </body>
-            </html>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; img-src 'self' data: blob:;">
+  <title>${fullFilename}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+    }
+    .hint {
+      color: #fff;
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 90%;
+    }
+    .hint strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <img src="${dataUrl}" alt="${fullFilename}" crossorigin="anonymous" />
+  <div class="hint">
+    <strong>💡 如何保存圖片：</strong>
+    ${browser.isIOS 
+      ? '長按圖片，選擇「加入照片」即可保存到相簿' 
+      : browser.isLine
+      ? '長按圖片，選擇「儲存圖片」或「下載」'
+      : '長按圖片，選擇「儲存圖片」或「下載」'}
+  </div>
+</body>
+</html>
           `)
           newWindow.document.close()
+          console.log('✅ 新視窗已打開')
         } else {
           // 如果彈窗被阻止，顯示提示
+          console.warn('⚠️ 彈窗被阻止')
           alert('請允許彈出視窗以查看圖片，然後長按圖片保存')
         }
-      }
-      reader.onerror = function() {
-        console.error('❌ 讀取 Blob 失敗')
+      } catch (error) {
+        console.error('❌ 處理 Data URL 失敗:', error)
         alert('圖片處理失敗，請重試')
       }
-      reader.readAsDataURL(blob)
-      return
     }
     
-    // 對於支援 download 屬性的瀏覽器（Android Chrome 等），嘗試直接下載
-    try {
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = fullFilename
-      a.style.display = 'none'
-      document.body.appendChild(a)
-      
-      // 嘗試觸發下載
-      a.click()
-      
-      // 延遲清理，確保下載開始
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 100)
-      
-      console.log('✅ 下載連結已觸發')
-    } catch (error) {
-      console.warn('⚠️ 直接下載失敗，降級到新視窗方案:', error)
-      
-      // 降級到新視窗方案
-      const reader = new FileReader()
-      reader.onload = function(e) {
-        const dataUrl = e.target.result
-        const newWindow = window.open('', '_blank')
-        if (newWindow) {
-          newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>${fullFilename}</title>
-              <style>
-                body {
-                  margin: 0;
-                  padding: 20px;
-                  background: #000;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  min-height: 100vh;
-                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }
-                img {
-                  max-width: 100%;
-                  height: auto;
-                  border-radius: 8px;
-                }
-                .hint {
-                  color: #fff;
-                  text-align: center;
-                  margin-top: 20px;
-                  padding: 15px;
-                  background: rgba(255, 255, 255, 0.1);
-                  border-radius: 8px;
-                  font-size: 14px;
-                  line-height: 1.6;
-                }
-                .hint strong {
-                  display: block;
-                  margin-bottom: 8px;
-                  font-size: 16px;
-                }
-              </style>
-            </head>
-            <body>
-              <img src="${dataUrl}" alt="${fullFilename}" />
-              <div class="hint">
-                <strong>💡 如何保存圖片：</strong>
-                長按圖片，選擇「儲存圖片」或「下載」
-              </div>
-            </body>
-            </html>
-          `)
-          newWindow.document.close()
-        }
-      }
-      reader.readAsDataURL(blob)
+    reader.onerror = function(error) {
+      console.error('❌ 讀取 Blob 失敗:', error)
+      alert('圖片讀取失敗，請重試')
     }
+    
+    // 開始讀取 Blob 為 Data URL
+    reader.readAsDataURL(blob)
   }
 
   // PC 版上傳圖片到伺服器（使用 imageUploadApi）
