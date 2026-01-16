@@ -6,29 +6,35 @@
 
     <!-- Modal Content - 淺米色背景卡片（正方形，帶透明度） -->
     <div class="relative z-[10000] bg-white/80 rounded-3xl p-10 mx-6 shadow-4xl backdrop-blur-sm" style="width: 750px; height: 750px; pointer-events: auto; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-      <!-- Close button -->
-      <button @click="close"
-              class="absolute top-4 right-4 text-[#333] hover:text-[#666] transition-colors z-20 w-8 h-8 flex items-center justify-center cursor-pointer"
-              style="pointer-events: auto;">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <!-- Close button - 放在模態框內但確保在最上層 -->
+      <button 
+        type="button"
+        @click="handleClose"
+        @mousedown.stop
+        @touchstart.stop
+        class="absolute top-4 right-4 text-[#333] hover:text-[#666] active:text-[#999] transition-all z-[10001] w-16 h-16 flex items-center justify-center cursor-pointer bg-white/90 hover:bg-white rounded-full shadow-2xl border-2 border-gray-200 hover:border-gray-300"
+        style="pointer-events: auto !important; cursor: pointer !important; touch-action: manipulation; -webkit-tap-highlight-color: rgba(0,0,0,0.1); user-select: none;"
+        aria-label="關閉">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" style="pointer-events: none;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
+      
       <!-- Content -->
-      <div class="flex flex-col items-center justify-center flex-1 w-full" style="pointer-events: auto;">
+      <div class="flex flex-col items-center justify-center flex-1 w-full" style="pointer-events: none;">
         <!-- 掃描提示文字 -->
         <div class="text-[65px] text-[#111111] text-center mb-8">
           掃描獲得生成結果
         </div>
         <!-- QR Code Container -->
-        <div class="flex justify-center items-center flex-1">
+        <div class="flex justify-center items-center flex-1" style="pointer-events: auto;">
           <div ref="qrcodeContainer" class="flex justify-center"></div>
         </div>
 
 
 
         <!-- URL Display (for debugging/fallback) -->
-        <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666] max-w-full">
+        <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666] max-w-full" style="pointer-events: auto;">
           {{ imageUrl }}
         </div>
       </div>
@@ -133,6 +139,13 @@ watch(() => props.isVisible, async (newVal) => {
     }
   }
 })
+
+function handleClose(event) {
+  event.preventDefault()
+  event.stopPropagation()
+  console.log('🔘 關閉按鈕被點擊')
+  emit('close')
+}
 
 function close() {
   emit('close')

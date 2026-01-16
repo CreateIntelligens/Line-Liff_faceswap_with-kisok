@@ -38,7 +38,7 @@
       <div 
         ref="barcodeContainer"
         class=""
-        :class="isKioskMode ? 'p-4' : 'p-2'"
+        :class="isKioskMode ? 'px-16 py-4' : 'p-2'"
         :style="barcodeContainerStyle"
       >
         <div class="text-gray-500 text-sm">條碼區域</div>
@@ -100,7 +100,9 @@ const barcodeContainerStyle = computed(() => {
     width: '100%',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: props.isKioskMode ? '#ffffff' : 'transparent',
+    borderRadius: props.isKioskMode ? '12px' : '0'
   }
 })
 
@@ -144,7 +146,7 @@ function generateBarcode() {
       height: barcodeHeight,
       displayValue: true,
       fontSize: fontSize,
-      margin: 10,
+      margin: props.isKioskMode ? 20 : 10,
       background: "#ffffff",
       lineColor: "#000000"
     })
