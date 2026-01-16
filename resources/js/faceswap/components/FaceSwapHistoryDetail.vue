@@ -406,7 +406,18 @@ async function handleDownload() {
 
   } catch (error) {
     console.error('❌ 下載圖片流程失敗:', error)
-    showMessage(`下載失敗: ${error.message}`, 'error')
+    
+    // 提供更友好的錯誤訊息
+    let errorMessage = '下載失敗'
+    if (error.message && error.message.includes('tainted')) {
+      errorMessage = '下載失敗：圖片來源有 CORS 限制。請聯繫技術支援。'
+    } else if (error.message && error.message.includes('CORS')) {
+      errorMessage = '下載失敗：圖片來源有 CORS 限制。請聯繫技術支援。'
+    } else if (error.message) {
+      errorMessage = `下載失敗: ${error.message}`
+    }
+    
+    showMessage(errorMessage, 'error')
   } finally {
     isDownloading.value = false
   }

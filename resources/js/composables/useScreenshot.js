@@ -638,23 +638,45 @@ export function useScreenshot() {
     
     // 嘗試使用 html2canvas，即使有跨域圖片也嘗試截圖
     // 注意：如果圖片無法載入，html2canvas 可能會顯示空白或錯誤
+    // 嘗試先設置圖片的 crossOrigin 屬性（如果可能）
+    const images = container.querySelectorAll('img')
+    const originalCrossOrigin = new Map()
+    images.forEach((img) => {
+      if (img.src && !img.src.startsWith('data:') && !img.crossOrigin) {
+        originalCrossOrigin.set(img, img.crossOrigin)
+        // 嘗試設置 crossOrigin，即使可能失敗
+        try {
+          img.crossOrigin = 'anonymous'
+        } catch (e) {
+          // 忽略錯誤
+        }
+      }
+    })
+    
     const originalCanvas = await html2canvas(container, {
       backgroundColor: null,  // 使用透明背景，保持原始背景
       scale: 2,        // 2 倍解析度，平衡品質與效能
       logging: false,
-      useCORS: false,         // 關閉 CORS（因為所有圖片都無法通過 CORS）
-      allowTaint: true,       // 允許跨域圖片（tainted canvas）
+      useCORS: true,          // 嘗試使用 CORS（如果圖片支援）
+      allowTaint: true,       // 允許跨域圖片（tainted canvas）作為備用
       foreignObjectRendering: false, // 關閉，避免黑屏問題
       width: container.scrollWidth,   // 使用完整寬度
       height: container.scrollHeight, // 使用完整高度
       windowWidth: window.innerWidth,  // 保持視窗寬度
       windowHeight: window.innerHeight, // 保持視窗高度
-      // 嘗試使用代理（如果配置了）
-      proxy: hasFailedImages ? undefined : undefined, // 目前沒有可用的代理
       // 忽略圖片載入錯誤，繼續截圖
       ignoreElements: (element) => {
         // 不忽略任何元素，讓 html2canvas 嘗試渲染所有內容
         return false
+      }
+    })
+    
+    // 恢復圖片的 crossOrigin 屬性
+    originalCrossOrigin.forEach((originalValue, img) => {
+      try {
+        img.crossOrigin = originalValue
+      } catch (e) {
+        // 忽略錯誤
       }
     })
     
@@ -688,29 +710,58 @@ export function useScreenshot() {
     return newCanvas
   }
 
-  // 圖片壓縮功能 - 超高品質輸出（無檔案大小限制）
+  // 圖片壓縮功能 - 超高品質輸出（無檔案大小限制，處理 tainted canvas）
   async function compressImage(canvas, forPC = false) {
     return new Promise((resolve, reject) => {
       try {
-        // 現在無檔案大小限制，所有模式都使用最高品質 PNG
+        // 嘗試使用 toBlob（PNG）
         canvas.toBlob((pngBlob) => {
           if (pngBlob) {
             console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版超高品質 PNG 成功，大小:`, (pngBlob.size / 1024 / 1024).toFixed(2) + 'MB')
             resolve(pngBlob)
           } else {
-            // 備用方案：使用高品質 JPEG
+            // 如果 PNG 失敗，嘗試 JPEG
             canvas.toBlob((jpegBlob) => {
               if (jpegBlob) {
                 console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版高品質 JPEG 成功，大小:`, (jpegBlob.size / 1024 / 1024).toFixed(2) + 'MB')
                 resolve(jpegBlob)
               } else {
-                reject(new Error('無法生成圖片 blob'))
+                // 如果 toBlob 都失敗（可能是 tainted canvas），嘗試使用 toDataURL
+                console.warn('⚠️ toBlob 失敗，嘗試使用 toDataURL（可能是 tainted canvas）')
+                try {
+                  const dataUrl = canvas.toDataURL('image/png', 1.0)
+                  if (dataUrl && dataUrl.length > 100) {
+                    // 將 Data URL 轉換為 Blob
+                    const byteString = atob(dataUrl.split(',')[1])
+                    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0]
+                    const ab = new ArrayBuffer(byteString.length)
+                    const ia = new Uint8Array(ab)
+                    for (let i = 0; i < byteString.length; i++) {
+                      ia[i] = byteString.charCodeAt(i)
+                    }
+                    const blob = new Blob([ab], { type: mimeString })
+                    console.log(`✅ 使用 Data URL 轉換成功，大小:`, (blob.size / 1024 / 1024).toFixed(2) + 'MB')
+                    resolve(blob)
+                  } else {
+                    throw new Error('toDataURL 返回無效數據')
+                  }
+                } catch (dataUrlError) {
+                  // 如果 toDataURL 也失敗（tainted canvas），拋出更明確的錯誤
+                  console.error('❌ Canvas 是 tainted，無法導出:', dataUrlError)
+                  reject(new Error('無法導出圖片：圖片來源有 CORS 限制。請確保圖片服務器設置了正確的 CORS headers，或使用代理 API。'))
+                }
               }
             }, 'image/jpeg', 0.98) // JPEG 格式，98% 極高品質
           }
         }, 'image/png', 1) // PNG 格式，100% 無損品質
       } catch (error) {
-        reject(error)
+        // 如果所有方法都失敗，提供更詳細的錯誤信息
+        console.error('❌ 圖片壓縮失敗:', error)
+        if (error.message && error.message.includes('tainted')) {
+          reject(new Error('無法導出圖片：圖片來源有 CORS 限制。請確保圖片服務器設置了正確的 CORS headers。'))
+        } else {
+          reject(error)
+        }
       }
     })
   }
