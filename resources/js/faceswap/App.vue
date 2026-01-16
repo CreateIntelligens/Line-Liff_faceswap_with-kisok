@@ -401,7 +401,7 @@ async function handleCameraGenerate(imageFile) {
     
     formData.append('file', imageFile)
 
-    // 將字符串模板ID轉換為新 API 格式 (4,5,6,7)
+    // 將字符串模板ID轉換為新 API 格式 (1, 2, 3, 4)
     const templateIdMap = {
       'play': '1',     // 財運亨通馬上發 → 左上 (id: 1)
       'love': '2',     // 山珍海味馬不停 → 左下 (id: 2)
