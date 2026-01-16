@@ -389,9 +389,19 @@ async function handleDownload() {
     const blob = await compressImage(canvas)
     console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
 
-    // 3. 直接下載到本機
+    // 3. 直接下載到本機（會根據瀏覽器自動選擇最佳方案）
     downloadToLocal(blob, `faceswap-history-${historyDetail.value.id || 'detail'}`)
-    showMessage('圖片已成功下載！', 'success')
+    
+    // 檢測瀏覽器類型以顯示適當的提示
+    const ua = navigator.userAgent || ''
+    const isIOS = /iPhone|iPad|iPod/i.test(ua)
+    const isLine = /Line/i.test(ua) || /LINE/i.test(ua)
+    
+    if (isIOS || isLine) {
+      showMessage('圖片已準備完成！請在新視窗中長按圖片保存', 'success')
+    } else {
+      showMessage('圖片已成功下載！', 'success')
+    }
     console.log('✅ 下載完成')
 
   } catch (error) {
