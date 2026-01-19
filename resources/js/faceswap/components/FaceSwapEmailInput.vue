@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 
 const emit = defineEmits(['next', 'back'])
@@ -92,13 +92,47 @@ const email = ref('')
 const errorMessage = ref('')
 const isSubmitting = ref(false)
 
+// 恢復 Email 的函數
+function restoreEmail() {
+  try {
+    const savedEmail = sessionStorage.getItem('faceswap_email')
+    if (savedEmail && savedEmail.trim() !== '') {
+      email.value = savedEmail.trim()
+      console.log('📧 從 sessionStorage 恢復 Email:', email.value)
+    }
+  } catch (error) {
+    console.error('❌ 恢復 Email 失敗:', error)
+  }
+}
+
 // 組件掛載時從 sessionStorage 讀取已保存的 Email
 onMounted(() => {
-  const savedEmail = sessionStorage.getItem('faceswap_email')
-  if (savedEmail && savedEmail.trim() !== '') {
-    email.value = savedEmail.trim()
-    console.log('📧 從 sessionStorage 載入 Email:', email.value)
+  restoreEmail()
+  
+  // 監聽頁面可見性變化，當頁面重新可見時恢復 email
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      console.log('📧 頁面重新可見，恢復 Email')
+      restoreEmail()
+    }
   }
+  
+  // 監聽 storage 事件（當其他標籤頁修改 sessionStorage 時）
+  const handleStorageChange = (e) => {
+    if (e.key === 'faceswap_email' && e.newValue) {
+      console.log('📧 檢測到 sessionStorage 變化，恢復 Email')
+      restoreEmail()
+    }
+  }
+  
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  window.addEventListener('storage', handleStorageChange)
+  
+  // 保存清理函數
+  onUnmounted(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    window.removeEventListener('storage', handleStorageChange)
+  })
 })
 
 // Email 格式驗證

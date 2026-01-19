@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import UsageCounter from './UsageCounter.vue'
 import FaceSwapImageFrame from './FaceSwapImageFrame.vue'
@@ -174,6 +174,11 @@ const isDownloading = ref(false)
 // Refs for download functionality
 const imageFrameContainer = ref(null)
 
+// 自動刷新相關
+let refreshInterval = null
+let refreshCount = 0
+const MAX_REFRESH_COUNT = 100 // 最多刷新 100 次（約 5 分鐘）
+
 // 使用截圖 composable
 const { captureScreenshot, compressImage, downloadToLocal, showMessage } = useScreenshot()
 
@@ -184,6 +189,94 @@ watch(() => props.historyItem, async (newItem) => {
     await loadHistoryDetail()
   }
 }, { immediate: true })
+
+// 檢查任務狀態（用於自動刷新）
+async function checkTaskStatus() {
+  if (!props.historyItem || !props.historyItem.id) {
+    return
+  }
+  
+  try {
+    const result = await roadshowService.checkTaskStatus(props.historyItem.id)
+    
+    // 處理不同的響應格式
+    let taskData = null
+    if (result) {
+      if (Array.isArray(result)) {
+        taskData = result[0]
+      } else if (Array.isArray(result.data)) {
+        taskData = result.data[0]
+      } else if (Array.isArray(result.result)) {
+        taskData = result.result[0]
+      } else {
+        taskData = result.data?.result || result.result || result.data || result
+      }
+      
+      if (taskData) {
+        // 更新歷史詳情的狀態
+        historyDetail.value = {
+          ...historyDetail.value,
+          status: taskData.status,
+          image: taskData.images?.[0] || taskData.image_url || taskData.result_image || historyDetail.value?.image,
+          couponCode: taskData.coupon_code || historyDetail.value?.couponCode || ''
+        }
+        
+        // 如果任務完成，停止自動刷新
+        if (taskData.status === 'completed' || taskData.status === 'failed') {
+          stopAutoRefresh()
+        }
+      }
+    }
+  } catch (err) {
+    console.error('❌ 檢查任務狀態失敗:', err)
+  }
+}
+
+// 啟動自動刷新（當任務還在處理中時）
+function startAutoRefresh() {
+  // 清除現有的刷新間隔
+  stopAutoRefresh()
+  
+  // 檢查任務是否還在處理中
+  const status = historyDetail.value?.status || props.historyItem?.status
+  if (status !== 'processing' && status !== 'pending') {
+    return
+  }
+  
+  console.log('🔄 檢測到進行中的任務，開始自動刷新詳情')
+  refreshCount = 0
+  
+  refreshInterval = setInterval(() => {
+    refreshCount++
+    
+    // 檢查是否超過最大刷新次數
+    if (refreshCount > MAX_REFRESH_COUNT) {
+      console.warn('⚠️ 達到最大刷新次數，停止自動刷新')
+      stopAutoRefresh()
+      return
+    }
+    
+    // 檢查任務狀態
+    const currentStatus = historyDetail.value?.status || props.historyItem?.status
+    if (currentStatus !== 'processing' && currentStatus !== 'pending') {
+      console.log('✅ 任務已完成，停止自動刷新')
+      stopAutoRefresh()
+      return
+    }
+    
+    console.log(`🔄 自動刷新任務狀態 (${refreshCount}/${MAX_REFRESH_COUNT})...`)
+    checkTaskStatus()
+  }, 3000) // 每 3 秒刷新一次
+}
+
+// 停止自動刷新
+function stopAutoRefresh() {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+    refreshCount = 0
+  }
+}
 
 // 載入歷史詳情
 async function loadHistoryDetail() {
@@ -209,6 +302,12 @@ async function loadHistoryDetail() {
     
     console.log('✅ 歷史詳情載入完成:', historyDetail.value)
     console.log('🎫 提取到 coupon_code:', historyDetail.value.couponCode)
+    
+    // 如果任務還在處理中，啟動自動刷新
+    const status = historyDetail.value.status
+    if (status === 'processing' || status === 'pending') {
+      startAutoRefresh()
+    }
     
   } catch (err) {
     console.error('❌ 載入歷史詳情失敗:', err)
@@ -400,5 +499,10 @@ onMounted(() => {
   if (props.historyItem) {
     loadHistoryDetail()
   }
+})
+
+// 組件卸載時清理刷新間隔
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>

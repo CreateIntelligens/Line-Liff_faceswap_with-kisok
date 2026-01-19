@@ -247,6 +247,10 @@ async function loadUserHistory() {
   }
 }
 
+// 自動刷新計數器（避免無限刷新）
+let refreshCount = 0
+const MAX_REFRESH_COUNT = 100 // 最多刷新 100 次（約 5 分鐘）
+
 // 檢查並啟動自動刷新
 function checkAndStartAutoRefresh() {
   // 清除現有的刷新間隔
@@ -254,6 +258,9 @@ function checkAndStartAutoRefresh() {
     clearInterval(refreshInterval)
     refreshInterval = null
   }
+  
+  // 重置刷新計數器
+  refreshCount = 0
   
   // 檢查是否有進行中的任務
   const hasProcessing = historyData.value.some(item => 
@@ -264,13 +271,38 @@ function checkAndStartAutoRefresh() {
   if (hasProcessing && props.userId && props.userId !== '') {
     console.log('🔄 檢測到進行中的任務，開始自動刷新歷史記錄')
     refreshInterval = setInterval(() => {
-      console.log('🔄 自動刷新歷史記錄...')
+      refreshCount++
+      
+      // 檢查是否超過最大刷新次數
+      if (refreshCount > MAX_REFRESH_COUNT) {
+        console.warn('⚠️ 達到最大刷新次數，停止自動刷新')
+        clearInterval(refreshInterval)
+        refreshInterval = null
+        return
+      }
+      
+      // 重新檢查是否有進行中的任務
+      const stillProcessing = historyData.value.some(item => 
+        item.status === 'processing' || item.status === 'pending'
+      )
+      
+      if (!stillProcessing) {
+        // 如果沒有進行中的任務，停止刷新
+        console.log('✅ 所有任務已完成，停止自動刷新')
+        clearInterval(refreshInterval)
+        refreshInterval = null
+        refreshCount = 0
+        return
+      }
+      
+      console.log(`🔄 自動刷新歷史記錄 (${refreshCount}/${MAX_REFRESH_COUNT})...`)
       loadUserHistory()
     }, 3000) // 每 3 秒刷新一次
   } else if (refreshInterval) {
     // 如果沒有進行中的任務，停止刷新
     clearInterval(refreshInterval)
     refreshInterval = null
+    refreshCount = 0
     console.log('✅ 所有任務已完成，停止自動刷新')
   }
 }

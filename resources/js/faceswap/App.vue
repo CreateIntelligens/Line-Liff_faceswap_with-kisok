@@ -121,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeMount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeMount, onUnmounted, nextTick } from 'vue'
 import FaceSwapHomepage from './components/FaceSwapHomepage.vue'
 import FaceSwapEmailInput from './components/FaceSwapEmailInput.vue'
 import FaceSwapTemplateSelection from './components/FaceSwapTemplateSelection.vue'
@@ -369,6 +369,42 @@ onMounted(async () => {
   if (effectiveUserId.value && isInitialized.value) {
     await refreshUserUsage()
   }
+  
+  // 監聽頁面可見性變化，當頁面重新可見時恢復 email 和刷新狀態
+  const handleVisibilityChange = async () => {
+    if (document.visibilityState === 'visible') {
+      console.log('📧 頁面重新可見，恢復 Email 和狀態')
+      
+      // 恢復 email
+      try {
+        const savedEmail = sessionStorage.getItem('faceswap_email')
+        if (savedEmail && savedEmail.trim() !== '') {
+          currentEmail.value = savedEmail.trim()
+          console.log('📧 從 sessionStorage 恢復 Email:', currentEmail.value)
+        }
+      } catch (error) {
+        console.error('❌ 恢復 Email 失敗:', error)
+      }
+      
+      // 如果當前在結果頁面且任務 ID 存在，刷新任務狀態
+      if (currentStep.value === 'result' && taskId.value) {
+        console.log('🔄 頁面重新可見，刷新任務狀態')
+        // 觸發結果頁面的刷新（通過 emit 事件）
+      }
+      
+      // 刷新用戶使用量
+      if (effectiveUserId.value) {
+        await refreshUserUsage()
+      }
+    }
+  }
+  
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  
+  // 組件卸載時清理監聽器
+  onUnmounted(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+  })
 })
 
 // 進入臉部交換工具
@@ -503,16 +539,16 @@ function handleGenerate(data) {
     selectedTemplate.value = data.selectedTemplate
   }
   
-  // 更新用戶使用量（生成新圖片後數量+1）
-  userUsage.value += 1
-  
-  // 生成完成後，也從服務器刷新一次以確保數據準確
-  setTimeout(async () => {
-    await refreshUserUsage()
-  }, 1000)
+  // 注意：不在這裡立即增加 userUsage，因為任務可能還在處理中
+  // 只有在任務完成後才更新使用量（通過 refreshUserUsage 或 @refresh-usage 事件）
   
   // 生成完成後導航到結果頁面
   currentStep.value = 'result'
+  
+  // 延遲刷新使用量，確保後端已記錄任務
+  setTimeout(async () => {
+    await refreshUserUsage()
+  }, 2000)
 }
 
 // 處理重新生成

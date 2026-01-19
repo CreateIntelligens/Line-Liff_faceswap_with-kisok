@@ -605,6 +605,10 @@ async function checkTaskStatus() {
         console.log('  - 是否為絕對路徑:', rawImage.startsWith('http://') || rawImage.startsWith('https://'))
         
         isLoading.value = false
+        
+        // 任務完成時，刷新使用量以確保計數器正確
+        emit('refresh-usage')
+        
         return
       } else if (taskData.status === 'failed') {
         // 任務失敗：顯示錯誤訊息，3秒後跳轉回首頁
