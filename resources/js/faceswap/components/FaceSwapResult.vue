@@ -170,16 +170,13 @@
         </div>
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
-        <div class="flex gap-3 mb-2">
-          <!-- 重新生成按鈕 -->
-          <button
-            @click="handleRegenerate"
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 active:scale-95"
-            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1);"
-          >
-            重新生成
-          </button>
-        </div>
+        <button
+          @click="handleRegenerate"
+          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-2"
+          style="background-color: #FF7824; border: none; outline: none;"
+        >
+          重新生成
+        </button>
 
         <!-- 圖片生成紀錄按鈕 -->
         <div
@@ -808,7 +805,6 @@ async function handleSaveImage() {
 
 // 處理重新生成
 function handleRegenerate() {
-  console.log('🔄 重新生成按鈕被點擊')
   emit('regenerate')
 }
 

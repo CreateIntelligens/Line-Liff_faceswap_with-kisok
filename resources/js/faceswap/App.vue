@@ -565,7 +565,6 @@ function handleGenerate(data) {
 
 // 處理重新生成
 function handleRegenerate() {
-  // 返回到模板選擇步驟重新開始
   currentStep.value = 'template-selection'
 }
 

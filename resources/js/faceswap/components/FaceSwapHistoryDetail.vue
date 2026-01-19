@@ -102,16 +102,13 @@
         </div>
         
         <!-- Action Buttons -->
-        <div class="w-full flex gap-3 mb-8">
-          <!-- Regenerate Button -->
-          <button 
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 active:scale-95"
-            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer;"
-            @click="handleRegenerate"
-          >
-            重新生成
-          </button>
-        </div>
+        <button 
+          @click="handleRegenerate"
+          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
+          style="background-color: #FF7824; border: none; outline: none;"
+        >
+          重新生成
+        </button>
 
         <!-- Usage Instructions -->
         <div class="w-full rounded-md mb-4">
@@ -412,7 +409,6 @@ function goBack() {
 
 // 處理重新生成
 function handleRegenerate() {
-  console.log('🔄 重新生成歷史項目')
   emit('regenerate', historyDetail.value)
 }
 
