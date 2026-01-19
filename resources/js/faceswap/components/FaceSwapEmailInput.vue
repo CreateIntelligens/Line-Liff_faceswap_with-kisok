@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 
 const emit = defineEmits(['next', 'back'])
@@ -91,6 +91,15 @@ const emit = defineEmits(['next', 'back'])
 const email = ref('')
 const errorMessage = ref('')
 const isSubmitting = ref(false)
+
+// 組件掛載時從 sessionStorage 讀取已保存的 Email
+onMounted(() => {
+  const savedEmail = sessionStorage.getItem('faceswap_email')
+  if (savedEmail && savedEmail.trim() !== '') {
+    email.value = savedEmail.trim()
+    console.log('📧 從 sessionStorage 載入 Email:', email.value)
+  }
+})
 
 // Email 格式驗證
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

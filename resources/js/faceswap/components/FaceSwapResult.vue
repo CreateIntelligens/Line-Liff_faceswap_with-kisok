@@ -344,7 +344,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['back', 'regenerate', 'download', 'restart'])
+const emit = defineEmits(['back', 'regenerate', 'download', 'restart', 'refresh-usage'])
 
 // 控制歷史頁面顯示
 const showHistoryPage = ref(false)
@@ -420,6 +420,10 @@ onMounted(async () => {
   
   // 開始檢查任務狀態時先顯示 loading，避免表單閃現
   isLoading.value = true
+  
+  // 刷新使用量（確保計數正確）
+  emit('refresh-usage')
+  
   await checkTaskStatus()
 })
 
@@ -535,8 +539,23 @@ async function checkTaskStatus() {
     let taskData = null
     if (result) {
       console.log('📋 原始響應數據:', JSON.stringify(result, null, 2))
-      taskData = result.data?.result || result.result || result.data || result
-      console.log('📋 提取的任務數據:', JSON.stringify(taskData, null, 2))
+      
+      // 處理數組格式的響應（API 可能返回 [{...}]）
+      if (Array.isArray(result)) {
+        // 如果是數組，取第一個元素
+        taskData = result[0]
+        console.log('📋 檢測到數組格式，使用第一個元素:', JSON.stringify(taskData, null, 2))
+      } else if (Array.isArray(result.data)) {
+        taskData = result.data[0]
+        console.log('📋 檢測到 result.data 為數組，使用第一個元素:', JSON.stringify(taskData, null, 2))
+      } else if (Array.isArray(result.result)) {
+        taskData = result.result[0]
+        console.log('📋 檢測到 result.result 為數組，使用第一個元素:', JSON.stringify(taskData, null, 2))
+      } else {
+        // 標準物件格式
+        taskData = result.data?.result || result.result || result.data || result
+        console.log('📋 提取的任務數據:', JSON.stringify(taskData, null, 2))
+      }
       
       // 處理任務狀態
       if (taskData.status === 'completed' && taskData.images && taskData.images.length > 0) {

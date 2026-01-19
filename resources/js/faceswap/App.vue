@@ -56,6 +56,7 @@
             @regenerate="handleRegenerate"
             @download="handleDownload"
             @restart="handleRestart"
+            @refresh-usage="refreshUserUsage"
           />
         </div>
       </div>
@@ -113,6 +114,7 @@
         @regenerate="handleRegenerate"
         @download="handleDownload"
         @restart="handleRestart"
+        @refresh-usage="refreshUserUsage"
       />
     </template>
   </div>
@@ -327,9 +329,11 @@ async function refreshUserUsage() {
       avatars = data.result?.avatars || data.data?.avatars || data.avatars || [];
     }
     
-    // 更新用戶使用量
-    userUsage.value = avatars.length
-    return avatars.length
+    // 更新用戶使用量（只計算 completed 狀態的記錄）
+    const completedCount = avatars.filter(avatar => avatar.status === 'completed').length
+    userUsage.value = completedCount
+    console.log('📊 使用量已更新（只計算已完成）:', completedCount, '/ 總記錄數:', avatars.length)
+    return completedCount
   } catch (error) {
     console.error('❌ 刷新用戶使用量失敗:', error)
     return 0
