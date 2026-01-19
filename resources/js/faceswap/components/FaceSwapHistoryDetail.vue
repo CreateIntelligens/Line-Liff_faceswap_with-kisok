@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
+  <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'auto' }">
     <!-- Header -->
     <div
       :class="[
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Main Content -->
-    <div style="flex: 1; padding: 0 1.5rem 2rem 1.5rem;">
+    <div style="flex: 1; padding: 0 1.5rem 2rem 1.5rem; pointer-events: auto; position: relative;">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">
@@ -77,9 +77,9 @@
       </div>
 
       <!-- Detail Content -->
-      <div v-else-if="historyDetail" class="flex flex-col items-center max-w-md mx-auto">
+      <div v-else-if="historyDetail" class="flex flex-col items-center max-w-md mx-auto" style="pointer-events: auto; position: relative;">
         <!-- Image Frame Container (使用 FaceSwapImageFrame 組件) -->
-        <div class="w-full mb-6">
+        <div class="w-full mb-6" style="pointer-events: none; position: relative; z-index: 1;">
           <FaceSwapImageFrame
             ref="imageFrameContainer"
             :imageUrl="getHistoryImage(historyDetail)"
@@ -101,34 +101,8 @@
           />
         </div>
         
-        <!-- Action Buttons - 獨立容器，確保不被遮擋 -->
-        <div style="
-          width: 100%;
-          position: relative;
-          z-index: 10000;
-          margin-bottom: 2rem;
-          pointer-events: none;
-        ">
-          <button 
-            @click="handleRegenerate"
-            class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2]"
-            style="
-              background-color: #FF7824; 
-              border: 5px solid yellow;
-              outline: none;
-              cursor: pointer !important;
-              pointer-events: auto !important; 
-              position: relative !important;
-              z-index: 10001 !important; 
-              touch-action: manipulation;
-              -webkit-tap-highlight-color: rgba(0,0,0,0);
-              font-size: 20px;
-              min-height: 60px;
-            "
-          >
-            🔴 測試按鈕 🔴
-          </button>
-        </div>
+        <!-- Action Buttons - 佔位元素 -->
+        <div style="width: 100%; height: 80px; margin-bottom: 2rem;"></div>
 
         <!-- Usage Instructions -->
         <div class="w-full rounded-md mb-4">
@@ -145,6 +119,36 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 固定在底部的按鈕 - 完全脫離文檔流 -->
+    <div v-if="historyDetail" style="
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 3rem);
+      max-width: 400px;
+      z-index: 99999;
+      pointer-events: none;
+    ">
+      <button 
+        @click="handleRegenerate"
+        class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2]"
+        style="
+          background-color: #FF7824; 
+          border: 5px solid yellow;
+          outline: none;
+          cursor: pointer !important;
+          pointer-events: auto !important; 
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: rgba(0,0,0,0);
+          font-size: 20px;
+          min-height: 60px;
+        "
+      >
+        🔴 測試按鈕 🔴
+      </button>
     </div>
   </div>
 </template>
