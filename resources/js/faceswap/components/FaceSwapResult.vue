@@ -147,7 +147,7 @@
       <!-- LIFF 模式：生成結果顯示 -->
       <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col" style="position: relative; z-index: 50;">
         <!-- 圖片框架（包含邊框和條碼） -->
-        <div class="w-full mb-6">
+        <div class="w-full mb-6" style="pointer-events: none; position: relative; z-index: 1;">
           <FaceSwapImageFrame 
             ref="imageFrameRefMobile"
             :imageUrl="generatedImageUrl || originalImageUrl"
@@ -160,25 +160,26 @@
         </div>
         
         <!-- Email 已發送圖片 -->
-        <div class="w-full mb-4 flex justify-center" style="pointer-events: auto; position: relative; z-index: 10;">
+        <div class="w-full mb-4 flex justify-center" style="pointer-events: none; position: relative; z-index: 2;">
           <img 
             src="/resources/images/emailsentimg.png" 
             alt="已將照片發送至您的信箱"
             class="object-contain"
-            style="max-width: 250px; width: 80%;"
+            style="max-width: 250px; width: 80%; pointer-events: none;"
           />
         </div>
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
-        <div class="flex gap-3 mb-2" style="pointer-events: auto !important; position: relative; z-index: 100;">
+        <div class="flex gap-3 mb-2" style="pointer-events: auto !important; position: relative; z-index: 200 !important; isolation: isolate;">
           <!-- 重新生成按鈕 -->
           <button
-            @click.stop="handleRegenerate"
-            @mousedown.stop
-            @touchstart.stop
-            @touchend.stop="handleRegenerate"
+            @click.stop.prevent="handleRegenerate"
+            @mousedown.stop.prevent="handleRegenerate"
+            @touchstart.stop.prevent
+            @touchend.stop.prevent="handleRegenerate"
+            @touchcancel.stop
             class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-            style="background-color: #FF7824; touch-action: manipulation !important; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 101; -webkit-tap-highlight-color: transparent; user-select: none;"
+            style="background-color: #FF7824 !important; touch-action: manipulation !important; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 201 !important; -webkit-tap-highlight-color: transparent; user-select: none; will-change: transform;"
           >
             重新生成
           </button>
@@ -811,6 +812,7 @@ async function handleSaveImage() {
 
 // 處理重新生成
 function handleRegenerate() {
+  console.log('🔄 重新生成按鈕被點擊')
   emit('regenerate')
 }
 

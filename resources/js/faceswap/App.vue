@@ -628,11 +628,12 @@ watch(currentStep, async (newStep, oldStep) => {
     console.log(`🔄 切換到 ${newStep} 頁面，刷新使用量`)
     try {
       await refreshUserUsage()
+      console.log(`✅ ${newStep} 頁面使用量已刷新:`, userUsage.value)
     } catch (error) {
       console.error('❌ 頁面切換時刷新使用量失敗:', error)
     }
   }
-}, { immediate: false })
+}, { immediate: true }) // 改為 immediate: true，確保初始頁面也刷新
 
 </script>
 

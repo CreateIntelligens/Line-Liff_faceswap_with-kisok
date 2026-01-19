@@ -29,15 +29,15 @@ const panelStyle = `
 
 const toggleButtonStyle = `
   position: fixed;
-  bottom: 10px;
-  right: 10px;
-  width: 50px;
-  height: 50px;
-  background: rgba(0, 0, 0, 0.7);
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: rgba(169, 2, 5, 0.9);
   color: #fff;
-  border: 2px solid #fff;
+  border: 3px solid #fff;
   border-radius: 50%;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   z-index: 99998;
   display: flex;
@@ -46,6 +46,8 @@ const toggleButtonStyle = `
   user-select: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
 `
 
 let debugPanel = null
@@ -93,23 +95,29 @@ export function useDebugPanel() {
       
       const dataStr = msg.data ? `\n  ${JSON.stringify(msg.data, null, 2)}` : ''
       
+      // 特別標記計數相關的訊息
+      const isCountMessage = msg.message.includes('使用量') || msg.message.includes('計數') || msg.message.includes('刷新')
+      const highlightStyle = isCountMessage ? 'background: rgba(255, 226, 118, 0.15); border-left: 4px solid #FFE276;' : ''
+      
       return `
-        <div style="margin: 5px 0; padding: 5px; border-left: 3px solid ${color}; background: rgba(255,255,255,0.05);">
-          <span style="color: #999;">[${msg.timestamp}]</span>
-          <span style="color: ${color}; font-weight: bold;">[${msg.type.toUpperCase()}]</span>
-          <span style="color: #fff;">${escapeHtml(msg.message)}</span>
-          ${dataStr ? `<pre style="margin: 5px 0 0 20px; color: #ccc; font-size: 10px; white-space: pre-wrap; word-break: break-all;">${escapeHtml(dataStr)}</pre>` : ''}
+        <div style="margin: 5px 0; padding: 8px; border-left: 3px solid ${color}; background: rgba(255,255,255,0.05); ${highlightStyle}">
+          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+            <span style="color: #999; font-size: 10px;">[${msg.timestamp}]</span>
+            <span style="color: ${color}; font-weight: bold; font-size: 11px;">[${msg.type.toUpperCase()}]</span>
+            <span style="color: #fff; font-size: 12px; flex: 1; min-width: 200px;">${escapeHtml(msg.message)}</span>
+          </div>
+          ${dataStr ? `<pre style="margin: 5px 0 0 20px; color: #ccc; font-size: 10px; white-space: pre-wrap; word-break: break-all; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 3px;">${escapeHtml(dataStr)}</pre>` : ''}
         </div>
       `
     }).join('')
     
     debugPanel.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #333; flex-wrap: wrap; gap: 5px;">
-        <strong style="color: #fff; flex: 1; min-width: 100px;">🐛 調試面板 (${debugMessages.length})</strong>
-        <button onclick="window.__debugPanelClear()" style="background: #ff6b6b; color: #fff; border: none; padding: 8px 12px; border-radius: 3px; cursor: pointer; touch-action: manipulation; font-size: 12px;">清除</button>
-        <button onclick="window.__debugPanelToggle()" style="background: #333; color: #fff; border: none; padding: 8px 12px; border-radius: 3px; cursor: pointer; touch-action: manipulation; font-size: 12px;">關閉</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid #A90205; flex-wrap: wrap; gap: 5px; background: rgba(169, 2, 5, 0.2); padding: 10px; border-radius: 5px;">
+        <strong style="color: #FFE276; flex: 1; min-width: 100px; font-size: 14px;">🐛 調試面板 (${debugMessages.length})</strong>
+        <button onclick="window.__debugPanelClear()" style="background: #ff6b6b; color: #fff; border: none; padding: 8px 12px; border-radius: 3px; cursor: pointer; touch-action: manipulation; font-size: 12px; font-weight: bold;">清除</button>
+        <button onclick="window.__debugPanelToggle()" style="background: #333; color: #fff; border: none; padding: 8px 12px; border-radius: 3px; cursor: pointer; touch-action: manipulation; font-size: 12px; font-weight: bold;">關閉</button>
       </div>
-      <div style="max-height: calc(50vh - 70px); overflow-y: auto; -webkit-overflow-scrolling: touch;">
+      <div style="max-height: calc(50vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 5px 0;">
         ${messagesHtml || '<div style="color: #999; text-align: center; padding: 20px;">暫無調試信息</div>'}
       </div>
     `

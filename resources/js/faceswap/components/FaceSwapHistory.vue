@@ -3,7 +3,7 @@
   <FaceSwapHistoryDetail
     v-if="showDetailPage"
     :historyItem="selectedHistoryItem"
-    :userUsage="props.userUsage"
+    :userUsage="completedCount"
     :userId="props.userId"
     :isPCMode="isPCMode"
     :isKioskMode="isKioskMode"
