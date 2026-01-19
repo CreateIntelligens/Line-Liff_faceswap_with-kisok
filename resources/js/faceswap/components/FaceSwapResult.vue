@@ -159,7 +159,17 @@
           />
         </div>
         
-        <!-- 按鈕區域 - 左右排列 -->
+        <!-- Email 已發送圖片 -->
+        <div class="w-full mb-4 flex justify-center" style="pointer-events: auto; position: relative; z-index: 10;">
+          <img 
+            src="/resources/images/emailsentimg.png" 
+            alt="已將照片發送至您的信箱"
+            class="object-contain"
+            style="max-width: 250px; width: 80%;"
+          />
+        </div>
+        
+        <!-- 按鈕區域 - 重新生成按鈕 -->
         <div class="flex gap-3 mb-2" style="pointer-events: auto; position: relative; z-index: 10;">
           <!-- 重新生成按鈕 -->
           <button
@@ -170,24 +180,6 @@
             style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
           >
             重新生成
-          </button>
-          
-          <!-- 下載圖片按鈕 -->
-          <button
-            @click.stop="handleDownload"
-            @mousedown.stop
-            @touchstart.stop
-            :disabled="isDownloading"
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative disabled:opacity-50 disabled:cursor-not-allowed"
-            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
-          >
-            <img 
-              src="/resources/images/coin_icon.png" 
-              alt=""
-              class="absolute pointer-events-none"
-              style="top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;"
-            />
-            {{ isDownloading ? '處理中...' : '下載圖片' }}
           </button>
         </div>
 

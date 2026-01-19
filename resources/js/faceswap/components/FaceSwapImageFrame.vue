@@ -86,12 +86,20 @@ const barcodeContainer = ref(null)
 
 // 容器樣式
 const containerStyle = computed(() => {
+  // Kiosk 模式：不顯示邊框背景
+  if (props.isKioskMode) {
+    return {
+      backgroundImage: 'none',
+      padding: '0'
+    }
+  }
+  
   return {
     backgroundImage: `url(${imageUrls.resultBg})`,
     backgroundRepeat: 'no-repeat', // 不重複，避免出現格線
     backgroundPosition: 'center',
     backgroundSize: '100% 100%', // 填滿整個容器，保持比例
-    padding: props.isKioskMode ? '1.5rem' : '1rem'
+    padding: '1rem'
   }
 })
 

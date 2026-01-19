@@ -91,6 +91,16 @@
           />
         </div>
 
+        <!-- Email 已發送圖片 -->
+        <div class="w-full mb-4 flex justify-center" style="pointer-events: auto; position: relative; z-index: 10;">
+          <img 
+            src="/resources/images/emailsentimg.png" 
+            alt="已將照片發送至您的信箱"
+            class="object-contain"
+            style="max-width: 250px; width: 80%;"
+          />
+        </div>
+        
         <!-- Action Buttons -->
         <div class="w-full flex gap-3 mb-8">
           <!-- Regenerate Button -->
@@ -100,23 +110,6 @@
             @click="handleRegenerate"
           >
             重新生成
-          </button>
-          
-          <!-- Download Button -->
-          <button 
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
-            :class="historyDetail && historyDetail.status === 'completed' && !isDownloading ? '' : 'cursor-not-allowed'"
-            :style="historyDetail && historyDetail.status === 'completed' && !isDownloading ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
-            @click="handleDownload"
-            :disabled="!historyDetail || historyDetail.status !== 'completed' || isDownloading"
-          >
-            <img 
-              src="/resources/images/coin_icon.png" 
-              alt=""
-              class="absolute pointer-events-none"
-              :style="isKioskMode ? 'top: 0; right: 0; width: 123px; height: 123px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;' : 'top: 0; right: 0; width: 42px; height: 42px; transform: translate(50%, -50%) rotate(-17deg); z-index: 10;'"
-            />
-            {{ isDownloading ? '處理中...' : '下載圖片' }}
           </button>
         </div>
 

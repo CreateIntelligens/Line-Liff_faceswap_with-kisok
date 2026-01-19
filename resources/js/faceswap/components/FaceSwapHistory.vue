@@ -70,7 +70,7 @@
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">載入中...</div>
-          <div class="text-sm text-gray-300">正在獲取您的生成紀錄</div>
+          <div class="text-sm text-[#A90205]">正在獲取您的生成紀錄</div>
         </div>
       </div>
 
