@@ -121,7 +121,7 @@
       </div>
     </div>
 
-    <!-- 固定在底部的按鈕 - 完全脫離文檔流 -->
+    <!-- 固定在底部的按鈕 - 使用純 JS 綁定 -->
     <div v-if="historyDetail" style="
       position: fixed;
       bottom: 20px;
@@ -130,10 +130,9 @@
       width: calc(100% - 3rem);
       max-width: 400px;
       z-index: 99999;
-      pointer-events: none;
     ">
       <button 
-        @click="handleRegenerate"
+        ref="regenerateButton"
         class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2]"
         style="
           background-color: #FF7824; 
@@ -194,6 +193,7 @@ const isDownloading = ref(false)
 
 // Refs for download functionality
 const imageFrameContainer = ref(null)
+const regenerateButton = ref(null)
 
 // 自動刷新相關
 let refreshInterval = null
@@ -529,6 +529,48 @@ onMounted(() => {
   if (props.historyItem) {
     loadHistoryDetail()
   }
+  
+  // 使用純 JavaScript 綁定按鈕點擊事件
+  nextTick(() => {
+    if (regenerateButton.value) {
+      console.log('✅ 找到按鈕元素，開始綁定事件')
+      
+      // 移除所有可能存在的事件監聽器
+      const button = regenerateButton.value
+      const newButton = button.cloneNode(true)
+      button.parentNode.replaceChild(newButton, button)
+      regenerateButton.value = newButton
+      
+      // 綁定多種事件
+      newButton.addEventListener('click', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        window.alert('click 事件觸發！')
+        handleRegenerate()
+      }, { capture: true })
+      
+      newButton.addEventListener('touchstart', (e) => {
+        console.log('touchstart 觸發')
+        window.alert('touchstart 事件觸發！')
+      }, { passive: false, capture: true })
+      
+      newButton.addEventListener('touchend', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        window.alert('touchend 事件觸發！')
+        handleRegenerate()
+      }, { passive: false, capture: true })
+      
+      newButton.addEventListener('mousedown', (e) => {
+        console.log('mousedown 觸發')
+        window.alert('mousedown 事件觸發！')
+      }, { capture: true })
+      
+      console.log('✅ 事件綁定完成')
+    } else {
+      console.error('❌ 找不到按鈕元素')
+    }
+  })
 })
 
 // 組件卸載時清理刷新間隔
