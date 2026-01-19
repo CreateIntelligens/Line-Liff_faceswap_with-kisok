@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, defineExpose } from 'vue'
+import { ref, onMounted, watch, defineExpose, computed, onUnmounted } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import FaceSwapHistoryDetail from './FaceSwapHistoryDetail.vue'
 import UsageCounter from './UsageCounter.vue'
@@ -174,6 +174,16 @@ const error = ref(null)
 // 詳情頁面相關狀態
 const showDetailPage = ref(false)
 const selectedHistoryItem = ref(null)
+
+// 自動刷新相關
+let refreshInterval = null
+
+// 檢測是否有進行中的任務
+const hasProcessingTasks = computed(() => {
+  return historyData.value.some(item => 
+    item.status === 'processing' || item.status === 'pending'
+  )
+})
 
 // 獲取用戶歷史圖片（抽離為獨立函數，方便外部調用）
 async function loadUserHistory() {
@@ -388,6 +398,24 @@ watch(() => props.showHistoryPage, (newVal) => {
   }
 }, { immediate: false });
 
+// 監視是否有進行中的任務，如果有則自動刷新
+watch(hasProcessingTasks, (hasProcessing) => {
+  // 清除現有的刷新間隔
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+  }
+  
+  // 如果有進行中的任務，開始自動刷新
+  if (hasProcessing && props.userId && props.userId !== '') {
+    console.log('🔄 檢測到進行中的任務，開始自動刷新歷史記錄')
+    refreshInterval = setInterval(() => {
+      console.log('🔄 自動刷新歷史記錄...')
+      loadUserHistory()
+    }, 3000) // 每 3 秒刷新一次
+  }
+}, { immediate: true })
+
 // 暴露刷新方法給父組件（備用方案）
 defineExpose({
   refresh: loadUserHistory
@@ -399,6 +427,14 @@ onMounted(() => {
     loadUserHistory();
   } else {
     error.value = '沒有用戶ID，無法載入歷史';
+  }
+});
+
+// 組件卸載時清理刷新間隔
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
   }
 });
 </script>
