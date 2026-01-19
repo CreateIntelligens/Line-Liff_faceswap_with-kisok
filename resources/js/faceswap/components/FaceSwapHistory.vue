@@ -52,7 +52,7 @@
       />
 
       <!-- Usage counter (手機版靠右，Kiosk 模式不顯示) -->
-      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" />
+      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="completedCount" />
     </div>
 
     <!-- Sub Header with Title -->
@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, defineExpose, computed, onUnmounted } from 'vue'
+import { ref, onMounted, watch, defineExpose, computed, onUnmounted, nextTick } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import FaceSwapHistoryDetail from './FaceSwapHistoryDetail.vue'
 import UsageCounter from './UsageCounter.vue'
@@ -185,6 +185,13 @@ const hasProcessingTasks = computed(() => {
   )
 })
 
+// 計算已完成的記錄數量（用於顯示使用量）
+const completedCount = computed(() => {
+  return historyData.value.filter(item => 
+    item.status === 'completed'
+  ).length
+})
+
 // 獲取用戶歷史圖片（抽離為獨立函數，方便外部調用）
 async function loadUserHistory() {
   if (!props.userId) {
@@ -222,6 +229,11 @@ async function loadUserHistory() {
         coupon_code: avatar.metadata?.coupon_code || avatar.coupon_code || '',
         metadata: avatar.metadata || {}
       }));
+      
+      // 載入完成後，檢查是否需要啟動自動刷新
+      nextTick(() => {
+        checkAndStartAutoRefresh()
+      })
     } else {
       historyData.value = [];
     }
@@ -232,6 +244,34 @@ async function loadUserHistory() {
     historyData.value = [];
   } finally {
     isLoading.value = false;
+  }
+}
+
+// 檢查並啟動自動刷新
+function checkAndStartAutoRefresh() {
+  // 清除現有的刷新間隔
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+  }
+  
+  // 檢查是否有進行中的任務
+  const hasProcessing = historyData.value.some(item => 
+    item.status === 'processing' || item.status === 'pending'
+  )
+  
+  // 如果有進行中的任務，開始自動刷新
+  if (hasProcessing && props.userId && props.userId !== '') {
+    console.log('🔄 檢測到進行中的任務，開始自動刷新歷史記錄')
+    refreshInterval = setInterval(() => {
+      console.log('🔄 自動刷新歷史記錄...')
+      loadUserHistory()
+    }, 3000) // 每 3 秒刷新一次
+  } else if (refreshInterval) {
+    // 如果沒有進行中的任務，停止刷新
+    clearInterval(refreshInterval)
+    refreshInterval = null
+    console.log('✅ 所有任務已完成，停止自動刷新')
   }
 }
 
@@ -400,21 +440,8 @@ watch(() => props.showHistoryPage, (newVal) => {
 
 // 監視是否有進行中的任務，如果有則自動刷新
 watch(hasProcessingTasks, (hasProcessing) => {
-  // 清除現有的刷新間隔
-  if (refreshInterval) {
-    clearInterval(refreshInterval)
-    refreshInterval = null
-  }
-  
-  // 如果有進行中的任務，開始自動刷新
-  if (hasProcessing && props.userId && props.userId !== '') {
-    console.log('🔄 檢測到進行中的任務，開始自動刷新歷史記錄')
-    refreshInterval = setInterval(() => {
-      console.log('🔄 自動刷新歷史記錄...')
-      loadUserHistory()
-    }, 3000) // 每 3 秒刷新一次
-  }
-}, { immediate: true })
+  checkAndStartAutoRefresh()
+}, { immediate: false })
 
 // 暴露刷新方法給父組件（備用方案）
 defineExpose({
