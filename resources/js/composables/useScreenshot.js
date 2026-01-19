@@ -689,9 +689,70 @@ export function useScreenshot() {
     })
   }
 
-  // 本地測試：下載截圖到本機
-  function downloadToLocal(blob, filename = 'screenshot') {
+  // ==========================================
+  // 👇 新增：設備檢測輔助函數
+  // ==========================================
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  }
+
+  function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  }
+
+  // ==========================================
+  // 👇 修改：下載截圖到本機 (核心邏輯修復)
+  // ==========================================
+  async function downloadToLocal(blob, filename = 'screenshot') {
+    const file = new File([blob], `${filename}.png`, { type: 'image/png' })
+
+    // 1. 手機端優先嘗試使用 Web Share API (喚起系統分享選單)
+    // 這在 Line 瀏覽器、Safari、Chrome Mobile 體驗最好
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && isMobile()) {
+      try {
+        console.log('📱 檢測到行動裝置，嘗試喚起系統分享選單')
+        await navigator.share({
+          files: [file],
+          title: '下載圖片',
+          text: '您的 AI 變臉結果'
+        })
+        return // 分享成功，結束
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.warn('⚠️ 分享失敗，降級使用下載/開啟方法:', error)
+        } else {
+          console.log('ℹ️ 使用者取消了分享')
+          return 
+        }
+      }
+    }
+
+    // 2. 處理 iOS 特殊情況 (iOS Safari 不支援 download 屬性)
     const url = URL.createObjectURL(blob)
+    
+    if (isIOS()) {
+      console.log('🍎 檢測到 iOS，使用新視窗開啟模式')
+      
+      // 嘗試開啟新視窗
+      const newWindow = window.open(url, '_blank')
+      
+      // 如果被擋廣告攔截器阻擋 (newWindow 為 null)，則在當前視窗跳轉
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+         console.warn('⚠️ 彈出視窗被攔截，正在當前視窗導向圖片...')
+         window.location.href = url
+      }
+      
+      showMessage('請長按圖片並選擇「加入照片」', 'info')
+      
+      // 注意：在 iOS 上不能立即 revokeObjectURL，否則新視窗會圖片失效
+      // 設定一個較長的 timeout 來清理
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
+      return
+    }
+
+    // 3. PC / Android 標準下載模式 (使用 a 標籤)
+    console.log('💻 使用標準下載模式')
     const a = document.createElement('a')
     a.href = url
     a.download = `${filename}-${Date.now()}.png`
@@ -699,7 +760,7 @@ export function useScreenshot() {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    console.log('📥 截圖已下載到本機')
+    console.log('📥 截圖已觸發下載')
   }
 
   // PC 版上傳圖片到伺服器（使用 imageUploadApi）
@@ -757,14 +818,19 @@ export function useScreenshot() {
     return uploadImageForPC(blob, filename)
   }
 
-  // 直接下載圖片到裝置
+  // ==========================================
+  // 👇 修改：直接下載圖片 (重用 downloadToLocal 邏輯)
+  // ==========================================
   async function downloadImage(imageUrl, filename = 'faceswap-result') {
     try {
-      console.log('📥 開始下載圖片:', imageUrl)
+      console.log('📥 開始下載圖片流程:', imageUrl)
+      showMessage('準備下載中...', 'info')
       
-      // 嘗試獲取圖片
+      // 1. 獲取圖片 Blob
       const response = await fetch(imageUrl, {
-        mode: 'cors',
+        method: 'GET',
+        // 嘗試繞過 CORS，如果失敗可能需要後端配合
+        mode: 'cors', 
         credentials: 'omit'
       })
       
@@ -774,26 +840,23 @@ export function useScreenshot() {
       
       const blob = await response.blob()
       
-      // 創建下載連結
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${filename}-${Date.now()}.jpg`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      // 2. 重用 downloadToLocal 的邏輯 (包含 iOS 處理和 Web Share)
+      await downloadToLocal(blob, filename)
       
-      console.log('✅ 圖片下載成功')
       return { success: true }
-    } catch (error) {
-      console.error('❌ 圖片下載失敗:', error)
       
-      // 備用方案：直接開啟新視窗
+    } catch (error) {
+      console.error('❌ 圖片下載流程失敗:', error)
+      
+      // 3. 最後的備案：直接開啟 URL
+      // 這通常發生在 CORS 錯誤導致無法 fetch blob 時
       try {
+        console.warn('⚠️ 降級方案：直接在新視窗開啟 URL')
         window.open(imageUrl, '_blank')
-        return { success: true, method: 'new_window' }
+        showMessage('請長按圖片保存', 'info')
+        return { success: true, method: 'fallback_open' }
       } catch (e) {
+        showMessage('下載失敗，請截圖保存', 'error')
         throw new Error(`下載失敗: ${error.message}`)
       }
     }
