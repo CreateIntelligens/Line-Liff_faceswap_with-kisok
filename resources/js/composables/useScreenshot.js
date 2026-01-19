@@ -1,32 +1,6 @@
 import html2canvas from 'html2canvas'
 
 export function useScreenshot() {
-  // 瀏覽器檢測函數
-  function detectBrowser() {
-    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-      return { isMobile: false, isIOS: false, isAndroid: false, isLine: false, supportsDownload: false }
-    }
-    
-    const ua = navigator.userAgent || navigator.vendor || window.opera
-    const isMobile = /iPhone|iPad|iPod|Android|Mobile|BlackBerry|IEMobile|Opera Mini/i.test(ua)
-    const isIOS = /iPhone|iPad|iPod/i.test(ua)
-    const isAndroid = /Android/i.test(ua)
-    const isLine = /Line/i.test(ua) || /LINE/i.test(ua)
-    
-    // 檢測是否支援 download 屬性（iOS Safari 不支援）
-    const supportsDownload = !isIOS || (isAndroid && /Chrome/i.test(ua))
-    
-    return {
-      isMobile,
-      isIOS,
-      isAndroid,
-      isLine,
-      supportsDownload,
-      isSafari: /Safari/i.test(ua) && !/Chrome/i.test(ua) && !/CriOS/i.test(ua),
-      isChrome: /Chrome/i.test(ua) && !/Edge/i.test(ua)
-    }
-  }
-
   // 檢查是否為跨域圖片
   function isCrossOriginImage(imageUrl) {
     if (!imageUrl || imageUrl.startsWith('data:')) {
@@ -610,12 +584,10 @@ export function useScreenshot() {
     // 等待所有圖片載入完成
     await waitForAllImagesLoaded(container)
     
-    // 獲取所有圖片元素（統一使用一個變數）
-    const containerImages = container.querySelectorAll('img')
-    
     // 檢查是否有圖片是佔位符
+    const images = container.querySelectorAll('img')
     let hasPlaceholder = false
-    containerImages.forEach((img, index) => {
+    images.forEach((img, index) => {
       if (img.src.startsWith('data:image') && img.src.includes('AI 生成圖片')) {
         console.error(`❌ [圖片 ${index + 1}] 檢測到佔位符圖片，截圖可能不完整！`)
         hasPlaceholder = true
@@ -640,44 +612,23 @@ export function useScreenshot() {
     
     // 嘗試使用 html2canvas，即使有跨域圖片也嘗試截圖
     // 注意：如果圖片無法載入，html2canvas 可能會顯示空白或錯誤
-    // 嘗試先設置圖片的 crossOrigin 屬性（如果可能）
-    const originalCrossOrigin = new Map()
-    containerImages.forEach((img) => {
-      if (img.src && !img.src.startsWith('data:') && !img.crossOrigin) {
-        originalCrossOrigin.set(img, img.crossOrigin)
-        // 嘗試設置 crossOrigin，即使可能失敗
-        try {
-          img.crossOrigin = 'anonymous'
-        } catch (e) {
-          // 忽略錯誤
-        }
-      }
-    })
-    
     const originalCanvas = await html2canvas(container, {
       backgroundColor: null,  // 使用透明背景，保持原始背景
       scale: 2,        // 2 倍解析度，平衡品質與效能
       logging: false,
-      useCORS: true,          // 嘗試使用 CORS（如果圖片支援）
-      allowTaint: true,       // 允許跨域圖片（tainted canvas）作為備用
+      useCORS: false,         // 關閉 CORS（因為所有圖片都無法通過 CORS）
+      allowTaint: true,       // 允許跨域圖片（tainted canvas）
       foreignObjectRendering: false, // 關閉，避免黑屏問題
       width: container.scrollWidth,   // 使用完整寬度
       height: container.scrollHeight, // 使用完整高度
       windowWidth: window.innerWidth,  // 保持視窗寬度
       windowHeight: window.innerHeight, // 保持視窗高度
+      // 嘗試使用代理（如果配置了）
+      proxy: hasFailedImages ? undefined : undefined, // 目前沒有可用的代理
       // 忽略圖片載入錯誤，繼續截圖
       ignoreElements: (element) => {
         // 不忽略任何元素，讓 html2canvas 嘗試渲染所有內容
         return false
-      }
-    })
-    
-    // 恢復圖片的 crossOrigin 屬性
-    originalCrossOrigin.forEach((originalValue, img) => {
-      try {
-        img.crossOrigin = originalValue
-      } catch (e) {
-        // 忽略錯誤
       }
     })
     
@@ -711,207 +662,44 @@ export function useScreenshot() {
     return newCanvas
   }
 
-  // 圖片壓縮功能 - 超高品質輸出（無檔案大小限制，處理 tainted canvas）
+  // 圖片壓縮功能 - 超高品質輸出（無檔案大小限制）
   async function compressImage(canvas, forPC = false) {
     return new Promise((resolve, reject) => {
       try {
-        // 嘗試使用 toBlob（PNG）
+        // 現在無檔案大小限制，所有模式都使用最高品質 PNG
         canvas.toBlob((pngBlob) => {
           if (pngBlob) {
             console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版超高品質 PNG 成功，大小:`, (pngBlob.size / 1024 / 1024).toFixed(2) + 'MB')
             resolve(pngBlob)
           } else {
-            // 如果 PNG 失敗，嘗試 JPEG
+            // 備用方案：使用高品質 JPEG
             canvas.toBlob((jpegBlob) => {
               if (jpegBlob) {
                 console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版高品質 JPEG 成功，大小:`, (jpegBlob.size / 1024 / 1024).toFixed(2) + 'MB')
                 resolve(jpegBlob)
               } else {
-                // 如果 toBlob 都失敗（可能是 tainted canvas），嘗試使用 toDataURL
-                console.warn('⚠️ toBlob 失敗，嘗試使用 toDataURL（可能是 tainted canvas）')
-                try {
-                  const dataUrl = canvas.toDataURL('image/png', 1.0)
-                  if (dataUrl && dataUrl.length > 100) {
-                    // 將 Data URL 轉換為 Blob
-                    const byteString = atob(dataUrl.split(',')[1])
-                    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0]
-                    const ab = new ArrayBuffer(byteString.length)
-                    const ia = new Uint8Array(ab)
-                    for (let i = 0; i < byteString.length; i++) {
-                      ia[i] = byteString.charCodeAt(i)
-                    }
-                    const blob = new Blob([ab], { type: mimeString })
-                    console.log(`✅ 使用 Data URL 轉換成功，大小:`, (blob.size / 1024 / 1024).toFixed(2) + 'MB')
-                    resolve(blob)
-                  } else {
-                    throw new Error('toDataURL 返回無效數據')
-                  }
-                } catch (dataUrlError) {
-                  // 如果 toDataURL 也失敗（tainted canvas），拋出更明確的錯誤
-                  console.error('❌ Canvas 是 tainted，無法導出:', dataUrlError)
-                  reject(new Error('無法導出圖片：圖片來源有 CORS 限制。請確保圖片服務器設置了正確的 CORS headers，或使用代理 API。'))
-                }
+                reject(new Error('無法生成圖片 blob'))
               }
             }, 'image/jpeg', 0.98) // JPEG 格式，98% 極高品質
           }
         }, 'image/png', 1) // PNG 格式，100% 無損品質
       } catch (error) {
-        // 如果所有方法都失敗，提供更詳細的錯誤信息
-        console.error('❌ 圖片壓縮失敗:', error)
-        if (error.message && error.message.includes('tainted')) {
-          reject(new Error('無法導出圖片：圖片來源有 CORS 限制。請確保圖片服務器設置了正確的 CORS headers。'))
-        } else {
-          reject(error)
-        }
+        reject(error)
       }
     })
   }
 
-  // 本地測試：下載截圖到本機（支援手機瀏覽器，使用安全的 Data URL 方案）
-  function downloadToLocal(blob, filename = 'screenshot', previewWindow = null) {
-    const browser = detectBrowser()
-    const timestamp = Date.now()
-    const fileExtension = 'png'
-    const fullFilename = `${filename}-${timestamp}.${fileExtension}`
-    
-    console.log('📥 開始下載，瀏覽器資訊:', browser)
-    
-    // 統一使用 Data URL 方案，避免 Blob URL 的安全問題
-    // 將 Blob 轉換為 Data URL（更安全，不會有 insecure 錯誤）
-    const reader = new FileReader()
-    
-    reader.onload = function(e) {
-      try {
-        const dataUrl = e.target.result
-        
-        // 檢查是否為 HTTPS 頁面
-        const isSecure = window.location.protocol === 'https:'
-        
-        if (!isSecure && dataUrl.startsWith('data:')) {
-          console.warn('⚠️ 非 HTTPS 頁面，但使用 Data URL 應該安全')
-        }
-        
-        // 對於 Android Chrome 且支援 download 的瀏覽器，先嘗試直接下載
-        if (browser.supportsDownload && browser.isAndroid && !browser.isLine) {
-          try {
-            // 創建臨時連結嘗試下載
-            const a = document.createElement('a')
-            a.href = dataUrl
-            a.download = fullFilename
-            a.style.display = 'none'
-            document.body.appendChild(a)
-            
-            // 嘗試觸發下載
-            a.click()
-            
-            // 延遲清理
-            setTimeout(() => {
-              document.body.removeChild(a)
-            }, 100)
-            
-            console.log('✅ 嘗試直接下載（Android Chrome）')
-            return
-          } catch (downloadError) {
-            console.warn('⚠️ 直接下載失敗，使用備用方案:', downloadError)
-            // 繼續執行備用方案
-          }
-        }
-        
-        // 嘗試使用新視窗顯示圖片
-        console.log('📱 嘗試使用新視窗方案顯示圖片')
-        
-        // 使用預先打開的視窗（如果有的話），否則嘗試創建新視窗
-        let newWindow = previewWindow
-        if (!newWindow || newWindow.closed) {
-          try {
-            newWindow = window.open('', '_blank', 'noopener,noreferrer')
-          } catch (e) {
-            console.warn('⚠️ window.open 調用失敗:', e)
-          }
-        }
-        
-        if (newWindow && !newWindow.closed) {
-          // 轉義 HTML 特殊字符
-          const escapeHtml = (text) => {
-            if (!text) return ''
-            return String(text)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#039;')
-          }
-          
-          const safeFilename = escapeHtml(fullFilename)
-          const hintText = browser.isIOS 
-            ? '長按圖片，選擇「加入照片」即可保存到相簿' 
-            : browser.isLine
-            ? '長按圖片，選擇「儲存圖片」或「下載」'
-            : '長按圖片，選擇「儲存圖片」或「下載」'
-          
-          // 使用安全的 HTML 寫入方式
-          newWindow.document.open()
-          newWindow.document.write(
-            '<!DOCTYPE html>\n' +
-            '<html lang="zh-Hant">\n' +
-            '<head>\n' +
-            '  <meta charset="UTF-8">\n' +
-            '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-            '  <meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob:; img-src \'self\' data: blob:;">\n' +
-            '  <title>' + safeFilename + '</title>\n' +
-            '  <style>\n' +
-            '    * { margin: 0; padding: 0; box-sizing: border-box; }\n' +
-            '    body { margin: 0; padding: 20px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, sans-serif; }\n' +
-            '    img { max-width: 100%; height: auto; border-radius: 8px; display: block; }\n' +
-            '    .hint { color: #fff; text-align: center; margin-top: 20px; padding: 15px 20px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 14px; line-height: 1.6; max-width: 90%; }\n' +
-            '    .hint strong { display: block; margin-bottom: 8px; font-size: 16px; color: #FFD700; }\n' +
-            '  </style>\n' +
-            '</head>\n' +
-            '<body>\n' +
-            '  <img src="' + dataUrl + '" alt="' + safeFilename + '" crossorigin="anonymous" />\n' +
-            '  <div class="hint">\n' +
-            '    <strong>💡 如何保存圖片：</strong>\n' +
-            '    ' + hintText + '\n' +
-            '  </div>\n' +
-            '</body>\n' +
-            '</html>'
-          )
-          newWindow.document.close()
-          console.log('✅ 新視窗已打開')
-          return
-        }
-        
-        // 如果彈窗被阻止，嘗試使用 <a> 標籤直接下載
-        console.warn('⚠️ 彈窗被阻止，嘗試使用 <a> 標籤下載')
-        try {
-          const a = document.createElement('a')
-          a.href = dataUrl
-          a.download = fullFilename
-          a.style.display = 'none'
-          document.body.appendChild(a)
-          a.click()
-          setTimeout(() => {
-            document.body.removeChild(a)
-          }, 100)
-          console.log('✅ 使用 <a> 標籤下載')
-        } catch (e) {
-          console.error('❌ 下載失敗:', e)
-          alert('無法下載圖片，請檢查瀏覽器設置')
-        }
-        
-      } catch (error) {
-        console.error('❌ 處理 Data URL 失敗:', error)
-        alert('圖片處理失敗，請重試')
-      }
-    }
-    
-    reader.onerror = function(error) {
-      console.error('❌ 讀取 Blob 失敗:', error)
-      alert('圖片讀取失敗，請重試')
-    }
-    
-    // 開始讀取 Blob 為 Data URL
-    reader.readAsDataURL(blob)
+  // 本地測試：下載截圖到本機
+  function downloadToLocal(blob, filename = 'screenshot') {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${filename}-${Date.now()}.png`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    console.log('📥 截圖已下載到本機')
   }
 
   // PC 版上傳圖片到伺服器（使用 imageUploadApi）

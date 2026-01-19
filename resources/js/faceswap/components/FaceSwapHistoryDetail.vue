@@ -389,35 +389,14 @@ async function handleDownload() {
     const blob = await compressImage(canvas)
     console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
 
-    // 3. 直接下載到本機（會根據瀏覽器自動選擇最佳方案）
+    // 3. 直接下載到本機
     downloadToLocal(blob, `faceswap-history-${historyDetail.value.id || 'detail'}`)
-    
-    // 檢測瀏覽器類型以顯示適當的提示
-    const ua = navigator.userAgent || ''
-    const isIOS = /iPhone|iPad|iPod/i.test(ua)
-    const isLine = /Line/i.test(ua) || /LINE/i.test(ua)
-    
-    if (isIOS || isLine) {
-      showMessage('圖片已準備完成！請在新視窗中長按圖片保存', 'success')
-    } else {
-      showMessage('圖片已成功下載！', 'success')
-    }
+    showMessage('圖片已成功下載！', 'success')
     console.log('✅ 下載完成')
 
   } catch (error) {
     console.error('❌ 下載圖片流程失敗:', error)
-    
-    // 提供更友好的錯誤訊息
-    let errorMessage = '下載失敗'
-    if (error.message && error.message.includes('tainted')) {
-      errorMessage = '下載失敗：圖片來源有 CORS 限制。請聯繫技術支援。'
-    } else if (error.message && error.message.includes('CORS')) {
-      errorMessage = '下載失敗：圖片來源有 CORS 限制。請聯繫技術支援。'
-    } else if (error.message) {
-      errorMessage = `下載失敗: ${error.message}`
-    }
-    
-    showMessage(errorMessage, 'error')
+    showMessage(`下載失敗: ${error.message}`, 'error')
   } finally {
     isDownloading.value = false
   }

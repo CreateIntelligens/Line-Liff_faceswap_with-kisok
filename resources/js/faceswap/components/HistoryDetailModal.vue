@@ -443,19 +443,9 @@ async function downloadToOfficial() {
     const blob = await compressImage(canvas)
     console.log('✅ 圖片處理完成')
     
-    // 3. 直接下載到本機（會根據瀏覽器自動選擇最佳方案）
+    // 3. 直接下載到本機
     downloadToLocal(blob, 'history-detail')
-    
-    // 檢測瀏覽器類型以顯示適當的提示
-    const ua = navigator.userAgent || ''
-    const isIOS = /iPhone|iPad|iPod/i.test(ua)
-    const isLine = /Line/i.test(ua) || /LINE/i.test(ua)
-    
-    if (isIOS || isLine) {
-      showMessage('圖片已準備完成！請在新視窗中長按圖片保存', 'success')
-    } else {
-      showMessage('圖片已成功下載！', 'success')
-    }
+    showMessage('圖片已成功下載！', 'success')
     console.log('✅ 下載完成')
     
   } catch (error) {
