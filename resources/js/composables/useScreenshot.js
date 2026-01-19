@@ -249,10 +249,16 @@ export function useScreenshot() {
             }
           }
 
-          // 如果都失敗了，不要使用佔位符，而是保持原始 URL
-          // 讓 html2canvas 嘗試直接使用原始 URL（如果 CORS 允許）
-          console.warn(`⚠️ [圖片 ${index + 1}] 所有轉換方法都失敗，保持原始 URL，讓 html2canvas 嘗試直接使用`)
-          // 不設置佔位符，保持原始 src
+          // 如果都失敗了，不要使用佔位符，而是使用空白圖片標記錯誤，避免污染畫布
+          // 因為如果使用原始 URL 但 CORS 失敗，allowTaint:false 會導致 html2canvas 報錯或空白
+          // 最重要的是不能讓畫布 tainted
+          console.warn(`⚠️ [圖片 ${index + 1}] 所有轉換方法都失敗，將替換為佔位符以避免安全錯誤`)
+          
+          // 替換為佔位符圖片
+          const placeholder = createPlaceholderImage(img.width || 300, img.height || 200)
+          img.src = placeholder
+          // 強制標記為已處理
+          conversionErrors.push({ img, originalSrc, error: new Error('轉換失敗，已替換為佔位符') })
         }
       } else {
         // 確保本地圖片已載入
@@ -611,13 +617,13 @@ export function useScreenshot() {
     }
     
     // 嘗試使用 html2canvas，即使有跨域圖片也嘗試截圖
-    // 注意：如果圖片無法載入，html2canvas 可能會顯示空白或錯誤
+    // 注意：如果有圖片無法載入，html2canvas 可能會顯示空白或錯誤
     const originalCanvas = await html2canvas(container, {
       backgroundColor: null,  // 使用透明背景，保持原始背景
       scale: 2,        // 2 倍解析度，平衡品質與效能
       logging: false,
-      useCORS: false,         // 關閉 CORS（因為所有圖片都無法通過 CORS）
-      allowTaint: true,       // 允許跨域圖片（tainted canvas）
+      useCORS: true,          // ✅ 開啟 CORS，這是避免 "The operation is insecure" 的關鍵
+      allowTaint: false,      // ❌ 關閉 allowTaint，避免畫布被污染
       foreignObjectRendering: false, // 關閉，避免黑屏問題
       width: container.scrollWidth,   // 使用完整寬度
       height: container.scrollHeight, // 使用完整高度
@@ -709,7 +715,13 @@ export function useScreenshot() {
 
     // 1. 手機端優先嘗試使用 Web Share API (喚起系統分享選單)
     // 這在 Line 瀏覽器、Safari、Chrome Mobile 體驗最好
-    if (navigator.canShare && navigator.canShare({ files: [file] }) && isMobile()) {
+    // ✅ 新增檢查：必須是 HTTPS 環境 (window.isSecureContext) 才能使用 share
+    const canUseShare = window.isSecureContext && 
+                        navigator.canShare && 
+                        navigator.canShare({ files: [file] }) && 
+                        isMobile()
+
+    if (canUseShare) {
       try {
         console.log('📱 檢測到行動裝置，嘗試喚起系統分享選單')
         await navigator.share({
@@ -719,12 +731,12 @@ export function useScreenshot() {
         })
         return // 分享成功，結束
       } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.warn('⚠️ 分享失敗，降級使用下載/開啟方法:', error)
-        } else {
+        // 如果是用戶取消，不視為錯誤
+        if (error.name === 'AbortError') {
           console.log('ℹ️ 使用者取消了分享')
-          return 
+          return
         }
+        console.warn('⚠️ 分享失敗，降級使用下載/開啟方法:', error)
       }
     }
 

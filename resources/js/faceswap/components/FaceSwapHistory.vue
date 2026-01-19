@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, defineExpose } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import FaceSwapHistoryDetail from './FaceSwapHistoryDetail.vue'
 import UsageCounter from './UsageCounter.vue'
@@ -157,6 +157,11 @@ const props = defineProps({
   isKioskMode: {
     type: Boolean,
     default: false
+  },
+  // 新增：用於觸發刷新的 prop
+  showHistoryPage: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -170,7 +175,7 @@ const error = ref(null)
 const showDetailPage = ref(false)
 const selectedHistoryItem = ref(null)
 
-// 獲取用戶歷史圖片
+// 獲取用戶歷史圖片（抽離為獨立函數，方便外部調用）
 async function loadUserHistory() {
   if (!props.userId) {
     error.value = '沒有用戶ID，無法載入歷史';
@@ -373,6 +378,20 @@ watch(() => props.userId, (newUserId, oldUserId) => {
     loadUserHistory();
   }
 }, { immediate: false }); // 改為 false，避免無限迴圈
+
+// 監視 showHistoryPage 變化，當歷史頁面顯示時重新載入數據
+// 這確保了即使用戶剛剛生成圖片，也能看到最新的歷史紀錄
+watch(() => props.showHistoryPage, (newVal) => {
+  if (newVal && props.userId && props.userId !== '') {
+    console.log('🔄 歷史頁面顯示，重新載入歷史數據')
+    loadUserHistory();
+  }
+}, { immediate: false });
+
+// 暴露刷新方法給父組件（備用方案）
+defineExpose({
+  refresh: loadUserHistory
+});
 
 // 組件掛載時載入歷史
 onMounted(() => {

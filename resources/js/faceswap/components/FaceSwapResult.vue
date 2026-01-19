@@ -6,6 +6,7 @@
     :userUsage="userUsage"
     :isPCMode="isPCMode"
     :isKioskMode="isKioskMode"
+    :showHistoryPage="showHistoryPage"
     @back="showHistoryPage = false"
   />
 
