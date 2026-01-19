@@ -6,7 +6,7 @@
       :userUsage="userUsage"
       :isPCMode="isPCMode"
       :isKioskMode="isKioskMode"
-      @back="showHistoryPage = false"
+      @back="handleHistoryBack"
     />
   
   <!-- Main Template Selection Page -->
@@ -257,7 +257,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["next-step", "back"]);
+const emit = defineEmits(["next-step", "back", "refresh-usage"]);
 
 const selectedTemplate = ref("");
 const showHistoryPage = ref(false);
@@ -292,6 +292,12 @@ function nextStep() {
 
 function showHistory() {
   showHistoryPage.value = true;
+}
+
+function handleHistoryBack() {
+  showHistoryPage.value = false;
+  // 通知父組件刷新使用量，確保計數器同步
+  emit("refresh-usage");
 }
 
 function goBack() {

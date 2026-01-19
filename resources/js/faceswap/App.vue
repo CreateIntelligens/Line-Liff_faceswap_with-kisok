@@ -30,6 +30,7 @@
             :isPCMode="isPCMode"
             @next-step="handleTemplateSelection"
             @back="goBack"
+            @refresh-usage="refreshUserUsage"
           />
 
           <!-- Face Swap Upload (Mobile) -->
@@ -79,6 +80,7 @@
         :isKioskMode="isKioskMode"
         @next-step="handleTemplateSelection"
         @back="goBack"
+        @refresh-usage="refreshUserUsage"
       />
 
       <!-- Kiosk Character Selection - 已廢棄,不再使用 -->

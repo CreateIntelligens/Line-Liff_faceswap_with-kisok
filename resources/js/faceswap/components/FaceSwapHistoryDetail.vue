@@ -38,7 +38,7 @@
       />
 
       <!-- Usage counter (手機版靠右，Kiosk 模式不顯示) -->
-      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" />
+      <UsageCounter v-if="!isPCMode && !isKioskMode" :currentCount="userUsage" :maxLimit="4" />
     </div>
 
     <!-- Sub Header with Title -->

@@ -173,13 +173,9 @@
         <div class="flex gap-3 mb-2" style="pointer-events: auto !important; position: relative; z-index: 200 !important; isolation: isolate;">
           <!-- 重新生成按鈕 -->
           <button
-            @click.stop.prevent="handleRegenerate"
-            @mousedown.stop.prevent="handleRegenerate"
-            @touchstart.stop.prevent
-            @touchend.stop.prevent="handleRegenerate"
-            @touchcancel.stop
+            @click.stop="handleRegenerate"
             class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-            style="background-color: #FF7824 !important; touch-action: manipulation !important; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 201 !important; -webkit-tap-highlight-color: transparent; user-select: none; will-change: transform;"
+            style="background-color: #FF7824 !important; touch-action: manipulation !important; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 201 !important; -webkit-tap-highlight-color: transparent; user-select: none;"
           >
             重新生成
           </button>
