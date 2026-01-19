@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, onActivated } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 
 const emit = defineEmits(['next', 'back'])
@@ -99,40 +99,60 @@ function restoreEmail() {
     if (savedEmail && savedEmail.trim() !== '') {
       email.value = savedEmail.trim()
       console.log('📧 從 sessionStorage 恢復 Email:', email.value)
+      return true
     }
+    return false
   } catch (error) {
     console.error('❌ 恢復 Email 失敗:', error)
+    return false
   }
 }
+
+// 監聽頁面可見性變化的處理函數
+let handleVisibilityChange = null
 
 // 組件掛載時從 sessionStorage 讀取已保存的 Email
 onMounted(() => {
   restoreEmail()
   
   // 監聽頁面可見性變化，當頁面重新可見時恢復 email
-  const handleVisibilityChange = () => {
+  handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       console.log('📧 頁面重新可見，恢復 Email')
       restoreEmail()
     }
   }
   
-  // 監聽 storage 事件（當其他標籤頁修改 sessionStorage 時）
-  const handleStorageChange = (e) => {
-    if (e.key === 'faceswap_email' && e.newValue) {
-      console.log('📧 檢測到 sessionStorage 變化，恢復 Email')
-      restoreEmail()
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  
+  // 注意：storage 事件只在不同標籤頁之間觸發，同一個標籤頁內不會觸發
+  // 所以我們主要依賴 visibilitychange 和組件重新激活時恢復
+})
+
+// 組件激活時（使用 keep-alive 時）恢復 email
+onActivated(() => {
+  console.log('📧 組件激活，恢復 Email')
+  restoreEmail()
+})
+
+// 組件卸載時清理監聽器
+onUnmounted(() => {
+  if (handleVisibilityChange) {
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    handleVisibilityChange = null
+  }
+})
+
+// 監聽 email 變化，自動保存到 sessionStorage
+watch(email, (newEmail) => {
+  if (newEmail && newEmail.trim() !== '') {
+    try {
+      sessionStorage.setItem('faceswap_email', newEmail.trim())
+      console.log('📧 Email 已自動保存到 sessionStorage:', newEmail.trim())
+    } catch (error) {
+      console.error('❌ 保存 Email 到 sessionStorage 失敗:', error)
     }
   }
-  
-  document.addEventListener('visibilitychange', handleVisibilityChange)
-  window.addEventListener('storage', handleStorageChange)
-  
-  // 保存清理函數
-  onUnmounted(() => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
-    window.removeEventListener('storage', handleStorageChange)
-  })
 })
 
 // Email 格式驗證

@@ -371,7 +371,9 @@ onMounted(async () => {
   }
   
   // 監聽頁面可見性變化，當頁面重新可見時恢復 email 和刷新狀態
-  const handleVisibilityChange = async () => {
+  let handleVisibilityChange = null
+  
+  handleVisibilityChange = async () => {
     if (document.visibilityState === 'visible') {
       console.log('📧 頁面重新可見，恢復 Email 和狀態')
       
@@ -394,7 +396,11 @@ onMounted(async () => {
       
       // 刷新用戶使用量
       if (effectiveUserId.value) {
-        await refreshUserUsage()
+        try {
+          await refreshUserUsage()
+        } catch (error) {
+          console.error('❌ 刷新用戶使用量失敗:', error)
+        }
       }
     }
   }
@@ -403,7 +409,10 @@ onMounted(async () => {
   
   // 組件卸載時清理監聽器
   onUnmounted(() => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    if (handleVisibilityChange) {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      handleVisibilityChange = null
+    }
   })
 })
 
