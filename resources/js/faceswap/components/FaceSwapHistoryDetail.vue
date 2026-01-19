@@ -92,7 +92,7 @@
         </div>
 
         <!-- Email 已發送圖片 -->
-        <div class="w-full mb-4 flex justify-center">
+        <div class="w-full mb-4 flex justify-center" style="pointer-events: none;">
           <img 
             src="/resources/images/emailsentimg.png" 
             alt="已將照片發送至您的信箱"
@@ -105,7 +105,17 @@
         <button 
           @click="handleRegenerate"
           class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
-          style="background-color: #FF7824; border: none; outline: none;"
+          style="
+            background-color: #FF7824; 
+            border: none; 
+            outline: none;
+            cursor: pointer !important;
+            pointer-events: auto !important; 
+            position: relative !important;
+            z-index: 9999 !important; 
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+          "
         >
           重新生成
         </button>
@@ -409,7 +419,17 @@ function goBack() {
 
 // 處理重新生成
 function handleRegenerate() {
-  emit('regenerate', historyDetail.value)
+  // 第一步：測試按鈕是否被點擊到
+  window.alert('DEBUG: 按鈕被點擊了！')
+  
+  try {
+    // 第二步：顯示即將傳出的資料
+    window.alert('資料: ' + JSON.stringify(historyDetail.value?.id || '無ID'))
+    
+    emit('regenerate', historyDetail.value)
+  } catch (e) {
+    window.alert('錯誤: ' + e.message)
+  }
 }
 
 // 處理下載（使用截圖功能下載包含邊框和條碼的完整圖片，避免 CORS 問題）

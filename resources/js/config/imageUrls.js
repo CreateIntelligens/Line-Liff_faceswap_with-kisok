@@ -35,7 +35,7 @@ import couponImg from '../../images/coupon.png'
 import maintitleImg from '../../images/maintitle.png'
 import historyImg from '../../images/history.png'
 import resultBgImg from '../../images/result_bg.png'
-import loaderVideo from '../../images/loader.mp4'
+import loaderGif from '../../images/loader.gif'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
@@ -84,7 +84,7 @@ export const imageUrls = {
   maintitle: maintitleImg,      // 主標題圖片（大同寶寶賀新年）
   history: historyImg,          // 圖片生成紀錄標題
   resultBg: resultBgImg,         // 生成結果邊框背景圖
-  loaderVideo: loaderVideo,     // Kiosk 模式載入影片
+  loaderVideo: loaderGif,     // Kiosk 模式載入動畫
 };
 
 // 步驟圖片集合 (兼容 images.js 的 API)
