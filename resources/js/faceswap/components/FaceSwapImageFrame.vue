@@ -27,7 +27,7 @@
     </div>
 
     <!-- 條碼區域 -->
-    <div v-if="!isKioskMode" class="relative z-10 flex flex-col items-center" :class="isKioskMode ? 'mt-4' : 'mt-3'">
+    <div class="relative z-10 flex flex-col items-center" :class="isKioskMode ? 'mt-4' : 'mt-3'">
       <div 
         class="text-center" 
         :class="isKioskMode ? 'mb-8 text-[36px]' : 'mb-4 text-sm'"
@@ -86,20 +86,24 @@ const barcodeContainer = ref(null)
 
 // 容器樣式
 const containerStyle = computed(() => {
-  // Kiosk 模式：不顯示邊框背景
-  if (props.isKioskMode) {
+  // 如果 showFrameForScreenshot 為 true，顯示邊框（用於截圖）
+  if (props.showFrameForScreenshot) {
     return {
-      backgroundImage: 'none',
-      padding: '0'
+      backgroundImage: `url(${imageUrls.resultBg})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+      backgroundSize: '100% 100%',
+      padding: props.isKioskMode ? '1.5rem' : '1rem'
     }
   }
   
+  // 正常顯示：根據模式決定
   return {
     backgroundImage: `url(${imageUrls.resultBg})`,
     backgroundRepeat: 'no-repeat', // 不重複，避免出現格線
     backgroundPosition: 'center',
     backgroundSize: '100% 100%', // 填滿整個容器，保持比例
-    padding: '1rem'
+    padding: props.isKioskMode ? '1.5rem' : '1rem'
   }
 })
 
