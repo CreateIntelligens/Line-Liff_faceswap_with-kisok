@@ -52,7 +52,7 @@
             alt="載入中"
             class="w-[600px] h-[800px] object-contain mb-8"
           />
-          <div :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-gray-300">正在開啟相機...</div>
+          <div :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#A90205]">正在開啟相機...</div>
         </div>
 
         <!-- Camera Stream -->
@@ -103,10 +103,10 @@
         </div>
 
         <!-- Action Buttons -->
-        <div v-if="cameraState !== 'countdown'" :class="isKioskMode ? 'mt-12' : 'mt-8'" class="self-end w-full text-base font-bold whitespace-nowrap rounded-md">
+        <div v-if="cameraState !== 'countdown' && cameraState !== 'loading'" :class="isKioskMode ? 'mt-12' : 'mt-8'" class="self-end w-full text-base font-bold whitespace-nowrap rounded-md">
           <div :class="isKioskMode ? 'gap-8' : 'gap-3'" class="flex">
-            <!-- Back Button (重選IP) - Only show when not captured -->
-            <button v-if="cameraState !== 'captured'"
+            <!-- Back Button (重選IP) - Only show when not captured and not loading -->
+            <button v-if="cameraState !== 'captured' && cameraState !== 'loading'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
                     class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
                     :style="cameraState !== 'preview' ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #FF7824; touch-action: manipulation;'"

@@ -93,7 +93,7 @@
         <p :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-red-500 text-center font-bold mb-4">
           {{ errorMessage }}
         </p>
-        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-gray-300 text-center">
+        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#A90205] text-center">
           3秒後將自動返回首頁...
         </p>
       </div>

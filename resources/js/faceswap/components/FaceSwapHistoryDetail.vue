@@ -57,7 +57,7 @@
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">載入中...</div>
-          <div class="text-sm text-gray-300">正在獲取生成詳情</div>
+          <div class="text-sm text-[#A90205]">正在獲取生成詳情</div>
         </div>
       </div>
 
@@ -65,7 +65,7 @@
       <div v-else-if="error" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">
           <div class="text-lg font-bold mb-2">載入失敗</div>
-          <div class="text-sm text-gray-300 mb-4">{{ error }}</div>
+          <div class="text-sm text-[#A90205] mb-4">{{ error }}</div>
           <button 
             @click="loadHistoryDetail"
             class="px-6 py-3 text-[#FBEFC2] font-bold rounded-md transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"

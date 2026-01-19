@@ -99,7 +99,7 @@
       </div>
 
       <!-- 底部說明文字 -->
-      <div class="mt-8 text-xs px-6 text-gray-300 text-center leading-relaxed relative">
+      <div class="mt-8 text-xs px-6 text-[#A90205] text-center leading-relaxed relative">
         此個人資料會提供給PP石墨烯作為<br>
         此次抽獎活動使用與後續行銷推廣
       </div>

@@ -75,7 +75,7 @@
         <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md">
           <div class="text-center text-[#A90205]">
             <div class="text-lg font-bold mb-2">請先選擇模板</div>
-            <div class="text-sm text-gray-300">請回到上一步選擇您想要的換臉模板</div>
+            <div class="text-sm text-[#A90205]">請回到上一步選擇您想要的換臉模板</div>
           </div>
         </div>
       </div>
@@ -176,7 +176,7 @@
         </div>
         <div v-else class="text-center text-[#A90205] py-8">
           <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
-          <div class="text-sm text-gray-300 mb-6">您需要先選擇一個模板才能繼續</div>
+          <div class="text-sm text-[#A90205] mb-6">您需要先選擇一個模板才能繼續</div>
           <button
             class="px-6 py-3 text-[#FBEFC2] rounded-md font-bold transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824] relative"
             style="background-color: #D84729; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
