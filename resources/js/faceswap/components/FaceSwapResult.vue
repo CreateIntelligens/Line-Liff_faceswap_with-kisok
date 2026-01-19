@@ -168,7 +168,7 @@
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
         <button
-          @click="handleRegenerate"
+          ref="regenerateButton"
           class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-2"
           style="background-color: #FF7824; border: none; outline: none;"
         >
@@ -340,6 +340,7 @@ const emit = defineEmits(['back', 'regenerate', 'download', 'restart', 'refresh-
 
 // 控制歷史頁面顯示
 const showHistoryPage = ref(false)
+const regenerateButton = ref(null)
 
 // 表單數據
 const formData = ref({
@@ -417,6 +418,32 @@ onMounted(async () => {
   emit('refresh-usage')
   
   await checkTaskStatus()
+  
+  // 使用純 JavaScript 綁定按鈕點擊事件（解決手機版點擊失效問題）
+  nextTick(() => {
+    if (regenerateButton.value) {
+      const button = regenerateButton.value
+      
+      // 克隆按鈕以清除所有舊事件監聽器
+      const newButton = button.cloneNode(true)
+      button.parentNode.replaceChild(newButton, button)
+      regenerateButton.value = newButton
+      
+      // 綁定 touchend 事件（手機優先）
+      newButton.addEventListener('touchend', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        handleRegenerate()
+      }, { passive: false, capture: true })
+      
+      // 綁定 click 事件（電腦版）
+      newButton.addEventListener('click', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        handleRegenerate()
+      }, { capture: true })
+    }
+  })
 })
 
 // 處理圖片 URL，使用 imageProcessApi

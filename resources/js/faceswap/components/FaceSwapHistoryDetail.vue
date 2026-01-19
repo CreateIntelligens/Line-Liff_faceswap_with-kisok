@@ -101,8 +101,22 @@
           />
         </div>
         
-        <!-- Action Buttons - 佔位元素 -->
-        <div style="width: 100%; height: 80px; margin-bottom: 2rem;"></div>
+        <!-- Action Buttons -->
+        <button 
+          ref="regenerateButton"
+          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
+          style="
+            background-color: #FF7824; 
+            border: none;
+            outline: none;
+            cursor: pointer !important;
+            pointer-events: auto !important; 
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+          "
+        >
+          重新生成
+        </button>
 
         <!-- Usage Instructions -->
         <div class="w-full rounded-md mb-4">
@@ -119,33 +133,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- 固定在底部的按鈕 - 使用純 JS 綁定 -->
-    <div v-if="historyDetail" style="
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 3rem);
-      max-width: 400px;
-      z-index: 99999;
-    ">
-      <button 
-        ref="regenerateButton"
-        class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2]"
-        style="
-          background-color: #FF7824; 
-          border: none;
-          outline: none;
-          cursor: pointer !important;
-          pointer-events: auto !important; 
-          touch-action: manipulation;
-          -webkit-tap-highlight-color: rgba(0,0,0,0);
-        "
-      >
-        重新生成
-      </button>
     </div>
   </div>
 </template>
