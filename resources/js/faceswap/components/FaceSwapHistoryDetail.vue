@@ -101,24 +101,34 @@
           />
         </div>
         
-        <!-- Action Buttons -->
-        <button 
-          @click="handleRegenerate"
-          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
-          style="
-            background-color: #FF7824; 
-            border: none; 
-            outline: none;
-            cursor: pointer !important;
-            pointer-events: auto !important; 
-            position: relative !important;
-            z-index: 9999 !important; 
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-          "
-        >
-          重新生成
-        </button>
+        <!-- Action Buttons - 獨立容器，確保不被遮擋 -->
+        <div style="
+          width: 100%;
+          position: relative;
+          z-index: 10000;
+          margin-bottom: 2rem;
+          pointer-events: none;
+        ">
+          <button 
+            @click="handleRegenerate"
+            class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2]"
+            style="
+              background-color: #FF7824; 
+              border: 5px solid yellow;
+              outline: none;
+              cursor: pointer !important;
+              pointer-events: auto !important; 
+              position: relative !important;
+              z-index: 10001 !important; 
+              touch-action: manipulation;
+              -webkit-tap-highlight-color: rgba(0,0,0,0);
+              font-size: 20px;
+              min-height: 60px;
+            "
+          >
+            🔴 測試按鈕 🔴
+          </button>
+        </div>
 
         <!-- Usage Instructions -->
         <div class="w-full rounded-md mb-4">
