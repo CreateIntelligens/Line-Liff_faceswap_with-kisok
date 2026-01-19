@@ -121,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeMount, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeMount, onUnmounted, nextTick, watch } from 'vue'
 import FaceSwapHomepage from './components/FaceSwapHomepage.vue'
 import FaceSwapEmailInput from './components/FaceSwapEmailInput.vue'
 import FaceSwapTemplateSelection from './components/FaceSwapTemplateSelection.vue'
@@ -292,9 +292,10 @@ async function initializeApp() {
           avatars = data.result?.avatars || data.data?.avatars || data.avatars || [];
         }
         
-        // 更新用戶使用量
-        userUsage.value = avatars.length
-        console.log('📊 用戶使用量已更新:', userUsage.value)
+        // 更新用戶使用量（只計算 completed 狀態的記錄）
+        const completedCount = avatars.filter(avatar => avatar.status === 'completed').length
+        userUsage.value = completedCount
+        console.log('📊 用戶使用量已更新（只計算已完成）:', completedCount, '/ 總記錄數:', avatars.length)
         
         // 重整後總是回到首頁，不自動跳轉到結果頁面
         console.log('重整後回到首頁')
@@ -617,6 +618,21 @@ function goBack() {
     currentStep.value = 'upload'
   }
 }
+
+// 監聽 currentStep 變化，在頁面切換時自動刷新計數
+// 確保所有需要顯示計數器的頁面都有最新的計數
+watch(currentStep, async (newStep, oldStep) => {
+  // 當切換到需要顯示計數器的頁面時，刷新計數
+  const stepsWithCounter = ['template-selection', 'upload', 'result']
+  if (stepsWithCounter.includes(newStep) && effectiveUserId.value && isInitialized.value) {
+    console.log(`🔄 切換到 ${newStep} 頁面，刷新使用量`)
+    try {
+      await refreshUserUsage()
+    } catch (error) {
+      console.error('❌ 頁面切換時刷新使用量失敗:', error)
+    }
+  }
+}, { immediate: false })
 
 </script>
 

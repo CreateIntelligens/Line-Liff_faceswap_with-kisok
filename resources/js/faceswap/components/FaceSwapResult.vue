@@ -145,7 +145,7 @@
       </div>
           
       <!-- LIFF 模式：生成結果顯示 -->
-      <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col">
+      <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col" style="position: relative; z-index: 50;">
         <!-- 圖片框架（包含邊框和條碼） -->
         <div class="w-full mb-6">
           <FaceSwapImageFrame 
@@ -170,14 +170,15 @@
         </div>
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
-        <div class="flex gap-3 mb-2" style="pointer-events: auto; position: relative; z-index: 10;">
+        <div class="flex gap-3 mb-2" style="pointer-events: auto !important; position: relative; z-index: 100;">
           <!-- 重新生成按鈕 -->
           <button
             @click.stop="handleRegenerate"
             @mousedown.stop
             @touchstart.stop
+            @touchend.stop="handleRegenerate"
             class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
+            style="background-color: #FF7824; touch-action: manipulation !important; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 101; -webkit-tap-highlight-color: transparent; user-select: none;"
           >
             重新生成
           </button>
