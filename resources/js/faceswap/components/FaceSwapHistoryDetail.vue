@@ -92,7 +92,7 @@
         </div>
 
         <!-- Email 已發送圖片 -->
-        <div class="w-full mb-4 flex justify-center" style="pointer-events: auto; position: relative; z-index: 10;">
+        <div class="w-full mb-4 flex justify-center">
           <img 
             src="/resources/images/emailsentimg.png" 
             alt="已將照片發送至您的信箱"
@@ -105,8 +105,8 @@
         <div class="w-full flex gap-3 mb-8">
           <!-- Regenerate Button -->
           <button 
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-            style="background-color: #FF7824; touch-action: manipulation;"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 active:scale-95"
+            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer;"
             @click="handleRegenerate"
           >
             重新生成

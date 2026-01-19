@@ -145,9 +145,9 @@
       </div>
           
       <!-- LIFF 模式：生成結果顯示 -->
-      <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col" style="position: relative; z-index: 50;">
+      <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col" style="position: relative;">
         <!-- 圖片框架（包含邊框和條碼） -->
-        <div class="w-full mb-6" style="pointer-events: none; position: relative; z-index: 1;">
+        <div class="w-full mb-6" style="pointer-events: none; position: relative;">
           <FaceSwapImageFrame 
             ref="imageFrameRefMobile"
             :imageUrl="generatedImageUrl || originalImageUrl"
@@ -160,7 +160,7 @@
         </div>
         
         <!-- Email 已發送圖片 -->
-        <div class="w-full mb-4 flex justify-center" style="pointer-events: none; position: relative; z-index: 2;">
+        <div class="w-full mb-4 flex justify-center" style="pointer-events: none; position: relative;">
           <img 
             src="/resources/images/emailsentimg.png" 
             alt="已將照片發送至您的信箱"
@@ -170,12 +170,12 @@
         </div>
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
-        <div class="flex gap-3 mb-2" style="pointer-events: auto !important; position: relative; z-index: 200 !important; isolation: isolate;">
+        <div class="flex gap-3 mb-2">
           <!-- 重新生成按鈕 -->
           <button
-            @click.stop="handleRegenerate"
-            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 hover:bg-[#FF7824] active:bg-[#FF7824]"
-            style="background-color: #FF7824 !important; touch-action: manipulation !important; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 201 !important; -webkit-tap-highlight-color: transparent; user-select: none;"
+            @click="handleRegenerate"
+            class="flex-1 py-3.5 rounded-md font-bold text-[#FBEFC2] transition-all duration-300 active:scale-95"
+            style="background-color: #FF7824; touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1);"
           >
             重新生成
           </button>
@@ -186,7 +186,7 @@
           v-if="!isPCMode && !isKioskMode"
           class="text-base font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity mb-8"
           data-name="圖片生成紀錄"
-          style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important;"
+          style="pointer-events: auto; position: relative; cursor: pointer !important;"
           @click.stop="handleShowHistory"
           @mousedown.stop
           @touchstart.stop
