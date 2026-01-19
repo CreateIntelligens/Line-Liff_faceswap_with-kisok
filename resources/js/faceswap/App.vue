@@ -26,7 +26,7 @@
           <FaceSwapTemplateSelection
             v-if="currentStep === 'template-selection'"
             :userUsage="userUsage"
-            :userId="userId"
+            :userId="effectiveUserId"
             :isPCMode="isPCMode"
             @next-step="handleTemplateSelection"
             @back="goBack"
@@ -37,7 +37,7 @@
             v-if="currentStep === 'upload'"
             :selectedTemplate="selectedTemplate"
             :userUsage="userUsage"
-            :userId="userId"
+            :userId="effectiveUserId"
             :isPCMode="isPCMode"
             @back="goBack"
             @generate="handleGenerate"
@@ -48,7 +48,7 @@
           <FaceSwapResult
             v-if="currentStep === 'result'"
             :taskId="taskId"
-            :userId="userId"
+            :userId="effectiveUserId"
             :selectedTemplate="selectedTemplate"
             :userUsage="userUsage"
             :isPCMode="isPCMode"
@@ -73,7 +73,7 @@
       <FaceSwapTemplateSelection
         v-if="currentStep === 'template-selection'"
         :userUsage="userUsage"
-        :userId="userId"
+        :userId="effectiveUserId"
         :isPCMode="isPCMode"
         :isKioskMode="isKioskMode"
         @next-step="handleTemplateSelection"
@@ -104,7 +104,7 @@
       <FaceSwapResult
         v-if="currentStep === 'result'"
         :taskId="taskId"
-        :userId="userId"
+        :userId="effectiveUserId"
         :selectedTemplate="selectedTemplate"
         :userUsage="userUsage"
         :isPCMode="isPCMode"
@@ -145,6 +145,7 @@ const selectedTemplate = ref('')
 const selectedCharacter = ref('') // Kiosk 模式下選擇的角色
 const isInitialized = ref(false)
 const userUsage = ref(0) // 用戶已生成的圖片數量
+const currentEmail = ref('') // 響應式追蹤當前 email
 
 // 檢查 URL 參數，如果 to_form=true 則顯示表單頁面
 const urlParams = new URLSearchParams(window.location.search)
@@ -171,6 +172,23 @@ const deviceMode = ref('mobile')
 const isKioskMode = ref(false)
 // 保留 isPCMode 作為 isKioskMode 的別名，讓現有組件能正常運作
 const isPCMode = isKioskMode
+
+// 計算實際使用的 userId：Kiosk 模式使用原始 userId，手機版優先使用 email
+const effectiveUserId = computed(() => {
+  // Kiosk 模式：直接返回原始 userId（不變）
+  if (isKioskMode.value) {
+    return userId.value
+  }
+  
+  // 手機版：優先使用響應式 email，如果沒有則從 sessionStorage 讀取，最後使用原始 userId
+  const email = currentEmail.value || sessionStorage.getItem('faceswap_email') || ''
+  if (email && email.trim() !== '') {
+    console.log('📧 手機版使用 Email 作為 userId:', email.trim())
+    return email.trim()
+  }
+  
+  return userId.value
+})
 
 // 根據裝置模式計算容器樣式
 const appContainerClass = computed(() => {
@@ -255,10 +273,11 @@ async function initializeApp() {
     }
     
     // 查詢歷史 avatars（僅用於更新用戶使用量，不改變頁面狀態）
-    if (userId.value) {
+    const currentUserId = effectiveUserId.value
+    if (currentUserId) {
       try {
-        console.log(`查詢用戶 ${userId.value} 的歷史 avatars`)
-        const data = await roadshowService.getUserHistory(userId.value)
+        console.log(`查詢用戶 ${currentUserId} 的歷史 avatars`)
+        const data = await roadshowService.getUserHistory(currentUserId)
         
         // 使用與FaceSwapHistory相同的相容性檢查
         let avatars = [];
@@ -294,7 +313,8 @@ async function initializeApp() {
 // 添加一個單獨的函數來刷新用戶使用量
 async function refreshUserUsage() {
   try {
-    const data = await roadshowService.getUserHistory(userId.value)
+    const currentUserId = effectiveUserId.value
+    const data = await roadshowService.getUserHistory(currentUserId)
     
     // 使用與FaceSwapHistory相同的相容性檢查
     let avatars = [];
@@ -319,6 +339,14 @@ async function refreshUserUsage() {
 // 在掛載前執行初始化
 onBeforeMount(async () => {
   initializeDevice() // 先初始化裝置服務
+  
+  // 初始化時從 sessionStorage 讀取 email（如果存在）
+  const savedEmail = sessionStorage.getItem('faceswap_email')
+  if (savedEmail && savedEmail.trim() !== '') {
+    currentEmail.value = savedEmail.trim()
+    console.log('📧 從 sessionStorage 載入 Email:', currentEmail.value)
+  }
+  
   await initializeApp() // 再初始化應用程序
 })
 
@@ -334,7 +362,7 @@ onMounted(async () => {
   })
   
   // 組件掛載後，再次刷新用戶使用量以確保數據準確
-  if (userId.value && isInitialized.value) {
+  if (effectiveUserId.value && isInitialized.value) {
     await refreshUserUsage()
   }
 })
@@ -352,10 +380,13 @@ function enterFaceSwap() {
 
 // 處理 Email 提交
 function handleEmailSubmit(data) {
-  // 暫時將 email 儲存在 sessionStorage（等後端 API 確認後再實作提交邏輯）
+  // 更新響應式 email 變數和 sessionStorage
   if (data.email) {
-    sessionStorage.setItem('faceswap_email', data.email)
-    console.log('📧 Email 已儲存:', data.email)
+    const emailValue = data.email.trim()
+    currentEmail.value = emailValue // 更新響應式變數，觸發 effectiveUserId 重新計算
+    sessionStorage.setItem('faceswap_email', emailValue)
+    console.log('📧 Email 已儲存並更新:', emailValue)
+    console.log('📧 當前 effectiveUserId:', effectiveUserId.value)
   }
   
   // 進入模板選擇頁面
@@ -389,15 +420,12 @@ async function handleCameraGenerate(imageFile) {
     const templateId = selectedTemplate.value
 
     // Create FormData
+    // Kiosk 模式：使用原始 userId（不變）
+    const currentUserId = effectiveUserId.value
     const formData = new FormData()
-    formData.append('userId', userId.value || 'abc') // 修正參數名為 userId
+    formData.append('userId', currentUserId || 'abc')
     
-    // 從 sessionStorage 讀取 email（手機版流程中輸入的 email，Kiosk 模式可能為空）
-    const email = sessionStorage.getItem('faceswap_email') || '';
-    if (email) {
-      formData.append('email', email);
-      console.log('📧 已添加 Email 到 FormData (Kiosk):', email);
-    }
+    // Kiosk 模式不處理 email（維持原樣）
     
     formData.append('file', imageFile)
 
@@ -412,7 +440,7 @@ async function handleCameraGenerate(imageFile) {
     formData.append('template_id', numericTemplateId)
     
     // 添加必填的 userName 參數（新 API 要求）
-    formData.append('userName', userId.value || 'User')
+    formData.append('userName', currentUserId || 'User')
 
     // 根據選擇的角色計算 target_face_index（與LINE模式一致）
     function getFaceIndex(templateId, characterId) {

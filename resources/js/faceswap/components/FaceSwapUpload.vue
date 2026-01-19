@@ -516,8 +516,10 @@ async function generateFaceSwap() {
       }
       
       // 準備FormData - 純粹的API調用，不改變UI
+      // props.userId 已經是 effectiveUserId（手機版會是 email，Kiosk 模式會是原始 userId）
+      const currentUserId = props.userId || 'abc';
       const formData = new FormData();
-      formData.append('userId', props.userId || 'abc'); // 使用傳入的用戶ID或後備值
+      formData.append('userId', currentUserId);
       
       // 從 sessionStorage 讀取 email（手機版流程中輸入的 email）
       const email = sessionStorage.getItem('faceswap_email') || '';
@@ -539,13 +541,13 @@ async function generateFaceSwap() {
       formData.append('template_id', numericTemplateId);
       
       // 添加必填的 userName 參數（新 API 要求）
-      formData.append('userName', props.userId || 'User');
+      formData.append('userName', currentUserId);
       
       formData.append('target_face_index', targetFaceIndex); // 固定為 0
       formData.append('userInfo', `模板: ${props.selectedTemplate}`);
       
       console.log('📤 準備發送 FormData:', {
-        userId: props.userId || 'abc',
+        userId: currentUserId,
         email: email || '(無)',
         template_id: numericTemplateId,
         target_face_index: targetFaceIndex,
@@ -559,7 +561,7 @@ async function generateFaceSwap() {
       // 單獨輸出以便查看
       console.log('📤 Template ID (數字):', numericTemplateId);
       console.log('📤 Target Face Index:', targetFaceIndex);
-      console.log('📤 User ID:', props.userId || 'abc');
+      console.log('📤 User ID:', currentUserId);
       console.log('📤 處理後的檔案:', {
         name: processedFile.name,
         type: processedFile.type,
