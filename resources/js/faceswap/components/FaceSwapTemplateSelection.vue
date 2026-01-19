@@ -7,6 +7,7 @@
       :isPCMode="isPCMode"
       :isKioskMode="isKioskMode"
       @back="handleHistoryBack"
+      @regenerate="handleRegenerate"
     />
   
   <!-- Main Template Selection Page -->
@@ -257,7 +258,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["next-step", "back", "refresh-usage"]);
+const emit = defineEmits(["next-step", "back", "refresh-usage", "regenerate"]);
 
 const selectedTemplate = ref("");
 const showHistoryPage = ref(false);
@@ -297,6 +298,14 @@ function showHistory() {
 function handleHistoryBack() {
   showHistoryPage.value = false;
   // 通知父組件刷新使用量，確保計數器同步
+  emit("refresh-usage");
+}
+
+// 處理重新生成（從歷史詳情頁）
+function handleRegenerate() {
+  // 關閉歷史頁面，回到模板選擇
+  showHistoryPage.value = false;
+  // 通知父組件刷新使用量
   emit("refresh-usage");
 }
 

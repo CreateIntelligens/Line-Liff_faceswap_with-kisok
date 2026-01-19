@@ -136,17 +136,15 @@
         class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2]"
         style="
           background-color: #FF7824; 
-          border: 5px solid yellow;
+          border: none;
           outline: none;
           cursor: pointer !important;
           pointer-events: auto !important; 
           touch-action: manipulation;
           -webkit-tap-highlight-color: rgba(0,0,0,0);
-          font-size: 20px;
-          min-height: 60px;
         "
       >
-        🔴 測試按鈕 🔴
+        重新生成
       </button>
     </div>
   </div>
@@ -433,17 +431,7 @@ function goBack() {
 
 // 處理重新生成
 function handleRegenerate() {
-  // 第一步：測試按鈕是否被點擊到
-  window.alert('DEBUG: 按鈕被點擊了！')
-  
-  try {
-    // 第二步：顯示即將傳出的資料
-    window.alert('資料: ' + JSON.stringify(historyDetail.value?.id || '無ID'))
-    
-    emit('regenerate', historyDetail.value)
-  } catch (e) {
-    window.alert('錯誤: ' + e.message)
-  }
+  emit('regenerate', historyDetail.value)
 }
 
 // 處理下載（使用截圖功能下載包含邊框和條碼的完整圖片，避免 CORS 問題）
@@ -530,45 +518,29 @@ onMounted(() => {
     loadHistoryDetail()
   }
   
-  // 使用純 JavaScript 綁定按鈕點擊事件
+  // 使用純 JavaScript 綁定按鈕點擊事件（解決手機版點擊失效問題）
   nextTick(() => {
     if (regenerateButton.value) {
-      console.log('✅ 找到按鈕元素，開始綁定事件')
-      
-      // 移除所有可能存在的事件監聽器
       const button = regenerateButton.value
+      
+      // 克隆按鈕以清除所有舊事件監聽器
       const newButton = button.cloneNode(true)
       button.parentNode.replaceChild(newButton, button)
       regenerateButton.value = newButton
       
-      // 綁定多種事件
-      newButton.addEventListener('click', (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        window.alert('click 事件觸發！')
-        handleRegenerate()
-      }, { capture: true })
-      
-      newButton.addEventListener('touchstart', (e) => {
-        console.log('touchstart 觸發')
-        window.alert('touchstart 事件觸發！')
-      }, { passive: false, capture: true })
-      
+      // 綁定 touchend 事件（手機優先）
       newButton.addEventListener('touchend', (e) => {
         e.stopPropagation()
         e.preventDefault()
-        window.alert('touchend 事件觸發！')
         handleRegenerate()
       }, { passive: false, capture: true })
       
-      newButton.addEventListener('mousedown', (e) => {
-        console.log('mousedown 觸發')
-        window.alert('mousedown 事件觸發！')
+      // 綁定 click 事件（電腦版）
+      newButton.addEventListener('click', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        handleRegenerate()
       }, { capture: true })
-      
-      console.log('✅ 事件綁定完成')
-    } else {
-      console.error('❌ 找不到按鈕元素')
     }
   })
 })
