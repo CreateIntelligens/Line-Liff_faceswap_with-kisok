@@ -27,7 +27,7 @@
     </div>
 
     <!-- 條碼區域 -->
-    <div class="relative z-10 flex flex-col items-center" :class="isKioskMode ? 'mt-4' : 'mt-3'">
+    <div v-if="!isKioskMode" class="relative z-10 flex flex-col items-center" :class="isKioskMode ? 'mt-4' : 'mt-3'">
       <div 
         class="text-center" 
         :class="isKioskMode ? 'mb-8 text-[36px]' : 'mb-4 text-sm'"

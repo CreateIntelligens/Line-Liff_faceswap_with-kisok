@@ -84,7 +84,7 @@
             ref="imageFrameContainer"
             :imageUrl="getHistoryImage(historyDetail)"
             :couponCode="historyDetail.couponCode || ''"
-            :isKioskMode="false"
+            :isKioskMode="isKioskMode"
             containerClass="mb-0"
             @image-load="handleImageLoad"
             @image-error="handleImageError"
