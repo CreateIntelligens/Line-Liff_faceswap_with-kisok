@@ -300,7 +300,7 @@ export const roadshowService = {
     async getImageResource(imageUrl, options = {}) {
         try {
             // 使用配置中的 API 端點
-            const url = window.endpoint?.imageProcessApi || 'https://api.uat.tatung2025.aitago.tw/api/static-resource';
+            const url = window.endpoint?.imageProcessApi || 'https://line.uat.tatung2025.aitago.tw/api/static-resource';
             
             // 構建查詢參數
             const queryParams = new URLSearchParams();

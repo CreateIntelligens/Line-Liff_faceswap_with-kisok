@@ -620,48 +620,43 @@ export function useScreenshot() {
         console.log('🖼️ 找到主圖片元素:', mainImageElement.src)
         console.log('📐 原始圖片尺寸:', mainImageElement.naturalWidth, 'x', mainImageElement.naturalHeight)
         
-        try {
-          // 🔥 關鍵修復：將圖片繪製到 canvas 再轉成 Base64
-          console.log('🎨 嘗試將圖片繪製到 Canvas...')
-          const tempCanvas = document.createElement('canvas')
-          tempCanvas.width = mainImageElement.naturalWidth
-          tempCanvas.height = mainImageElement.naturalHeight
-          const ctx = tempCanvas.getContext('2d')
-          
-          ctx.drawImage(mainImageElement, 0, 0)
-          const base64Image = tempCanvas.toDataURL('image/png')
-          
-          console.log('✅ 圖片已轉換為 Base64，大小:', (base64Image.length / 1024).toFixed(2), 'KB')
-          
-          // 使用 Base64 創建圖片
-          const imgNode = document.createElement('img')
-          imgNode.src = base64Image
-          imgNode.style.cssText = `
-            width: auto;
-            height: auto;
-            max-width: calc(100% - 3rem);
-            object-fit: contain;
-            flex-shrink: 0;
-            margin: 1.5rem 1.5rem 0 1.5rem;
-            display: block;
-          `
-          contentWrapper.appendChild(imgNode)
-          console.log('✅ Base64 圖片已添加')
-        } catch (e) {
-          // 如果 Canvas 方法失敗（可能是因為 tainted canvas），直接克隆
-          console.warn('⚠️ Canvas 方法失敗，直接克隆元素:', e.message)
-          const imgNode = mainImageElement.cloneNode(true)
-          imgNode.style.cssText = `
-            width: auto;
-            height: auto;
-            max-width: calc(100% - 3rem);
-            object-fit: contain;
-            flex-shrink: 0;
-            margin: 1.5rem 1.5rem 0 1.5rem;
-            display: block;
-          `
-          contentWrapper.appendChild(imgNode)
+        // 🔥 關鍵修復：使用 proxy API 獲取 Base64 圖片
+        const originalSrc = mainImageElement.src
+        let finalImageSrc = originalSrc
+        
+        // 檢查是否為 storage.googleapis.com 圖片
+        if (originalSrc.includes('storage.googleapis.com')) {
+          try {
+            console.log('🔄 使用代理 API 轉換圖片為 Base64...')
+            const proxyUrl = `https://line.uat.tatung2025.aitago.tw/api/static-resource?url=${encodeURIComponent(originalSrc)}&scale=2&format=jpg&quality=90`
+            
+            const response = await fetch(proxyUrl)
+            if (response.ok) {
+              const data = await response.json()
+              if (data.success && data.data && data.data.base64) {
+                finalImageSrc = `data:image/jpeg;base64,${data.data.base64}`
+                console.log('✅ 圖片已轉換為 Base64，大小:', (finalImageSrc.length / 1024).toFixed(2), 'KB')
+              }
+            }
+          } catch (e) {
+            console.warn('⚠️ 代理 API 轉換失敗，使用原始 URL:', e.message)
+          }
         }
+        
+        // 創建圖片元素
+        const imgNode = document.createElement('img')
+        imgNode.src = finalImageSrc
+        imgNode.style.cssText = `
+          width: auto;
+          height: auto;
+          max-width: calc(100% - 3rem);
+          object-fit: contain;
+          flex-shrink: 0;
+          margin: 1.5rem 1.5rem 0 1.5rem;
+          display: block;
+        `
+        contentWrapper.appendChild(imgNode)
+        console.log('✅ 圖片已添加到容器')
       } else {
         console.error('❌ 找不到主圖片元素或圖片未載入完成')
       }
@@ -721,12 +716,11 @@ export function useScreenshot() {
         }
       }
 
-      // 跳過圖片處理（因為我們直接克隆了已載入的元素）
-      console.log('✅ 跳過跨域圖片處理（使用已載入的元素）')
-
-      // 等待渲染
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // 等待 Base64 圖片載入
+      console.log('⏳ 等待圖片載入完成...')
+      await new Promise(resolve => setTimeout(resolve, 500))
       await waitForAllImagesLoaded(stagingContainer)
+      console.log('✅ 所有圖片已載入')
 
       // ==========================================
       // 在內容渲染完成後，添加背景圖層
@@ -763,7 +757,7 @@ export function useScreenshot() {
         scale: 2,
         logging: false,
         useCORS: false,
-        allowTaint: true,
+        allowTaint: false,
         width: stagingContainer.offsetWidth,
         height: stagingContainer.scrollHeight,
       })
