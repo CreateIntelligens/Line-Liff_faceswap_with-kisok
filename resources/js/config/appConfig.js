@@ -9,7 +9,7 @@ export const appConfig = {
   
   // API 配置
   apiBaseUrl: 'https://line.uat.tatung2025.aitago.tw/api',
-  imageProcessApi: 'https://line.uat.tatung2025.aitago.tw/api/static-resource',
+  imageProcessApi: 'https://api.uat.tatung2025.aitago.tw/api/static-resource',
   
   // 圖片處理參數
   imageProcessParams: {

@@ -20,8 +20,7 @@ export function useScreenshot() {
       // 檢查常見的跨域域名
       const crossOriginDomains = [
         'stg-api.fanpokka.ai',
-        'line.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
-        'api.uat.tatung2025.aitago.tw',  // 舊的 API（保留以兼容）
+        'api.uat.tatung2025.aitago.tw',  
         'voice.5gao.ai',
         'storage.googleapis.com',
         'firebasestorage.googleapis.com',
@@ -34,8 +33,7 @@ export function useScreenshot() {
       // 如果 URL 解析失敗，檢查是否包含常見的跨域域名
       const crossOriginDomains = [
         'stg-api.fanpokka.ai',
-        'line.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
-        'api.uat.tatung2025.aitago.tw',  // 舊的 API（保留以兼容）
+        'api.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
         'voice.5gao.ai',
         'storage.googleapis.com',
         'firebasestorage.googleapis.com',
@@ -537,7 +535,6 @@ export function useScreenshot() {
 
   // 截圖功能
   // 截圖功能 (DOM 重組版 - 修正排版)
-  // 截圖功能 (最終暴力版 - 強制 Base64 注入)
   async function captureScreenshot(originalContainer, options = {}) {
     const { includeFrame = false, includeBarcode = false } = options
     let stagingContainer = null 
@@ -545,205 +542,203 @@ export function useScreenshot() {
     if (!originalContainer) throw new Error('找不到截圖區域')
 
     try {
-      console.log('📸 開始截圖 (最終暴力版)...')
+      console.log('📸 開始截圖流程 (DOM 重組)...', { includeFrame, includeBarcode })
 
-      // 1. 準備舞台 (全白背景)
+      // 1. 創建舞台容器
       stagingContainer = document.createElement('div')
       stagingContainer.style.cssText = `
         position: fixed;
         left: -9999px;
         top: 0;
         width: ${originalContainer.offsetWidth}px;
-        height: ${originalContainer.offsetHeight}px;
+        height: auto;
+        min-height: ${originalContainer.offsetHeight}px;
         z-index: -9999;
-        overflow: hidden;
+        overflow: visible;
         background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
       `
       document.body.appendChild(stagingContainer)
 
       // ==========================================
-      // 第一層：人臉生成圖 (主角)
-      // ==========================================
-      // 找出主圖的元素和 URL
-      const originalImages = originalContainer.querySelectorAll('img')
-      let mainImageElement = null
-      let mainImageUrl = null
-      let base64Data = null  // 定義在外面，以便後續判斷
-      
-      for (let img of originalImages) {
-        if (img.src && !img.src.includes('result_bg') && !img.src.includes('data:image/svg') && img.naturalWidth > 50) {
-          mainImageElement = img
-          mainImageUrl = img.src
-          break
-        }
-      }
-
-      if (mainImageUrl) {
-        console.log('🖼️ 找到主圖片，正在強制轉為 Base64...')
-        
-        // 🔥 關鍵步驟：直接在這裡轉 Base64，不依賴後面的 preload
-        
-        try {
-            // 方法 0: 最優先 - 直接從已載入的圖片元素提取（最可靠，無網路請求）
-            if (mainImageElement && mainImageElement.complete && mainImageElement.naturalWidth > 0) {
-                try {
-                    const extracted = extractImageFromLoadedElement(mainImageElement)
-                    if (extracted && extracted.startsWith('data:image')) {
-                        base64Data = extracted
-                        console.log('✅ 方法 0 成功：從已載入元素提取 Base64')
-                    }
-                } catch (e) {
-                    console.warn('⚠️ 方法 0 失敗:', e.message)
-                }
-            }
-            
-            // 方法 A: 如果是 storage.googleapis.com，走代理 API
-            if (!base64Data && mainImageUrl.includes('storage.googleapis.com')) {
-                 try {
-                     base64Data = await convertImageViaProxy(mainImageUrl)
-                     if (base64Data) console.log('✅ 方法 A 成功：代理 API')
-                 } catch (e) {
-                     console.warn('⚠️ 方法 A 失敗:', e.message)
-                 }
-            }
-            
-            // 方法 B: 如果上面沒成功，嘗試後端代理
-            if (!base64Data) {
-                 try {
-                     base64Data = await fetchImageViaBackend(mainImageUrl)
-                     if (base64Data) console.log('✅ 方法 B 成功：後端代理')
-                 } catch (e) {
-                     console.warn('⚠️ 方法 B 失敗:', e.message)
-                 }
-            }
-            
-            // 方法 C: 真的不行，試試看直接轉
-            if (!base64Data) {
-                 try {
-                     base64Data = await convertImageToBase64(mainImageUrl)
-                     if (base64Data) console.log('✅ 方法 C 成功：直接轉換')
-                 } catch (e) {
-                     console.warn('⚠️ 方法 C 失敗:', e.message)
-                 }
-            }
-
-        } catch (e) {
-            console.error('❌ 圖片轉換失敗:', e)
-        }
-
-        // 創建圖片元素
-        const imgNode = document.createElement('img')
-        if (base64Data && base64Data.startsWith('data:image')) {
-            imgNode.src = base64Data
-            console.log('✅ 成功注入 Base64 圖片數據，大小:', (base64Data.length / 1024).toFixed(2), 'KB')
-        } else {
-            // 如果所有 Base64 轉換都失敗，直接克隆已載入的圖片元素
-            // 這樣 html2canvas 可以截到它（即使有 CORS，只要圖片已經在頁面上顯示）
-            if (mainImageElement && mainImageElement.complete) {
-                console.warn('⚠️ 所有 Base64 轉換失敗，使用已載入的圖片元素（可能會有 CORS 限制）')
-                const clonedImg = mainImageElement.cloneNode(true)
-                imgNode.src = clonedImg.src
-                imgNode.crossOrigin = 'anonymous'
-            } else {
-                throw new Error('所有 Base64 轉換方法都失敗，且圖片未載入完成')
-            }
-        }
-
-        // 設定樣式：全螢幕鋪滿
-        imgNode.style.cssText = `
-          position: absolute;
-          top: 0; 
-          left: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-          z-index: 1;
-        `
-        stagingContainer.appendChild(imgNode)
-      }
-
-      // ==========================================
-      // 第二層：邊框 (Frame)
+      // 預載入並添加背景圖
       // ==========================================
       if (includeFrame) {
         const resultBgUrl = imageUrls.resultBg || '/resources/images/result_bg.png'
-        const frameNode = document.createElement('div')
-        frameNode.style.cssText = `
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-image: url('${resultBgUrl}');
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: 100% 100%;
-          z-index: 5;
-          pointer-events: none;
-        `
-        stagingContainer.appendChild(frameNode)
+        console.log('🖼️ 預載入背景圖:', resultBgUrl)
         
-        // 確保背景圖載入
-        await new Promise(r => {
-            const img = new Image()
-            img.onload = r
-            img.onerror = r
-            img.src = resultBgUrl
+        // 先預載入背景圖
+        await new Promise((resolve) => {
+          const img = new Image()
+          img.onload = () => { 
+            console.log('✅ 背景圖載入成功')
+            resolve() 
+          }
+          img.onerror = () => { 
+            console.warn('⚠️ 背景圖載入失敗') 
+            resolve() 
+          }
+          img.src = resultBgUrl
+          setTimeout(resolve, 2000)
         })
       }
 
       // ==========================================
-      // 第三層：Barcode (置底)
+      // 內容容器 (包含圖片和 Barcode)
+      // ==========================================
+      const contentWrapper = document.createElement('div')
+      contentWrapper.style.cssText = `
+        position: relative;
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 1.5rem;
+        box-sizing: border-box;
+        z-index: 2;
+      `
+      stagingContainer.appendChild(contentWrapper)
+
+      // ==========================================
+      // 第二層：人臉圖片
+      // ==========================================
+      const originalImages = originalContainer.querySelectorAll('img')
+      let mainImageSrc = null
+      let mainImageElement = null
+      for (let img of originalImages) {
+        if (img.src && !img.src.includes('result_bg') && !img.src.includes('data:image/svg') && img.naturalWidth > 50) {
+          mainImageSrc = img.src
+          mainImageElement = img
+          break
+        }
+      }
+
+      if (mainImageSrc && mainImageElement) {
+        console.log('🖼️ 提取主圖片:', mainImageSrc)
+        console.log('📐 原始圖片尺寸:', mainImageElement.naturalWidth, 'x', mainImageElement.naturalHeight)
+        
+        const imgNode = document.createElement('img')
+        imgNode.src = mainImageSrc
+        imgNode.style.cssText = `
+          width: auto;
+          height: auto;
+          max-width: 100%;
+          object-fit: contain;
+          flex-shrink: 0;
+        `
+        contentWrapper.appendChild(imgNode)
+        console.log('✅ 主圖片已添加 (保持原始比例)')
+      }
+
+      // ==========================================
+      // 第三層：Barcode 與文字
       // ==========================================
       if (includeBarcode) {
+        console.log('📊 重建 Barcode 區域...')
+        
         let originalBarcodeArea = originalContainer.querySelector('[data-barcode-area]') || originalContainer.querySelector('.barcode-area')
         
         if (originalBarcodeArea) {
+            console.log('✅ 找到 Barcode 區域，開始克隆...')
             const barcodeClone = originalBarcodeArea.cloneNode(true)
             
-            // 手動複製 Canvas
+            // 複製 Canvas
             const oldCanvas = originalBarcodeArea.querySelector('canvas')
             const newCanvas = barcodeClone.querySelector('canvas')
             if (oldCanvas && newCanvas) {
                 newCanvas.width = oldCanvas.width
                 newCanvas.height = oldCanvas.height
                 newCanvas.getContext('2d').drawImage(oldCanvas, 0, 0)
+                console.log('✅ Barcode Canvas 已複製:', newCanvas.width, 'x', newCanvas.height)
+            } else {
+                console.warn('⚠️ 找不到 Canvas 元素')
             }
 
-            // 強制樣式：置底
+            // 強制顯示所有子元素
+            const allChildren = barcodeClone.querySelectorAll('*')
+            allChildren.forEach(child => {
+                child.style.visibility = 'visible'
+                child.style.opacity = '1'
+                child.style.display = child.style.display === 'none' ? 'block' : child.style.display
+            })
+
             barcodeClone.style.cssText = `
-                position: absolute !important;
-                bottom: 10px !important;
-                left: 0 !important;
-                width: 100% !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                z-index: 10 !important;
                 visibility: visible !important;
                 opacity: 1 !important;
+                background: transparent !important;
+                margin-top: 1rem !important;
+                flex-shrink: 0 !important;
+                width: 100% !important;
+                min-height: 120px !important;
+                gap: 0.5rem !important;
             `
-            stagingContainer.appendChild(barcodeClone)
+            
+            contentWrapper.appendChild(barcodeClone)
+            console.log('✅ Barcode 區域已添加到容器')
+            console.log('📊 Barcode 區域內容:', barcodeClone.innerHTML.substring(0, 200))
+        } else {
+            console.error('❌ 找不到 Barcode 區域！')
         }
       }
 
-      // 4. 等待一下 (雖然已經是 Base64，但給 DOM 一點緩衝)
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // 處理圖片跨域
+      console.log('🔄 處理跨域圖片...')
+      await preloadAndConvertImages(stagingContainer)
 
-      // 5. 執行截圖
-      // 如果 Base64 轉換失敗，允許 tainted canvas（至少能截到圖）
-      const allowTaint = !base64Data || !base64Data.startsWith('data:image')
+      // 等待渲染
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      await waitForAllImagesLoaded(stagingContainer)
+
+      // ==========================================
+      // 在內容渲染完成後，添加背景圖層
+      // ==========================================
+      if (includeFrame) {
+        const resultBgUrl = imageUrls.resultBg || '/resources/images/result_bg.png'
+        console.log('🖼️ 根據內容高度添加背景圖層')
+        console.log('📐 實際內容高度:', stagingContainer.scrollHeight)
+        
+        const frameNode = document.createElement('div')
+        frameNode.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: ${stagingContainer.scrollHeight}px;
+          background-image: url('${resultBgUrl}');
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 100% 100%;
+          z-index: 1; 
+          pointer-events: none;
+        `
+        stagingContainer.insertBefore(frameNode, stagingContainer.firstChild)
+        console.log('✅ 背景圖層已添加')
+      }
+
+      // 執行截圖
+      console.log('📸 執行 html2canvas...')
+      console.log('📐 容器尺寸:', stagingContainer.offsetWidth, 'x', stagingContainer.scrollHeight)
+      
       const canvas = await html2canvas(stagingContainer, {
         backgroundColor: '#ffffff',
         scale: 2,
-        useCORS: true, 
-        allowTaint: allowTaint,
+        logging: false,
+        useCORS: true,
+        allowTaint: false,
         width: stagingContainer.offsetWidth,
-        height: stagingContainer.offsetHeight,
+        height: stagingContainer.scrollHeight,
       })
 
+      console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
       return canvas
 
     } catch (error) {
