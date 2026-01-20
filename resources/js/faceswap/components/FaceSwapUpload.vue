@@ -97,6 +97,7 @@
               class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#A90205] bg-white cursor-pointer transition-colors rounded-md"
               style="pointer-events: auto !important; cursor: pointer !important; position: relative; z-index: 20; touch-action: pan-y;"
               @click.stop="triggerFileUpload"
+              @touchend.prevent.stop="triggerFileUpload"
               @dragover.prevent
               @drop.prevent="handleDrop"
             >

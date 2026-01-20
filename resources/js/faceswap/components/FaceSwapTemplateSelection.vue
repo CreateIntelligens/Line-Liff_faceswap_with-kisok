@@ -211,6 +211,7 @@
         data-name="圖片生成紀錄"
         style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important; touch-action: pan-y;"
         @click.stop="showHistory"
+        @touchend.prevent.stop="showHistory"
       >
         圖片生成紀錄
       </div>
