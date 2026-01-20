@@ -564,11 +564,13 @@ export function useScreenshot() {
       // ==========================================
       // 第一層：人臉生成圖 (主角)
       // ==========================================
-      // 找出主圖的 URL
+      // 找出主圖的元素和 URL
       const originalImages = originalContainer.querySelectorAll('img')
+      let mainImageElement = null
       let mainImageUrl = null
       for (let img of originalImages) {
         if (img.src && !img.src.includes('result_bg') && !img.src.includes('data:image/svg') && img.naturalWidth > 50) {
+          mainImageElement = img
           mainImageUrl = img.src
           break
         }
@@ -581,10 +583,24 @@ export function useScreenshot() {
         let base64Data = null
         
         try {
+            // 方法 0: 最優先 - 直接從已載入的圖片元素提取（最可靠，無網路請求）
+            if (mainImageElement && mainImageElement.complete && mainImageElement.naturalWidth > 0) {
+                try {
+                    const extracted = extractImageFromLoadedElement(mainImageElement)
+                    if (extracted && extracted.startsWith('data:image')) {
+                        base64Data = extracted
+                        console.log('✅ 方法 0 成功：從已載入元素提取 Base64')
+                    }
+                } catch (e) {
+                    console.warn('⚠️ 方法 0 失敗:', e.message)
+                }
+            }
+            
             // 方法 A: 如果是 storage.googleapis.com，走代理 API
-            if (mainImageUrl.includes('storage.googleapis.com')) {
+            if (!base64Data && mainImageUrl.includes('storage.googleapis.com')) {
                  try {
                      base64Data = await convertImageViaProxy(mainImageUrl)
+                     if (base64Data) console.log('✅ 方法 A 成功：代理 API')
                  } catch (e) {
                      console.warn('⚠️ 方法 A 失敗:', e.message)
                  }
@@ -594,6 +610,7 @@ export function useScreenshot() {
             if (!base64Data) {
                  try {
                      base64Data = await fetchImageViaBackend(mainImageUrl)
+                     if (base64Data) console.log('✅ 方法 B 成功：後端代理')
                  } catch (e) {
                      console.warn('⚠️ 方法 B 失敗:', e.message)
                  }
@@ -603,6 +620,7 @@ export function useScreenshot() {
             if (!base64Data) {
                  try {
                      base64Data = await convertImageToBase64(mainImageUrl)
+                     if (base64Data) console.log('✅ 方法 C 成功：直接轉換')
                  } catch (e) {
                      console.warn('⚠️ 方法 C 失敗:', e.message)
                  }
@@ -618,10 +636,8 @@ export function useScreenshot() {
             imgNode.src = base64Data
             console.log('✅ 成功注入 Base64 圖片數據，大小:', (base64Data.length / 1024).toFixed(2), 'KB')
         } else {
-            // 萬一真的轉失敗，只好死馬當活馬醫用原網址 (但可能會 CORS)
-            console.warn('⚠️ 轉換失敗，使用原始 URL (風險高)')
-            imgNode.src = mainImageUrl
-            imgNode.crossOrigin = "anonymous" 
+            // 如果所有方法都失敗，拋出錯誤而不是使用原始 URL
+            throw new Error('所有 Base64 轉換方法都失敗，無法截圖。請檢查圖片是否已載入完成。')
         }
 
         // 設定樣式：全螢幕鋪滿
