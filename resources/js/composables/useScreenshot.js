@@ -535,6 +535,7 @@ export function useScreenshot() {
 
   // 截圖功能
   // 截圖功能 (DOM 重組版 - 修正排版)
+  // 截圖功能 (最終暴力版 - 強制 Base64 注入)
   async function captureScreenshot(originalContainer, options = {}) {
     const { includeFrame = false, includeBarcode = false } = options
     let stagingContainer = null 
@@ -542,227 +543,178 @@ export function useScreenshot() {
     if (!originalContainer) throw new Error('找不到截圖區域')
 
     try {
-      console.log('📸 開始截圖流程 (DOM 重組)...', { includeFrame, includeBarcode })
+      console.log('📸 開始截圖 (最終暴力版)...')
 
-      // 1. 創建舞台容器
+      // 1. 準備舞台 (全白背景)
       stagingContainer = document.createElement('div')
       stagingContainer.style.cssText = `
         position: fixed;
         left: -9999px;
         top: 0;
         width: ${originalContainer.offsetWidth}px;
-        height: auto;
-        min-height: ${originalContainer.offsetHeight}px;
+        height: ${originalContainer.offsetHeight}px;
         z-index: -9999;
-        overflow: visible;
+        overflow: hidden;
         background-color: #ffffff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
       `
       document.body.appendChild(stagingContainer)
 
       // ==========================================
-      // 預載入並添加背景圖
+      // 第一層：人臉生成圖 (主角)
       // ==========================================
-      if (includeFrame) {
-        const resultBgUrl = imageUrls.resultBg || '/resources/images/result_bg.png'
-        console.log('🖼️ 預載入背景圖:', resultBgUrl)
-        
-        // 先預載入背景圖
-        await new Promise((resolve) => {
-          const img = new Image()
-          img.onload = () => { 
-            console.log('✅ 背景圖載入成功')
-            resolve() 
-          }
-          img.onerror = () => { 
-            console.warn('⚠️ 背景圖載入失敗') 
-            resolve() 
-          }
-          img.src = resultBgUrl
-          setTimeout(resolve, 2000)
-        })
-      }
-
-      // ==========================================
-      // 內容容器 (包含圖片和 Barcode)
-      // ==========================================
-      const contentWrapper = document.createElement('div')
-      contentWrapper.style.cssText = `
-        position: relative;
-        width: 100%;
-        height: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 0;
-        box-sizing: border-box;
-        z-index: 2;
-      `
-      stagingContainer.appendChild(contentWrapper)
-
-      // ==========================================
-      // 第二層：人臉圖片 (直接克隆已載入的元素)
-      // ==========================================
+      // 找出主圖的 URL
       const originalImages = originalContainer.querySelectorAll('img')
-      let mainImageElement = null
+      let mainImageUrl = null
       for (let img of originalImages) {
         if (img.src && !img.src.includes('result_bg') && !img.src.includes('data:image/svg') && img.naturalWidth > 50) {
-          mainImageElement = img
+          mainImageUrl = img.src
           break
         }
       }
 
-      if (mainImageElement && mainImageElement.complete) {
-        console.log('🖼️ 找到主圖片元素:', mainImageElement.src)
-        console.log('📐 原始圖片尺寸:', mainImageElement.naturalWidth, 'x', mainImageElement.naturalHeight)
+      if (mainImageUrl) {
+        console.log('🖼️ 找到主圖片，正在強制轉為 Base64...')
         
-        // 🔥 關鍵修復：使用 proxy API 獲取 Base64 圖片
-        const originalSrc = mainImageElement.src
-        let finalImageSrc = originalSrc
+        // 🔥 關鍵步驟：直接在這裡轉 Base64，不依賴後面的 preload
+        let base64Data = null
         
-        // 檢查是否為 storage.googleapis.com 圖片
-        if (originalSrc.includes('storage.googleapis.com')) {
-          try {
-            console.log('🔄 使用代理 API 轉換圖片為 Base64...')
-            const proxyUrl = `https://line.uat.tatung2025.aitago.tw/api/static-resource?url=${encodeURIComponent(originalSrc)}&scale=2&format=jpg&quality=90`
-            
-            const response = await fetch(proxyUrl)
-            if (response.ok) {
-              const data = await response.json()
-              if (data.success && data.data && data.data.base64) {
-                finalImageSrc = `data:image/jpeg;base64,${data.data.base64}`
-                console.log('✅ 圖片已轉換為 Base64，大小:', (finalImageSrc.length / 1024).toFixed(2), 'KB')
-              }
+        try {
+            // 方法 A: 如果是 storage.googleapis.com，走代理 API
+            if (mainImageUrl.includes('storage.googleapis.com')) {
+                 try {
+                     base64Data = await convertImageViaProxy(mainImageUrl)
+                 } catch (e) {
+                     console.warn('⚠️ 方法 A 失敗:', e.message)
+                 }
             }
-          } catch (e) {
-            console.warn('⚠️ 代理 API 轉換失敗，使用原始 URL:', e.message)
-          }
+            
+            // 方法 B: 如果上面沒成功，嘗試後端代理
+            if (!base64Data) {
+                 try {
+                     base64Data = await fetchImageViaBackend(mainImageUrl)
+                 } catch (e) {
+                     console.warn('⚠️ 方法 B 失敗:', e.message)
+                 }
+            }
+            
+            // 方法 C: 真的不行，試試看直接轉
+            if (!base64Data) {
+                 try {
+                     base64Data = await convertImageToBase64(mainImageUrl)
+                 } catch (e) {
+                     console.warn('⚠️ 方法 C 失敗:', e.message)
+                 }
+            }
+
+        } catch (e) {
+            console.error('❌ 圖片轉換失敗:', e)
         }
-        
-        // 創建圖片元素
+
+        // 創建圖片元素，直接餵它 Base64
         const imgNode = document.createElement('img')
-        imgNode.src = finalImageSrc
-        imgNode.style.cssText = `
-          width: auto;
-          height: auto;
-          max-width: calc(100% - 3rem);
-          object-fit: contain;
-          flex-shrink: 0;
-          margin: 1.5rem 1.5rem 0 1.5rem;
-          display: block;
-        `
-        contentWrapper.appendChild(imgNode)
-        console.log('✅ 圖片已添加到容器')
-      } else {
-        console.error('❌ 找不到主圖片元素或圖片未載入完成')
-      }
-
-      // ==========================================
-      // 第三層：Barcode 與文字
-      // ==========================================
-      if (includeBarcode) {
-        console.log('📊 重建 Barcode 區域...')
-        
-        let originalBarcodeArea = originalContainer.querySelector('[data-barcode-area]') || originalContainer.querySelector('.barcode-area')
-        
-        if (originalBarcodeArea) {
-            console.log('✅ 找到 Barcode 區域，開始克隆...')
-            const barcodeClone = originalBarcodeArea.cloneNode(true)
-            
-            // 複製 Canvas
-            const oldCanvas = originalBarcodeArea.querySelector('canvas')
-            const newCanvas = barcodeClone.querySelector('canvas')
-            if (oldCanvas && newCanvas) {
-                newCanvas.width = oldCanvas.width
-                newCanvas.height = oldCanvas.height
-                newCanvas.getContext('2d').drawImage(oldCanvas, 0, 0)
-                console.log('✅ Barcode Canvas 已複製:', newCanvas.width, 'x', newCanvas.height)
-            } else {
-                console.warn('⚠️ 找不到 Canvas 元素')
-            }
-
-            // 強制顯示所有子元素
-            const allChildren = barcodeClone.querySelectorAll('*')
-            allChildren.forEach(child => {
-                child.style.visibility = 'visible'
-                child.style.opacity = '1'
-                child.style.display = child.style.display === 'none' ? 'block' : child.style.display
-            })
-
-            barcodeClone.style.cssText = `
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                background: transparent !important;
-                margin: 1rem 1.5rem 1.5rem 1.5rem !important;
-                flex-shrink: 0 !important;
-                width: calc(100% - 3rem) !important;
-                min-height: 120px !important;
-                gap: 0.5rem !important;
-            `
-            
-            contentWrapper.appendChild(barcodeClone)
-            console.log('✅ Barcode 區域已添加到容器')
-            console.log('📊 Barcode 區域內容:', barcodeClone.innerHTML.substring(0, 200))
+        if (base64Data && base64Data.startsWith('data:image')) {
+            imgNode.src = base64Data
+            console.log('✅ 成功注入 Base64 圖片數據，大小:', (base64Data.length / 1024).toFixed(2), 'KB')
         } else {
-            console.error('❌ 找不到 Barcode 區域！')
+            // 萬一真的轉失敗，只好死馬當活馬醫用原網址 (但可能會 CORS)
+            console.warn('⚠️ 轉換失敗，使用原始 URL (風險高)')
+            imgNode.src = mainImageUrl
+            imgNode.crossOrigin = "anonymous" 
         }
+
+        // 設定樣式：全螢幕鋪滿
+        imgNode.style.cssText = `
+          position: absolute;
+          top: 0; 
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          z-index: 1;
+        `
+        stagingContainer.appendChild(imgNode)
       }
 
-      // 等待 Base64 圖片載入
-      console.log('⏳ 等待圖片載入完成...')
-      await new Promise(resolve => setTimeout(resolve, 500))
-      await waitForAllImagesLoaded(stagingContainer)
-      console.log('✅ 所有圖片已載入')
-
       // ==========================================
-      // 在內容渲染完成後，添加背景圖層
+      // 第二層：邊框 (Frame)
       // ==========================================
       if (includeFrame) {
         const resultBgUrl = imageUrls.resultBg || '/resources/images/result_bg.png'
-        console.log('🖼️ 根據內容高度添加背景圖層')
-        console.log('📐 實際內容高度:', stagingContainer.scrollHeight)
-        
         const frameNode = document.createElement('div')
         frameNode.style.cssText = `
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
-          height: ${stagingContainer.scrollHeight}px;
+          height: 100%;
           background-image: url('${resultBgUrl}');
           background-repeat: no-repeat;
           background-position: center;
           background-size: 100% 100%;
-          z-index: 1; 
+          z-index: 5;
           pointer-events: none;
         `
-        stagingContainer.insertBefore(frameNode, stagingContainer.firstChild)
-        console.log('✅ 背景圖層已添加')
+        stagingContainer.appendChild(frameNode)
+        
+        // 確保背景圖載入
+        await new Promise(r => {
+            const img = new Image()
+            img.onload = r
+            img.onerror = r
+            img.src = resultBgUrl
+        })
       }
 
-      // 執行截圖
-      console.log('📸 執行 html2canvas...')
-      console.log('📐 容器尺寸:', stagingContainer.offsetWidth, 'x', stagingContainer.scrollHeight)
-      
+      // ==========================================
+      // 第三層：Barcode (置底)
+      // ==========================================
+      if (includeBarcode) {
+        let originalBarcodeArea = originalContainer.querySelector('[data-barcode-area]') || originalContainer.querySelector('.barcode-area')
+        
+        if (originalBarcodeArea) {
+            const barcodeClone = originalBarcodeArea.cloneNode(true)
+            
+            // 手動複製 Canvas
+            const oldCanvas = originalBarcodeArea.querySelector('canvas')
+            const newCanvas = barcodeClone.querySelector('canvas')
+            if (oldCanvas && newCanvas) {
+                newCanvas.width = oldCanvas.width
+                newCanvas.height = oldCanvas.height
+                newCanvas.getContext('2d').drawImage(oldCanvas, 0, 0)
+            }
+
+            // 強制樣式：置底
+            barcodeClone.style.cssText = `
+                position: absolute !important;
+                bottom: 10px !important;
+                left: 0 !important;
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 10 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            `
+            stagingContainer.appendChild(barcodeClone)
+        }
+      }
+
+      // 4. 等待一下 (雖然已經是 Base64，但給 DOM 一點緩衝)
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // 5. 執行截圖
       const canvas = await html2canvas(stagingContainer, {
         backgroundColor: '#ffffff',
         scale: 2,
-        logging: false,
-        useCORS: false,
+        useCORS: true, 
         allowTaint: false,
         width: stagingContainer.offsetWidth,
-        height: stagingContainer.scrollHeight,
+        height: stagingContainer.offsetHeight,
       })
 
-      console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
       return canvas
 
     } catch (error) {
