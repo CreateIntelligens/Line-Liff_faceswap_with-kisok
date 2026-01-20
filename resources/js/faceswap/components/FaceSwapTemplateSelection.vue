@@ -28,10 +28,8 @@
       <!-- Home icon -->
       <button
         :class="isKioskMode ? 'mt-4' : ''"
-        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;' : 'width: 26px; height: 26px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20;'"
+        :style="isKioskMode ? 'width: 87px; height: 87px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20; touch-action: pan-y;' : 'width: 26px; height: 26px; cursor: pointer !important; border: none; background: none; padding: 0; flex-shrink: 0; pointer-events: auto !important; position: relative; z-index: 20; touch-action: pan-y;'"
         @click.stop="goBack"
-        @mousedown.stop
-        @touchstart.stop
       >
         <img
           :src="imageUrls.homeIcon"
@@ -99,10 +97,8 @@
                   'border-8 scale-105': selectedTemplate === 'play' && !isKioskMode,
                   'border-[16px] scale-105': selectedTemplate === 'play' && isKioskMode
                 }"
-                :style="selectedTemplate === 'play' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'play' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('play')"
-                @mousedown.stop
-                @touchstart.stop
                 @touchend.prevent.stop="selectTemplate('play')"
               >
                 <img
@@ -123,10 +119,8 @@
                   'border-8 scale-105': selectedTemplate === 'wife' && !isKioskMode,
                   'border-[16px] scale-105': selectedTemplate === 'wife' && isKioskMode
                 }"
-                :style="selectedTemplate === 'wife' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'wife' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('wife')"
-                @mousedown.stop
-                @touchstart.stop
                 @touchend.prevent.stop="selectTemplate('wife')"
               >
                 <img
@@ -147,10 +141,8 @@
                   'border-8 scale-105': selectedTemplate === 'love' && !isKioskMode,
                   'border-[16px] scale-105': selectedTemplate === 'love' && isKioskMode
                 }"
-                :style="selectedTemplate === 'love' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'love' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('love')"
-                @mousedown.stop
-                @touchstart.stop
                 @touchend.prevent.stop="selectTemplate('love')"
               >
                 <img
@@ -171,10 +163,8 @@
                   'border-8 scale-105': selectedTemplate === 'super' && !isKioskMode,
                   'border-[16px] scale-105': selectedTemplate === 'super' && isKioskMode
                 }"
-                :style="selectedTemplate === 'super' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: manipulation; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+                :style="selectedTemplate === 'super' ? `border-color: #789511; border-width: ${isKioskMode ? '16px' : '8px'}; touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;` : 'touch-action: pan-y; padding: 0; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
                 @click.stop="selectTemplate('super')"
-                @mousedown.stop
-                @touchstart.stop
                 @touchend.prevent.stop="selectTemplate('super')"
               >
                 <img
@@ -200,10 +190,8 @@
               'flex gap-5 justify-center items-center cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] relative',
               selectedTemplate ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
             ]"
-            :style="selectedTemplate ? 'background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'background-color: #D84729; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
+            :style="selectedTemplate ? 'background-color: #FF7824; touch-action: pan-y; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;' : 'background-color: #D84729; touch-action: pan-y; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;'"
             @click.stop="nextStep"
-            @mousedown.stop
-            @touchstart.stop
             @touchend.prevent.stop="nextStep"
           >
             <img 
@@ -221,10 +209,8 @@
         :class="isKioskMode ? 'mt-16 text-3xl' : 'mt-4 mb-6 text-base'"
         class="font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity"
         data-name="圖片生成紀錄"
-        style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important;"
+        style="pointer-events: auto; position: relative; z-index: 10; cursor: pointer !important; touch-action: pan-y;"
         @click.stop="showHistory"
-        @mousedown.stop
-        @touchstart.stop
       >
         圖片生成紀錄
       </div>

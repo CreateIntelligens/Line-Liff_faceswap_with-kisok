@@ -95,10 +95,8 @@
           <div class="mb-6" style="pointer-events: auto; position: relative; z-index: 10;">
             <div
               class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#A90205] bg-white cursor-pointer transition-colors rounded-md"
-              style="pointer-events: auto !important; cursor: pointer !important; position: relative; z-index: 20; touch-action: manipulation;"
+              style="pointer-events: auto !important; cursor: pointer !important; position: relative; z-index: 20; touch-action: pan-y;"
               @click.stop="triggerFileUpload"
-              @mousedown.stop
-              @touchstart.stop
               @dragover.prevent
               @drop.prevent="handleDrop"
             >
