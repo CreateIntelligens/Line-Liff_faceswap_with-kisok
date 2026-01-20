@@ -103,17 +103,11 @@
         
         <!-- Action Buttons -->
         <button 
-          ref="regenerateButton"
           class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
-          style="
-            background-color: #FF7824; 
-            border: none;
-            outline: none;
-            cursor: pointer !important;
-            pointer-events: auto !important; 
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-          "
+          style="background-color: #FF7824; border: none; outline: none; cursor: pointer !important; pointer-events: auto !important;"
+          @click.stop="handleRegenerate"
+          @mousedown.stop
+          @touchstart.stop
         >
           重新生成
         </button>
@@ -178,7 +172,6 @@ const isDownloading = ref(false)
 
 // Refs for download functionality
 const imageFrameContainer = ref(null)
-const regenerateButton = ref(null)
 
 // 自動刷新相關
 let refreshInterval = null
@@ -504,32 +497,6 @@ onMounted(() => {
   if (props.historyItem) {
     loadHistoryDetail()
   }
-  
-  // 使用純 JavaScript 綁定按鈕點擊事件（解決手機版點擊失效問題）
-  nextTick(() => {
-    if (regenerateButton.value) {
-      const button = regenerateButton.value
-      
-      // 克隆按鈕以清除所有舊事件監聽器
-      const newButton = button.cloneNode(true)
-      button.parentNode.replaceChild(newButton, button)
-      regenerateButton.value = newButton
-      
-      // 綁定 touchend 事件（手機優先）
-      newButton.addEventListener('touchend', (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        handleRegenerate()
-      }, { passive: false, capture: true })
-      
-      // 綁定 click 事件（電腦版）
-      newButton.addEventListener('click', (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        handleRegenerate()
-      }, { capture: true })
-    }
-  })
 })
 
 // 組件卸載時清理刷新間隔
