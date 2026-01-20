@@ -620,9 +620,32 @@ export function useScreenshot() {
         console.log('🖼️ 找到主圖片元素:', mainImageElement.src)
         console.log('📐 原始圖片尺寸:', mainImageElement.naturalWidth, 'x', mainImageElement.naturalHeight)
         
-        // 直接克隆圖片元素（保持原始 URL）
-        const imgNode = mainImageElement.cloneNode(true)
-        imgNode.crossOrigin = 'anonymous' // 嘗試設置 crossOrigin
+        // 🔥 關鍵修復：使用 proxy API 獲取 Base64 圖片
+        const originalSrc = mainImageElement.src
+        let finalImageSrc = originalSrc
+        
+        // 檢查是否為 storage.googleapis.com 圖片
+        if (originalSrc.includes('storage.googleapis.com')) {
+          try {
+            console.log('🔄 使用代理 API 轉換圖片為 Base64...')
+            const proxyUrl = `https://line.uat.tatung2025.aitago.tw/api/static-resource?url=${encodeURIComponent(originalSrc)}&scale=2&format=jpg&quality=90`
+            
+            const response = await fetch(proxyUrl)
+            if (response.ok) {
+              const data = await response.json()
+              if (data.success && data.data && data.data.base64) {
+                finalImageSrc = `data:image/jpeg;base64,${data.data.base64}`
+                console.log('✅ 圖片已轉換為 Base64，大小:', (finalImageSrc.length / 1024).toFixed(2), 'KB')
+              }
+            }
+          } catch (e) {
+            console.warn('⚠️ 代理 API 轉換失敗，使用原始 URL:', e.message)
+          }
+        }
+        
+        // 創建圖片元素
+        const imgNode = document.createElement('img')
+        imgNode.src = finalImageSrc
         imgNode.style.cssText = `
           width: auto;
           height: auto;
@@ -633,7 +656,7 @@ export function useScreenshot() {
           display: block;
         `
         contentWrapper.appendChild(imgNode)
-        console.log('✅ 圖片已克隆並添加到容器')
+        console.log('✅ 圖片已添加到容器')
       } else {
         console.error('❌ 找不到主圖片元素或圖片未載入完成')
       }
@@ -732,20 +755,11 @@ export function useScreenshot() {
       const canvas = await html2canvas(stagingContainer, {
         backgroundColor: '#ffffff',
         scale: 2,
-        logging: true,
-        useCORS: true,
-        allowTaint: true,
+        logging: false,
+        useCORS: false,
+        allowTaint: false,
         width: stagingContainer.offsetWidth,
         height: stagingContainer.scrollHeight,
-        onclone: (clonedDoc) => {
-          // 在克隆的文檔中，嘗試為所有圖片設置 crossOrigin
-          const images = clonedDoc.querySelectorAll('img')
-          images.forEach(img => {
-            if (img.src.includes('storage.googleapis.com')) {
-              img.crossOrigin = 'anonymous'
-            }
-          })
-        }
       })
 
       console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
@@ -765,40 +779,24 @@ export function useScreenshot() {
   async function compressImage(canvas, forPC = false) {
     return new Promise((resolve, reject) => {
       try {
-        // 🔥 修復：使用 toDataURL 而非 toBlob（支持 tainted canvas）
-        try {
-          console.log('🔄 嘗試使用 toDataURL 導出 Canvas...')
-          const dataUrl = canvas.toDataURL('image/png', 1)
-          console.log('✅ Canvas 轉 DataURL 成功')
-          
-          // 將 DataURL 轉換為 Blob
-          const arr = dataUrl.split(',')
-          const mime = arr[0].match(/:(.*?);/)[1]
-          const bstr = atob(arr[1])
-          let n = bstr.length
-          const u8arr = new Uint8Array(n)
-          while (n--) {
-            u8arr[n] = bstr.charCodeAt(n)
+        // 現在無檔案大小限制，所有模式都使用最高品質 PNG
+        canvas.toBlob((pngBlob) => {
+          if (pngBlob) {
+            console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版超高品質 PNG 成功，大小:`, (pngBlob.size / 1024 / 1024).toFixed(2) + 'MB')
+            resolve(pngBlob)
+          } else {
+            // 備用方案：使用高品質 JPEG
+            canvas.toBlob((jpegBlob) => {
+              if (jpegBlob) {
+                console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版高品質 JPEG 成功，大小:`, (jpegBlob.size / 1024 / 1024).toFixed(2) + 'MB')
+                resolve(jpegBlob)
+              } else {
+                reject(new Error('無法生成圖片 blob'))
+              }
+            }, 'image/jpeg', 0.98) // JPEG 格式，98% 極高品質
           }
-          const pngBlob = new Blob([u8arr], { type: mime })
-          
-          console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版超高品質 PNG 成功，大小:`, (pngBlob.size / 1024 / 1024).toFixed(2) + 'MB')
-          resolve(pngBlob)
-        } catch (e) {
-          console.warn('⚠️ toDataURL 方法失敗（可能是 tainted canvas），嘗試 toBlob:', e.message)
-          
-          // Fallback：嘗試原本的 toBlob 方法
-          canvas.toBlob((pngBlob) => {
-            if (pngBlob) {
-              console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版超高品質 PNG 成功（toBlob），大小:`, (pngBlob.size / 1024 / 1024).toFixed(2) + 'MB')
-              resolve(pngBlob)
-            } else {
-              reject(new Error('無法生成圖片 blob'))
-            }
-          }, 'image/png', 1)
-        }
+        }, 'image/png', 1) // PNG 格式，100% 無損品質
       } catch (error) {
-        console.error('❌ 壓縮圖片時發生錯誤:', error)
         reject(error)
       }
     })
