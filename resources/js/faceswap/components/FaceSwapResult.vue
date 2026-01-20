@@ -82,7 +82,8 @@
           alt="載入中"
         />
         <!-- 載入中文字 -->
-        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#A90205]">圖片生成中，請稍候...</p>
+        <p :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="text-[#A90205]">圖片生成中，請稍候...</p>
+        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</p>
     </div>
 
       <!-- 任務失敗錯誤訊息 -->
