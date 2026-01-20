@@ -20,7 +20,8 @@ export function useScreenshot() {
       // 檢查常見的跨域域名
       const crossOriginDomains = [
         'stg-api.fanpokka.ai',
-        'api.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
+        'line.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
+        'api.uat.tatung2025.aitago.tw',  // 舊的 API（保留以兼容）
         'voice.5gao.ai',
         'storage.googleapis.com',
         'firebasestorage.googleapis.com',
@@ -33,7 +34,8 @@ export function useScreenshot() {
       // 如果 URL 解析失敗，檢查是否包含常見的跨域域名
       const crossOriginDomains = [
         'stg-api.fanpokka.ai',
-        'api.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
+        'line.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
+        'api.uat.tatung2025.aitago.tw',  // 舊的 API（保留以兼容）
         'voice.5gao.ai',
         'storage.googleapis.com',
         'firebasestorage.googleapis.com',
