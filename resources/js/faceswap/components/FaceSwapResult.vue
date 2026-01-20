@@ -86,14 +86,14 @@
         <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</p>
     </div>
 
-      <!-- 任務失敗錯誤訊息 -->
+      <!-- 任務失敗顯示圖片 -->
       <div v-if="isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <p :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-red-500 text-center font-bold mb-4">
-          {{ errorMessage }}
-        </p>
-        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#A90205] text-center">
-          3秒後將自動返回首頁...
-        </p>
+        <img 
+          :src="imageUrls.play"
+          :class="isKioskMode ? 'max-w-[700px]' : 'max-w-[300px]'"
+          class="w-full h-auto object-contain"
+          alt="系統忙碌中"
+        />
       </div>
 
       <!-- 生成的圖片 (已廢棄，圖片顯示移到 LIFF 模式區塊中) -->
