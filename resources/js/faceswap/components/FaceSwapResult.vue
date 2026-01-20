@@ -144,7 +144,7 @@
       <!-- LIFF 模式：生成結果顯示 -->
       <div v-else-if="!isLoading && !isFailed && !isKioskMode" class="w-full max-w-[335px] flex flex-col" style="position: relative;">
         <!-- 圖片框架（包含邊框和條碼） -->
-        <div class="w-full mb-6" style="pointer-events: none; position: relative;">
+        <div class="w-full mb-6">
           <FaceSwapImageFrame 
             ref="imageFrameRefMobile"
             :imageUrl="generatedImageUrl || originalImageUrl"
@@ -157,19 +157,19 @@
         </div>
         
         <!-- Email 已發送圖片 -->
-        <div class="w-full mb-4 flex justify-center" style="pointer-events: none; position: relative;">
+        <div class="w-full mb-4 flex justify-center">
           <img 
             src="/resources/images/emailsentimg.png" 
             alt="已將照片發送至您的信箱"
             class="object-contain"
-            style="max-width: 250px; width: 80%; pointer-events: none;"
+            style="max-width: 250px; width: 80%;"
           />
         </div>
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
         <button
           class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-2"
-          style="background-color: #FF7824; border: none; outline: none; cursor: pointer !important; pointer-events: auto !important;"
+          style="background-color: #FF7824;"
           @click.stop="handleRegenerate"
           @mousedown.stop
           @touchstart.stop
@@ -182,7 +182,7 @@
           v-if="!isPCMode && !isKioskMode"
           class="text-base font-bold text-center text-[#A90205] cursor-pointer hover:opacity-80 transition-opacity mb-8"
           data-name="圖片生成紀錄"
-          style="pointer-events: auto; position: relative; cursor: pointer !important;"
+          style="cursor: pointer;"
           @click.stop="handleShowHistory"
           @mousedown.stop
           @touchstart.stop

@@ -441,8 +441,7 @@ function goBack() {
 
 // 處理重新生成
 function handleRegenerate(historyItem) {
-  console.log('🔄 從歷史詳情重新生成:', historyItem)
-  // 不關閉詳情頁面，直接發送重新生成事件到父組件
+  // 發送重新生成事件到父組件
   // 父組件（FaceSwapTemplateSelection）會關閉整個歷史頁面，回到模板選擇
   emit('regenerate')
 }

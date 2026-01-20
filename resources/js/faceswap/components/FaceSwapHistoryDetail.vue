@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'auto' }">
+  <div :style="{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundImage: `url(${imageUrls.pageBg})`, backgroundSize: isKioskMode ? 'cover' : '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
     <!-- Header -->
     <div
       :class="[
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Main Content -->
-    <div style="flex: 1; padding: 0 1.5rem 2rem 1.5rem; pointer-events: auto; position: relative;">
+    <div style="flex: 1; padding: 0 1.5rem 2rem 1.5rem;">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
         <div class="text-[#A90205] text-center">
@@ -77,9 +77,9 @@
       </div>
 
       <!-- Detail Content -->
-      <div v-else-if="historyDetail" class="flex flex-col items-center max-w-md mx-auto" style="pointer-events: auto; position: relative;">
+      <div v-else-if="historyDetail" class="flex flex-col items-center max-w-md mx-auto">
         <!-- Image Frame Container (使用 FaceSwapImageFrame 組件) -->
-        <div class="w-full mb-6" style="pointer-events: none; position: relative; z-index: 1;">
+        <div class="w-full mb-6">
           <FaceSwapImageFrame
             ref="imageFrameContainer"
             :imageUrl="getHistoryImage(historyDetail)"
@@ -92,7 +92,7 @@
         </div>
 
         <!-- Email 已發送圖片 -->
-        <div class="w-full mb-4 flex justify-center" style="pointer-events: none;">
+        <div class="w-full mb-4 flex justify-center">
           <img 
             src="/resources/images/emailsentimg.png" 
             alt="已將照片發送至您的信箱"
@@ -104,7 +104,7 @@
         <!-- Action Buttons -->
         <button 
           class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
-          style="background-color: #FF7824; border: none; outline: none; cursor: pointer !important; pointer-events: auto !important;"
+          style="background-color: #FF7824;"
           @click.stop="handleRegenerate"
           @mousedown.stop
           @touchstart.stop
