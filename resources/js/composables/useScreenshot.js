@@ -568,6 +568,8 @@ export function useScreenshot() {
       const originalImages = originalContainer.querySelectorAll('img')
       let mainImageElement = null
       let mainImageUrl = null
+      let base64Data = null  // 定義在外面，以便後續判斷
+      
       for (let img of originalImages) {
         if (img.src && !img.src.includes('result_bg') && !img.src.includes('data:image/svg') && img.naturalWidth > 50) {
           mainImageElement = img
@@ -580,7 +582,6 @@ export function useScreenshot() {
         console.log('🖼️ 找到主圖片，正在強制轉為 Base64...')
         
         // 🔥 關鍵步驟：直接在這裡轉 Base64，不依賴後面的 preload
-        let base64Data = null
         
         try {
             // 方法 0: 最優先 - 直接從已載入的圖片元素提取（最可靠，無網路請求）
@@ -630,14 +631,22 @@ export function useScreenshot() {
             console.error('❌ 圖片轉換失敗:', e)
         }
 
-        // 創建圖片元素，直接餵它 Base64
+        // 創建圖片元素
         const imgNode = document.createElement('img')
         if (base64Data && base64Data.startsWith('data:image')) {
             imgNode.src = base64Data
             console.log('✅ 成功注入 Base64 圖片數據，大小:', (base64Data.length / 1024).toFixed(2), 'KB')
         } else {
-            // 如果所有方法都失敗，拋出錯誤而不是使用原始 URL
-            throw new Error('所有 Base64 轉換方法都失敗，無法截圖。請檢查圖片是否已載入完成。')
+            // 如果所有 Base64 轉換都失敗，直接克隆已載入的圖片元素
+            // 這樣 html2canvas 可以截到它（即使有 CORS，只要圖片已經在頁面上顯示）
+            if (mainImageElement && mainImageElement.complete) {
+                console.warn('⚠️ 所有 Base64 轉換失敗，使用已載入的圖片元素（可能會有 CORS 限制）')
+                const clonedImg = mainImageElement.cloneNode(true)
+                imgNode.src = clonedImg.src
+                imgNode.crossOrigin = 'anonymous'
+            } else {
+                throw new Error('所有 Base64 轉換方法都失敗，且圖片未載入完成')
+            }
         }
 
         // 設定樣式：全螢幕鋪滿
@@ -724,11 +733,13 @@ export function useScreenshot() {
       await new Promise(resolve => setTimeout(resolve, 500))
 
       // 5. 執行截圖
+      // 如果 Base64 轉換失敗，允許 tainted canvas（至少能截到圖）
+      const allowTaint = !base64Data || !base64Data.startsWith('data:image')
       const canvas = await html2canvas(stagingContainer, {
         backgroundColor: '#ffffff',
         scale: 2,
         useCORS: true, 
-        allowTaint: false,
+        allowTaint: allowTaint,
         width: stagingContainer.offsetWidth,
         height: stagingContainer.offsetHeight,
       })
