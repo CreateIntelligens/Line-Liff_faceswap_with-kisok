@@ -20,7 +20,8 @@ export function useScreenshot() {
       // 檢查常見的跨域域名
       const crossOriginDomains = [
         'stg-api.fanpokka.ai',
-        'api.uat.tatung2025.aitago.tw',  
+        'line.uat.tatung2025.aitago.tw',  // 主要 API 域名
+        'api.uat.tatung2025.aitago.tw',  // 圖片處理 API 域名（雖然目前無效）
         'voice.5gao.ai',
         'storage.googleapis.com',
         'firebasestorage.googleapis.com',
@@ -33,7 +34,8 @@ export function useScreenshot() {
       // 如果 URL 解析失敗，檢查是否包含常見的跨域域名
       const crossOriginDomains = [
         'stg-api.fanpokka.ai',
-        'api.uat.tatung2025.aitago.tw',  // 後端提供的代理 API
+        'line.uat.tatung2025.aitago.tw',  // 主要 API 域名
+        'api.uat.tatung2025.aitago.tw',  // 圖片處理 API 域名（雖然目前無效）
         'voice.5gao.ai',
         'storage.googleapis.com',
         'firebasestorage.googleapis.com',
@@ -692,7 +694,7 @@ export function useScreenshot() {
 
       // 處理圖片跨域
       console.log('🔄 處理跨域圖片...')
-      await preloadAndConvertImages(stagingContainer)
+      const { conversionErrors } = await preloadAndConvertImages(stagingContainer)
 
       // 等待渲染
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -728,15 +730,26 @@ export function useScreenshot() {
       console.log('📸 執行 html2canvas...')
       console.log('📐 容器尺寸:', stagingContainer.offsetWidth, 'x', stagingContainer.scrollHeight)
       
-      const canvas = await html2canvas(stagingContainer, {
+      // 如果有轉換失敗的跨域圖片，使用 allowTaint: true 允許載入（即使無法轉換為 base64）
+      const hasConversionErrors = conversionErrors && conversionErrors.length > 0
+      const html2canvasOptions = {
         backgroundColor: '#ffffff',
         scale: 2,
         logging: false,
-        useCORS: true,
-        allowTaint: false,
         width: stagingContainer.offsetWidth,
         height: stagingContainer.scrollHeight,
-      })
+      }
+      
+      if (hasConversionErrors) {
+        console.warn('⚠️ 檢測到圖片轉換失敗，使用 allowTaint: true 允許載入跨域圖片')
+        html2canvasOptions.useCORS = false
+        html2canvasOptions.allowTaint = true
+      } else {
+        html2canvasOptions.useCORS = true
+        html2canvasOptions.allowTaint = false
+      }
+      
+      const canvas = await html2canvas(stagingContainer, html2canvasOptions)
 
       console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
       return canvas
