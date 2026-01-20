@@ -143,7 +143,7 @@
           <!-- Action Buttons -->
           <div class="flex gap-3 mb-8">
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
+              class="flex flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
               style="background-color: #FF7824; touch-action: manipulation; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;"
               @click.stop="goBack"
               @mousedown.stop
@@ -152,7 +152,7 @@
               重選範本
             </button>
             <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2] relative"
+              class="flex flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold text-[#FBEFC2] relative"
               :class="
                 canGenerate
                   ? 'hover:bg-[#FF7824] active:bg-[#FF7824]'

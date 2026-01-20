@@ -115,7 +115,7 @@
           <div :class="isKioskMode ? 'gap-8 mb-16' : 'gap-3 mb-8'" class="flex">
             <button
               :class="isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base'"
-              class="flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
+              class="flex flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] hover:bg-[#FF7824] active:bg-[#FF7824]"
               style="background-color: #FF7824; touch-action: manipulation;"
               @click="goBack"
               @touchend.prevent="goBack"
@@ -125,7 +125,7 @@
             <button
               :class="[
                 isKioskMode ? 'h-[114px] text-4xl' : 'h-11 text-base',
-                'flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] relative',
+                'flex flex-1 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 font-bold text-[#FBEFC2] relative',
                 selectedCharacter ? 'hover:bg-[#FF7824] active:bg-[#FF7824]' : 'cursor-not-allowed'
               ]"
               :style="selectedCharacter ? 'background-color: #FF7824; touch-action: manipulation;' : 'background-color: #D84729; touch-action: manipulation;'"
