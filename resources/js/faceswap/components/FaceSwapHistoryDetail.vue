@@ -103,13 +103,15 @@
         
         <!-- Action Buttons -->
         <button 
-          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8"
-          style="background-color: #FF7824;"
+          :disabled="isRegenerating"
+          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8 transition-all duration-300"
+          :class="isRegenerating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-90 active:opacity-80'"
+          style="background-color: #FF7824; touch-action: manipulation;"
           @click.stop="handleRegenerate"
           @mousedown.stop
           @touchstart.stop
         >
-          重新生成
+          {{ isRegenerating ? '處理中...' : '重新生成' }}
         </button>
 
         <!-- Usage Instructions -->
@@ -169,6 +171,7 @@ const error = ref(null)
 const historyDetail = ref(null)
 const imageLoadError = ref(false)
 const isDownloading = ref(false)
+const isRegenerating = ref(false)
 
 // Refs for download functionality
 const imageFrameContainer = ref(null)
@@ -409,9 +412,26 @@ function goBack() {
   emit('back')
 }
 
-// 處理重新生成
+// 處理重新生成（加上防止二次點擊）
 function handleRegenerate() {
+  // 如果正在處理中，忽略點擊
+  if (isRegenerating.value) {
+    console.log('⚠️ 正在處理中，請稍候...')
+    return
+  }
+  
+  // 設置處理中狀態
+  isRegenerating.value = true
+  console.log('🔄 開始重新生成流程...')
+  
+  // 發送事件
   emit('regenerate', historyDetail.value)
+  
+  // 1.5 秒後解除鎖定（防止反應慢時的多次點擊）
+  setTimeout(() => {
+    isRegenerating.value = false
+    console.log('✅ 重新生成流程已啟動，可以再次點擊')
+  }, 1500)
 }
 
 // 處理下載（使用截圖功能下載包含邊框和條碼的完整圖片，避免 CORS 問題）
