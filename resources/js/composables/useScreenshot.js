@@ -741,9 +741,17 @@ export function useScreenshot() {
       }
       
       if (hasConversionErrors) {
-        console.warn('⚠️ 檢測到圖片轉換失敗，使用 allowTaint: true 允許載入跨域圖片')
-        html2canvasOptions.useCORS = false
-        html2canvasOptions.allowTaint = true
+        console.warn('⚠️ 檢測到圖片轉換失敗，使用 proxy 選項通過後端代理載入圖片')
+        // 使用後端提供的 static-resource API 作為代理
+        const imageProcessApi = window.endpoint?.imageProcessApi || 'https://api.uat.tatung2025.aitago.tw/api/static-resource'
+        // html2canvas 的 proxy 選項可以是函數，接收圖片 URL 並返回代理 URL
+        html2canvasOptions.proxy = (imageUrl) => {
+          const proxyUrl = `${imageProcessApi}?url=${encodeURIComponent(imageUrl)}`
+          console.log('🔄 html2canvas 通過代理載入圖片:', imageUrl, '->', proxyUrl)
+          return proxyUrl
+        }
+        html2canvasOptions.useCORS = true
+        html2canvasOptions.allowTaint = false
       } else {
         html2canvasOptions.useCORS = true
         html2canvasOptions.allowTaint = false
@@ -775,18 +783,39 @@ export function useScreenshot() {
             resolve(pngBlob)
           } else {
             // 備用方案：使用高品質 JPEG
-            canvas.toBlob((jpegBlob) => {
-              if (jpegBlob) {
-                console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版高品質 JPEG 成功，大小:`, (jpegBlob.size / 1024 / 1024).toFixed(2) + 'MB')
-                resolve(jpegBlob)
+            try {
+              canvas.toBlob((jpegBlob) => {
+                if (jpegBlob) {
+                  console.log(`✅ ${forPC ? 'PC' : 'LIFF'} 版高品質 JPEG 成功，大小:`, (jpegBlob.size / 1024 / 1024).toFixed(2) + 'MB')
+                  resolve(jpegBlob)
+                } else {
+                  const errorMsg = '無法導出包含跨域圖片的截圖。這是瀏覽器的安全限制。\n\n解決方案：\n1. 請聯繫後端在 storage.googleapis.com 設置 CORS\n2. 或提供圖片代理服務（/api/proxy-image 端點）\n3. 或使用 line.uat.tatung2025.aitago.tw 的圖片 URL 而不是直接使用 storage.googleapis.com'
+                  console.error('❌ Tainted Canvas 錯誤:', errorMsg)
+                  reject(new Error(errorMsg))
+                }
+              }, 'image/jpeg', 0.98) // JPEG 格式，98% 極高品質
+            } catch (error) {
+              const errorMsg = error.message || String(error)
+              if (errorMsg.includes('tainted') || errorMsg.includes('Tainted canvases') || errorMsg.includes('SecurityError')) {
+                const friendlyMsg = '無法導出包含跨域圖片的截圖。這是瀏覽器的安全限制。\n\n解決方案：\n1. 請聯繫後端在 storage.googleapis.com 設置 CORS\n2. 或提供圖片代理服務（/api/proxy-image 端點）\n3. 或使用 line.uat.tatung2025.aitago.tw 的圖片 URL 而不是直接使用 storage.googleapis.com'
+                console.error('❌ Tainted Canvas 錯誤:', friendlyMsg)
+                reject(new Error(friendlyMsg))
               } else {
-                reject(new Error('無法生成圖片 blob'))
+                reject(error)
               }
-            }, 'image/jpeg', 0.98) // JPEG 格式，98% 極高品質
+            }
           }
         }, 'image/png', 1) // PNG 格式，100% 無損品質
       } catch (error) {
-        reject(error)
+        // 處理同步錯誤（包括 tainted canvas）
+        const errorMsg = error.message || String(error)
+        if (errorMsg.includes('tainted') || errorMsg.includes('Tainted canvases') || errorMsg.includes('SecurityError')) {
+          const friendlyMsg = '無法導出包含跨域圖片的截圖。這是瀏覽器的安全限制。\n\n解決方案：\n1. 請聯繫後端在 storage.googleapis.com 設置 CORS\n2. 或提供圖片代理服務（/api/proxy-image 端點）\n3. 或使用 line.uat.tatung2025.aitago.tw 的圖片 URL 而不是直接使用 storage.googleapis.com'
+          console.error('❌ Tainted Canvas 錯誤:', friendlyMsg)
+          reject(new Error(friendlyMsg))
+        } else {
+          reject(error)
+        }
       }
     })
   }
