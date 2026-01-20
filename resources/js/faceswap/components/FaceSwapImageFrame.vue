@@ -26,10 +26,16 @@
       </div>
     </div>
 
-    <!-- 條碼區域 -->
-    <div class="relative z-10 flex flex-col items-center" :class="isKioskMode ? 'mt-4' : 'mt-3'">
+    <!-- 條碼區域 - 始終存在於 DOM，透過 CSS 控制顯示 -->
+    <div 
+      data-barcode-area
+      class="relative z-10 flex flex-col items-center"
+      :class="[
+        isKioskMode ? 'mt-4 hidden-for-display' : 'mt-3'
+      ]"
+    >
       <div 
-        class="text-center" 
+        class="text-center"
         :class="isKioskMode ? 'mb-8 text-[36px]' : 'mb-4 text-sm'"
         style="color: #FBEFC2;"
       >
@@ -37,6 +43,8 @@
       </div>
       <div 
         ref="barcodeContainer"
+        data-barcode-container
+        :data-coupon-code="couponCode"
         class=""
         :class="isKioskMode ? 'px-16 py-4' : 'p-2'"
         :style="barcodeContainerStyle"
@@ -44,7 +52,7 @@
         <div class="text-gray-500 text-sm">條碼區域</div>
       </div>
       <div 
-        class="text-center" 
+        class="text-center"
         :class="isKioskMode ? 'text-[36px] mt-8' : 'text-sm mt-4'"
         style="color: #FBEFC2;"
       >
@@ -86,24 +94,21 @@ const barcodeContainer = ref(null)
 
 // 容器樣式
 const containerStyle = computed(() => {
-  // 如果 showFrameForScreenshot 為 true，顯示邊框（用於截圖）
-  if (props.showFrameForScreenshot) {
+  // Kiosk 模式：不顯示邊框背景
+  if (props.isKioskMode) {
     return {
-      backgroundImage: `url(${imageUrls.resultBg})`,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-      backgroundSize: '100% 100%',
-      padding: props.isKioskMode ? '1.5rem' : '1rem'
+      backgroundImage: 'none',
+      padding: '0'
     }
   }
   
-  // 正常顯示：根據模式決定
+  // 非 Kiosk 模式：顯示邊框
   return {
     backgroundImage: `url(${imageUrls.resultBg})`,
-    backgroundRepeat: 'no-repeat', // 不重複，避免出現格線
+    backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
-    backgroundSize: '100% 100%', // 填滿整個容器，保持比例
-    padding: props.isKioskMode ? '1.5rem' : '1rem'
+    backgroundSize: '100% 100%',
+    padding: '1rem'
   }
 })
 
@@ -167,7 +172,7 @@ function generateBarcode() {
     
     // 添加到容器
     barcodeContainer.value.appendChild(canvas)
-    console.log('✅ 條碼生成成功:', props.couponCode)
+    console.log('✅ 條碼生成成功 (Kiosk模式:', props.isKioskMode, '):', props.couponCode)
   } catch (error) {
     console.error('❌ 條碼生成失敗:', error)
     barcodeContainer.value.innerHTML = '<div class="text-gray-500 text-sm">條碼生成失敗</div>'
@@ -202,3 +207,10 @@ defineExpose({
   barcodeContainer
 })
 </script>
+
+<style scoped>
+/* Kiosk 模式下視覺上隱藏 barcode 區域，但物理上保留在 DOM 中 */
+.hidden-for-display {
+  display: none !important;
+}
+</style>

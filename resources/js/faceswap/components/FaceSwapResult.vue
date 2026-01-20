@@ -727,14 +727,13 @@ async function handleSaveImage() {
 
   try {
     isSavingImage.value = true
-    console.log('📸 開始截圖並上傳完整圖片...')
+    console.log('📸 開始收藏圖片流程...')
     
     // 檢查圖片 URL 是否存在
     const currentImageUrl = generatedImageUrl.value || originalImageUrl.value
     if (!currentImageUrl) {
       throw new Error('沒有可用的圖片 URL')
     }
-    console.log('🖼️ 當前圖片 URL:', currentImageUrl)
 
     // 獲取圖片框架容器
     const container = imageFrameRef.value.imageFrameContainer
@@ -742,56 +741,25 @@ async function handleSaveImage() {
       throw new Error('找不到截圖區域')
     }
     
-    // 檢查容器內的圖片元素
-    const imgElement = container.querySelector('img')
-    if (imgElement) {
-      console.log('🖼️ 容器內圖片元素:', {
-        src: imgElement.src,
-        complete: imgElement.complete,
-        naturalWidth: imgElement.naturalWidth,
-        naturalHeight: imgElement.naturalHeight,
-        isPlaceholder: imgElement.src.includes('AI 生成圖片')
-      })
-      
-      // 如果圖片還沒載入完成，等待載入
-      if (!imgElement.complete || imgElement.naturalWidth === 0) {
-        console.log('⏳ 等待圖片載入完成...')
-        await new Promise((resolve) => {
-          const timeout = setTimeout(() => {
-            console.warn('⏰ 圖片載入超時，繼續截圖')
-            resolve()
-          }, 10000)
-          
-          imgElement.onload = () => {
-            clearTimeout(timeout)
-            console.log('✅ 圖片載入完成')
-            resolve()
-          }
-          imgElement.onerror = () => {
-            clearTimeout(timeout)
-            console.error('❌ 圖片載入失敗')
-            resolve()
-          }
-        })
-      }
-    }
-
-    // 1. 截圖整個區域（包含邊框和條碼）
-    const canvas = await captureScreenshot(container)
-    console.log('✅ 截圖完成，Canvas 尺寸:', canvas.width, 'x', canvas.height)
-
-    // 2. 轉換為 Blob
+    // 截圖時包含邊框和 barcode（使用克隆容器，用戶看不到）
+    const canvas = await captureScreenshot(container, {
+      includeFrame: true,
+      includeBarcode: true
+    })
+    
+    console.log('✅ 截圖完成，開始壓縮...')
+    
+    // 轉換為 Blob
     const blob = await compressImage(canvas)
-    console.log('✅ 圖片處理完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
+    console.log('✅ 壓縮完成，大小:', (blob.size / 1024 / 1024).toFixed(2) + 'MB')
 
-    // 3. 上傳到伺服器
+    // 上傳到伺服器
     const uploadedUrl = await smartUploadImage(blob, props.userId, `faceswap-kiosk-${props.taskId}`)
-    console.log('✅ 圖片上傳完成:', uploadedUrl)
+    console.log('✅ 上傳完成:', uploadedUrl)
 
-    // 4. 設置完整圖片 URL 並顯示 QR Code 彈窗
+    // 設置 URL 並顯示 QR Code
     fullImageUrl.value = uploadedUrl
     showQRCodeModal.value = true
-
     showMessage('圖片已準備完成，請掃描 QR Code 獲取', 'success')
 
   } catch (error) {
