@@ -696,6 +696,24 @@ export function useScreenshot() {
       console.log('🔄 處理跨域圖片...')
       const { conversionErrors } = await preloadAndConvertImages(stagingContainer)
 
+      // 如果有轉換失敗的圖片，將它們的 URL 替換為代理 URL
+      if (conversionErrors && conversionErrors.length > 0) {
+        console.warn('⚠️ 檢測到圖片轉換失敗，將圖片 URL 替換為代理 URL')
+        const imageProcessApi = window.endpoint?.imageProcessApi || 'https://api.uat.tatung2025.aitago.tw/api/static-resource'
+        const images = stagingContainer.querySelectorAll('img')
+        images.forEach((img) => {
+          const originalSrc = img.src
+          // 如果是 storage.googleapis.com 的圖片，替換為代理 URL
+          if (originalSrc.includes('storage.googleapis.com') && !originalSrc.includes(imageProcessApi)) {
+            const proxyUrl = `${imageProcessApi}?url=${encodeURIComponent(originalSrc)}`
+            console.log('🔄 替換圖片 URL 為代理 URL:', originalSrc, '->', proxyUrl)
+            img.src = proxyUrl
+            // 設置 crossOrigin 屬性
+            img.crossOrigin = 'anonymous'
+          }
+        })
+      }
+
       // 等待渲染
       await new Promise(resolve => setTimeout(resolve, 1000))
       await waitForAllImagesLoaded(stagingContainer)
@@ -743,15 +761,13 @@ export function useScreenshot() {
       if (hasConversionErrors) {
         console.warn('⚠️ 檢測到圖片轉換失敗，使用 proxy 選項通過後端代理載入圖片')
         // 使用後端提供的 static-resource API 作為代理
+        // html2canvas 的 proxy 選項格式：完整的代理 URL，html2canvas 會自動將圖片 URL 作為參數
         const imageProcessApi = window.endpoint?.imageProcessApi || 'https://api.uat.tatung2025.aitago.tw/api/static-resource'
-        // html2canvas 的 proxy 選項可以是函數，接收圖片 URL 並返回代理 URL
-        html2canvasOptions.proxy = (imageUrl) => {
-          const proxyUrl = `${imageProcessApi}?url=${encodeURIComponent(imageUrl)}`
-          console.log('🔄 html2canvas 通過代理載入圖片:', imageUrl, '->', proxyUrl)
-          return proxyUrl
-        }
+        // proxy 應該是完整的 URL，html2canvas 會自動附加 ?url= 參數
+        html2canvasOptions.proxy = imageProcessApi
         html2canvasOptions.useCORS = true
         html2canvasOptions.allowTaint = false
+        console.log('🔄 html2canvas proxy 設置:', html2canvasOptions.proxy)
       } else {
         html2canvasOptions.useCORS = true
         html2canvasOptions.allowTaint = false
