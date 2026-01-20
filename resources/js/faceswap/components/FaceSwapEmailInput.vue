@@ -14,7 +14,7 @@
     </div>
 
     <!-- 中間主要內容：提示圖 + 輸入框 + 按鈕 -->
-    <div class="flex flex-col items-center pt-8 pb-16" style="pointer-events: auto; position: relative; z-index: 10;">
+    <div class="flex flex-col items-center pt-8 pb-8" style="pointer-events: auto; position: relative; z-index: 10;">
       <!-- 上方提示圖：請輸入您的 Email -->
       <div class="w-full flex justify-center mb-6">
         <img
@@ -25,7 +25,7 @@
       </div>
 
       <!-- Email 輸入框 -->
-      <div class="w-full max-w-[320px] mb-8" style="pointer-events: auto; position: relative; z-index: 10;">
+      <div class="w-full max-w-[320px] mb-4" style="pointer-events: auto; position: relative; z-index: 10;">
         <input
           v-model="email"
           type="email"
@@ -44,7 +44,7 @@
       </div>
 
       <!-- 下一步按鈕 -->
-      <div class="w-full max-w-[320px] mt-4" style="pointer-events: auto; position: relative; z-index: 10;">
+      <div class="w-full max-w-[320px] mt-2" style="pointer-events: auto; position: relative; z-index: 10;">
         <button
           type="button"
           @click.stop="handleNext"
@@ -71,7 +71,7 @@
       </div>
 
       <!-- Email 使用說明圖：放在按鈕下方 -->
-      <div class="w-full flex justify-center mt-20">
+      <div class="w-full flex justify-center mt-8">
         <img
           :src="imageUrls.coupon"
           class="w-full max-w-[360px] h-20 object-contain"

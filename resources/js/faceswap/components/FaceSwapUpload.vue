@@ -46,7 +46,7 @@
     </div>
 
     <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isPCMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#A90205] whitespace-nowrap mx-auto mt-6">
+    <div v-if="!isPCMode" class="flex max-w-full w-[202px] text-base font-bold text-center text-[#A90205] whitespace-nowrap mx-auto mt-0">
       <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
       <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
       <img :src="imageUrls.step2_inprogress" class="w-6 h-6 object-contain" alt="Step 2">
