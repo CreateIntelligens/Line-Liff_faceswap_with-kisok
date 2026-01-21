@@ -85,7 +85,7 @@
           <img
             :src="imageUrls.load"
             alt="處理中"
-            :class="isKioskMode ? 'w-[700px] h-[933px] mb-16' : 'w-[300px] h-[400px] mb-6'"
+            :class="isKioskMode ? 'w-[600px] h-[800px] mb-6' : 'w-[300px] h-[400px] mb-6'"
             class="object-contain"
           />
           <div :class="isKioskMode ? 'text-4xl mb-6' : 'text-lg mb-2'" class="text-[#A90205] font-bold">圖片生成中，請稍後...</div>

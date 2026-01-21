@@ -73,12 +73,19 @@
     <div :class="isKioskMode ? 'px-16 py-12 relative' : 'px-6 py-8'" class="flex-1 flex flex-col items-center" style="pointer-events: auto;">
 
       <!-- 載入中狀態 -->
-      <div v-if="isLoading && !isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
+      <div v-if="isLoading && !isFailed" :class="isKioskMode ? 'py-12' : 'py-1'" class="flex flex-col items-center justify-center">
         <!-- Kiosk: 顯示 loader.gif 動畫 -->
         <img 
           v-if="isKioskMode"
           :src="imageUrls.loaderVideo"
-          class="w-[700px] h-[933px] object-contain mb-8"
+          class="w-[700px] h-[933px] object-contain mb-4"
+          alt="載入中"
+        />
+        <!-- 手機版: 顯示 loader 動畫 -->
+        <img 
+          v-else
+          :src="imageUrls.loaderVideo"
+          class="w-[300px] h-[400px] object-contain mb-2"
           alt="載入中"
         />
         <!-- 載入中文字 -->
