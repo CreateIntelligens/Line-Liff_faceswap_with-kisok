@@ -176,13 +176,15 @@
         
         <!-- 按鈕區域 - 重新生成按鈕 -->
         <button
-          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-2"
-          style="background-color: #FF7824;"
+          class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-2 transition-all duration-300"
+          :class="isReachedLimit ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90 active:opacity-80'"
+          :style="isReachedLimit ? 'background-color: #D84729;' : 'background-color: #FF7824;'"
+          :disabled="isReachedLimit"
           @click.stop="handleRegenerate"
           @mousedown.stop
           @touchstart.stop
         >
-          重新生成
+          {{ isReachedLimit ? '已達生成上限' : '重新生成' }}
         </button>
 
         <!-- 圖片生成紀錄按鈕 -->
@@ -409,6 +411,11 @@ const isFormValid = computed(() => {
   return formData.value.name.trim() !== '' && 
          formData.value.phone.trim() !== '' &&
          /^09\d{8}$/.test(formData.value.phone.trim())
+})
+
+// 檢查是否已達到生成上限（手機版限制 4 次，Kiosk 模式不限制）
+const isReachedLimit = computed(() => {
+  return props.userUsage >= 4 && !props.isKioskMode
 })
 
 // 監聽 selectedTemplate 變化，當值為 'show_history' 時顯示歷史頁面
@@ -801,6 +808,13 @@ async function handleSaveImage() {
 
 // 處理重新生成
 function handleRegenerate() {
+  // 如果已達上限，顯示提示訊息並阻止操作
+  if (isReachedLimit.value) {
+    console.log('⚠️ 已達到生成上限，無法重新生成')
+    alert('您已達到每人 4 張圖片的生成限制，請查看您的生成歷史')
+    return
+  }
+  
   emit('regenerate')
 }
 

@@ -103,15 +103,15 @@
         
         <!-- Action Buttons -->
         <button 
-          :disabled="isRegenerating"
+          :disabled="isRegenerating || isReachedLimit"
           class="w-full py-3.5 rounded-md font-bold text-[#FBEFC2] mb-8 transition-all duration-300"
-          :class="isRegenerating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-90 active:opacity-80'"
-          style="background-color: #FF7824; touch-action: manipulation;"
+          :class="(isRegenerating || isReachedLimit) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-90 active:opacity-80'"
+          :style="isReachedLimit ? 'background-color: #D84729; touch-action: manipulation;' : 'background-color: #FF7824; touch-action: manipulation;'"
           @click.stop="handleRegenerate"
           @mousedown.stop
           @touchstart.stop
         >
-          {{ isRegenerating ? '處理中...' : '重新生成' }}
+          {{ isRegenerating ? '處理中...' : (isReachedLimit ? '已達生成上限' : '重新生成') }}
         </button>
 
         <!-- Usage Instructions -->
@@ -134,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { roadshowService } from '../../services/roadshowService.js'
 import UsageCounter from './UsageCounter.vue'
 import FaceSwapImageFrame from './FaceSwapImageFrame.vue'
@@ -183,6 +183,11 @@ const MAX_REFRESH_COUNT = 100 // 最多刷新 100 次（約 5 分鐘）
 
 // 使用截圖 composable
 const { captureScreenshot, compressImage, downloadToLocal, showMessage } = useScreenshot()
+
+// 檢查是否已達到生成上限（手機版限制 4 次，Kiosk 模式不限制）
+const isReachedLimit = computed(() => {
+  return props.userUsage >= 4 && !props.isKioskMode
+})
 
 // 監聽 historyItem 變化
 watch(() => props.historyItem, async (newItem) => {
@@ -414,6 +419,13 @@ function goBack() {
 
 // 處理重新生成（加上防止二次點擊）
 function handleRegenerate() {
+  // 如果已達上限，顯示提示訊息並阻止操作
+  if (isReachedLimit.value) {
+    console.log('⚠️ 已達到生成上限，無法重新生成')
+    alert('您已達到每人 4 張圖片的生成限制，請查看您的生成歷史')
+    return
+  }
+  
   // 如果正在處理中，忽略點擊
   if (isRegenerating.value) {
     console.log('⚠️ 正在處理中，請稍候...')

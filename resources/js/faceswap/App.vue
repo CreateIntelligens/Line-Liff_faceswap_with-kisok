@@ -565,6 +565,15 @@ function handleGenerate(data) {
 
 // 處理重新生成
 function handleRegenerate() {
+  // 檢查是否已達上限（手機版限制 4 次，Kiosk 模式不限制）
+  if (userUsage.value >= 4 && !isKioskMode.value) {
+    console.log('⚠️ 已達到生成上限，無法重新生成')
+    if (confirm('您已達到每人 4 張圖片的生成限制\n\n是否要查看您的生成歷史？')) {
+      handleShowHistory()
+    }
+    return
+  }
+  
   currentStep.value = 'template-selection'
 }
 
