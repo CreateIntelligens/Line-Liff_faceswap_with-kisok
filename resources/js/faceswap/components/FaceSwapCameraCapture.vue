@@ -89,7 +89,7 @@
             class="object-contain"
           />
           <div :class="isKioskMode ? 'text-4xl mb-6' : 'text-lg mb-2'" class="text-[#A90205] font-bold">圖片生成中，請稍後...</div>
-          <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</div>
+          <div :class="isKioskMode ? 'text-4xl' : 'text-lg'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</div>
         </div>
           </div>
         </div>
