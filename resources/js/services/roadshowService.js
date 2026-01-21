@@ -20,6 +20,45 @@ const getApiConfig = () => {
     };
 };
 
+/**
+ * 帶超時機制的 fetch 請求
+ * @param {string} url - 請求 URL
+ * @param {Object} options - fetch 選項
+ * @param {number} timeout - 超時時間（毫秒）
+ * @returns {Promise} fetch Promise
+ */
+const fetchWithTimeout = (url, options = {}, timeout = 30000) => {
+    return new Promise((resolve, reject) => {
+        // 創建 AbortController 用於取消請求
+        const controller = new AbortController();
+        const signal = controller.signal;
+        
+        // 設置超時計時器
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+            reject(new Error(`請求超時：超過 ${timeout / 1000} 秒未響應`));
+        }, timeout);
+        
+        // 發送請求
+        fetch(url, { ...options, signal })
+            .then(response => {
+                clearTimeout(timeoutId);
+                resolve(response);
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                // 區分超時錯誤和其他錯誤
+                if (error.name === 'AbortError') {
+                    reject(new Error(`請求超時：超過 ${timeout / 1000} 秒未響應`));
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    reject(new Error('網路連線失敗，請檢查您的網路連線'));
+                } else {
+                    reject(error);
+                }
+            });
+    });
+};
+
 export const roadshowService = {
     /**
      * 獲取模板列表
@@ -32,13 +71,13 @@ export const roadshowService = {
             console.log('🔍 發送請求到:', url);
             console.log('🔐 使用認證token:', config.authToken);
             
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${config.authToken}`
                 }
-            });
+            }, config.timeout);
             
             console.log('📡 響應狀態:', response.status, response.statusText);
             console.log('📡 響應頭:', Object.fromEntries(response.headers.entries()));
@@ -80,13 +119,13 @@ export const roadshowService = {
             const config = getApiConfig();
             const url = `${config.baseURL}/face-swap/user/${userId}/avatars`;
             
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${config.authToken}`
                 }
-            });
+            }, config.timeout);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -146,14 +185,14 @@ export const roadshowService = {
                 console.log(`  ${key}:`, value);
             }
             
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${config.authToken}`
                 },
                 body: formData
-            });
+            }, config.timeout);
             
             console.log('📡 響應狀態:', response.status, response.statusText);
             console.log('📡 響應頭:', Object.fromEntries(response.headers.entries()));
@@ -224,13 +263,13 @@ export const roadshowService = {
             console.log('🔍 檢查任務狀態:', url);
             console.log('🔐 使用認證token:', config.authToken);
             
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${config.authToken}`
                 }
-            });
+            }, config.timeout);
             
             console.log('📡 響應狀態:', response.status, response.statusText);
             console.log('📡 響應頭:', Object.fromEntries(response.headers.entries()));
@@ -317,12 +356,13 @@ export const roadshowService = {
             
             console.log('🖼️ 發送圖片資源請求到:', fullUrl);
             
-            const response = await fetch(fullUrl, {
+            const config = getApiConfig();
+            const response = await fetchWithTimeout(fullUrl, {
                 method: 'GET',
                 headers: {
                     'Accept': 'image/*,application/json'
                 }
-            });
+            }, config.timeout);
             
             console.log('📡 響應狀態:', response.status, response.statusText);
             console.log('📡 響應頭:', Object.fromEntries(response.headers.entries()));
@@ -452,14 +492,14 @@ export const roadshowService = {
             if (params.phone) formData.append('phone', params.phone);
             if (params.deviceMode) formData.append('deviceMode', params.deviceMode);
             
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${config.authToken}`
                 },
                 body: formData
-            });
+            }, config.timeout);
 
             console.log('📡 響應狀態:', response.status, response.statusText);
 
@@ -514,7 +554,7 @@ export const roadshowService = {
             console.log('📱 發送結果通知...');
             console.log('📋 通知參數:', params);
 
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -526,7 +566,7 @@ export const roadshowService = {
                     imageUrl: params.imageUrl,
                     shortUrl: params.shortUrl
                 })
-            });
+            }, config.timeout);
 
             console.log('📡 響應狀態:', response.status, response.statusText);
 
@@ -606,7 +646,7 @@ export const roadshowService = {
                 };
             }
 
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -614,7 +654,7 @@ export const roadshowService = {
                     'Authorization': `Bearer ${config.authToken}`
                 },
                 body: JSON.stringify(requestBody)
-            });
+            }, config.timeout);
 
             console.log('📡 響應狀態:', response.status, response.statusText);
 
@@ -683,7 +723,7 @@ export const roadshowService = {
             // 處理 email：空字串轉為 null
             const emailValue = params.email && params.email.trim() !== '' ? params.email : null;
 
-            const response = await fetch(url, {
+            const response = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -695,7 +735,7 @@ export const roadshowService = {
                     phone: params.phone,
                     email: emailValue
                 })
-            });
+            }, config.timeout);
 
             console.log('📡 響應狀態:', response.status, response.statusText);
 
