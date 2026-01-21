@@ -89,10 +89,10 @@
       <!-- 任務失敗顯示圖片 -->
       <div v-if="isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
         <img 
-          :src="imageUrls.play"
+          :src="imageUrls.errorMessage"
           :class="isKioskMode ? 'max-w-[700px]' : 'max-w-[300px]'"
           class="w-full h-auto object-contain"
-          alt="系統忙碌中"
+          alt="網際網路連線異常"
         />
       </div>
 

@@ -36,6 +36,7 @@ import maintitleImg from '../../images/maintitle.png'
 import historyImg from '../../images/history.png'
 import resultBgImg from '../../images/result_bg.png'
 import loaderGif from '../../images/loader.gif'
+import errorMessageImg from '../../images/errormessage.png'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
 export const imageUrls = {
@@ -85,6 +86,7 @@ export const imageUrls = {
   history: historyImg,          // 圖片生成紀錄標題
   resultBg: resultBgImg,         // 生成結果邊框背景圖
   loaderVideo: loaderGif,     // Kiosk 模式載入動畫
+  errorMessage: errorMessageImg,  // 錯誤訊息圖片
 };
 
 // 步驟圖片集合 (兼容 images.js 的 API)
