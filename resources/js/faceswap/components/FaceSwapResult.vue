@@ -7,7 +7,7 @@
     :isPCMode="isPCMode"
     :isKioskMode="isKioskMode"
     :showHistoryPage="showHistoryPage"
-    @back="showHistoryPage = false"
+    @back="handleHistoryBack"
   />
 
   <!-- Main Result Page -->
@@ -721,6 +721,13 @@ async function handleSubmit() {
 
 // 處理返回
 function goBack() {
+  emit('back')
+}
+
+// 處理歷史頁面返回（回到模板選擇頁面）
+function handleHistoryBack() {
+  console.log('🏠 從歷史頁面返回，回到模板選擇頁面')
+  showHistoryPage.value = false
   emit('back')
 }
 

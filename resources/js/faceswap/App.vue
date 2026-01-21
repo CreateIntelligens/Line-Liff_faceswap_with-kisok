@@ -616,7 +616,14 @@ function goBack() {
     // Mobile 和 Kiosk 模式都回到模板選擇
     currentStep.value = 'template-selection'
   } else if (currentStep.value === 'result') {
-    currentStep.value = 'upload'
+    // 如果 selectedTemplate 是 'show_history'，表示是從歷史頁面返回，回到模板選擇
+    if (selectedTemplate.value === 'show_history') {
+      console.log('🏠 從歷史頁面返回，跳轉到模板選擇頁面')
+      currentStep.value = 'template-selection'
+      selectedTemplate.value = '' // 清除標記
+    } else {
+      currentStep.value = 'upload'
+    }
   }
 }
 
