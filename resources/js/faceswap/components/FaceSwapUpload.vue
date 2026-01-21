@@ -610,17 +610,15 @@ async function generateFaceSwap() {
       showFirstDialog.value = false;
       showSecondDialog.value = false;
       
-              // 檢查是否是達到生成限制的錯誤
-        if (error.message.includes('生成限制')) {
-          // 顯示達到限制的錯誤訊息，並提供查看歷史的選項
-          if (confirm(`${error.message}\n\n是否要查看您的生成歷史？`)) {
-            // 可以發送一個事件來顯示歷史
-            emit('showHistory');
-          }
-        } else {
-          // 其他錯誤使用alert
-          alert(`生成失敗：${error.message}`);
-        }
+      // 檢查是否是達到生成限制的錯誤
+      if (error.message.includes('生成限制')) {
+        // 顯示達到限制的錯誤訊息並自動導向歷史頁面
+        alert(`${error.message}\n\n將為您開啟生成歷史頁面`)
+        emit('showHistory');
+      } else {
+        // 其他錯誤使用alert
+        alert(`生成失敗：${error.message}`);
+      }
     }
   }
 }

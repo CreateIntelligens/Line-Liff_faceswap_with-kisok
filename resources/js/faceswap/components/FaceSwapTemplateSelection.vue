@@ -273,9 +273,20 @@ function selectTemplate(templateId) {
 }
 
 function nextStep() {
-  if (selectedTemplate.value) {
-    emit("next-step", { selectedTemplate: selectedTemplate.value });
+  if (!selectedTemplate.value) {
+    return
   }
+  
+  // 檢查是否已達生成上限（手機版限制 4 次，Kiosk 模式不限制）
+  if (props.userUsage >= 4 && !props.isKioskMode) {
+    console.log('⚠️ 已達到生成上限，無法繼續')
+    alert('您已達到每人 4 張圖片的生成限制\n\n將為您開啟生成歷史頁面')
+    // 直接顯示歷史頁面
+    showHistory()
+    return
+  }
+  
+  emit("next-step", { selectedTemplate: selectedTemplate.value })
 }
 
 function showHistory() {
