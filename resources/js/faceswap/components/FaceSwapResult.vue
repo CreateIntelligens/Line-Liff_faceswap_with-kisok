@@ -404,8 +404,22 @@ const isFormValid = computed(() => {
          /^09\d{8}$/.test(formData.value.phone.trim())
 })
 
+// 監聽 selectedTemplate 變化，當值為 'show_history' 時顯示歷史頁面
+watch(() => props.selectedTemplate, (newValue) => {
+  if (newValue === 'show_history') {
+    console.log('📋 檢測到 show_history 標記，顯示歷史頁面')
+    showHistoryPage.value = true
+  }
+}, { immediate: true })
+
 // 組件掛載時檢查任務狀態
 onMounted(async () => {
+  // 如果已經顯示歷史頁面，不需要檢查任務狀態
+  if (showHistoryPage.value) {
+    console.log('📋 歷史頁面已顯示，跳過任務狀態檢查')
+    return
+  }
+  
   // 如果是測試模式，直接顯示預覽
   if (props.taskId === 'test-task-preview') {
     isLoading.value = false
