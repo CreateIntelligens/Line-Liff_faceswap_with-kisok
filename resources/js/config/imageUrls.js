@@ -35,7 +35,7 @@ import couponImg from '../../images/coupon.png'
 import maintitleImg from '../../images/maintitle.png'
 import historyImg from '../../images/history.png'
 import resultBgImg from '../../images/result_bg.png'
-import loaderGif from '../../images/loader.gif'
+import loaderGif from '../../images/loader.webp'
 import errorMessageImg from '../../images/errormessage.png'
 
 // 使用 Vite 的安全 import 語法來獲取圖片 URL，建置時會自動處理雜湊
