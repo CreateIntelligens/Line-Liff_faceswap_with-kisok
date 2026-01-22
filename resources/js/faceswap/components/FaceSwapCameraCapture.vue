@@ -81,14 +81,15 @@
 
         <!-- Loading State -->
         <div v-if="cameraState === 'loading'" class="flex flex-col items-center justify-center h-full">
-          <!-- 顯示 load.png 圖片 -->
+          <!-- Kiosk 模式: 顯示 load.png 圖片 -->
           <img
+            v-if="isKioskMode"
             :src="imageUrls.load"
             alt="處理中"
-            :class="isKioskMode ? 'w-[600px] h-[800px] mb-6' : 'w-[300px] h-[400px] mb-6'"
-            class="object-contain"
+            class="w-[600px] h-[800px] mb-6 object-contain"
           />
-          <div :class="isKioskMode ? 'text-4xl mb-6' : 'text-lg mb-2'" class="text-[#A90205] font-bold">圖片生成中，請稍後...</div>
+          <!-- 手機版: 不顯示圖片，只顯示文字 -->
+          <div :class="isKioskMode ? 'text-4xl mb-6' : 'text-lg mb-4'" class="text-[#A90205] font-bold">圖片生成中，請稍後...</div>
           <div :class="isKioskMode ? 'text-4xl' : 'text-lg'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</div>
         </div>
           </div>

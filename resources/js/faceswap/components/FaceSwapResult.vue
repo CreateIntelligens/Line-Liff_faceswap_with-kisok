@@ -81,16 +81,10 @@
           class="w-[700px] h-[933px] object-contain mb-4"
           alt="載入中"
         />
-        <!-- 手機版: 顯示 loader 動畫 -->
-        <img 
-          v-else
-          :src="imageUrls.loaderVideo"
-          class="w-[300px] h-[400px] object-contain mb-2"
-          alt="載入中"
-        />
+        <!-- 手機版: 不顯示 loader 動畫，只顯示文字 -->
         <!-- 載入中文字 -->
-        <p :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="text-[#A90205] font-bold">圖片生成中，請稍候...</p>
-        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</p>
+        <p :class="isKioskMode ? 'text-3xl mb-4' : 'text-lg mt-8'" class="text-[#A90205] font-bold">圖片生成中，請稍候...</p>
+        <p :class="isKioskMode ? 'text-3xl' : 'text-lg'" class="text-[#A90205] font-bold">完成後將可獲得專屬優惠券</p>
     </div>
 
       <!-- 任務失敗顯示圖片 -->
